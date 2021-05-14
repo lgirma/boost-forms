@@ -28,7 +28,11 @@ export interface FieldConfigBase extends FormConfigBase {
     label?: string
     placeholder?: string
     validationResult?: ValidationResult
-    customOptions?: any
+    customOptions?: any,
+    selectOptions?: {
+        multiple?: boolean
+        options: string[] | {[k: string]: string}
+    }
 }
 
 export type FieldsConfig = {
@@ -65,12 +69,21 @@ export function createForm(forObject, config: WebForm = {}): WebForm {
             },
             id: fieldId,
             required: false,
-            placeholder: null,
+            placeholder: '',
             label: humanize(fieldId),
-            ...config.fieldsConfig[fieldId]
+            ...config.fieldsConfig[fieldId],
+            selectOptions: {
+                multiple: false,
+                ...(config.fieldsConfig[fieldId]?.selectOptions),
+                options: (config.fieldsConfig[fieldId]?.selectOptions == null
+                    ? []
+                    : (config.fieldsConfig[fieldId].selectOptions.options?.constructor === Array
+                        ? (config.fieldsConfig[fieldId].selectOptions.options as string[]).reduce((a,b)=> ({...a, [b]: b}), {})
+                        : config.fieldsConfig[fieldId].selectOptions.options))
+            }
         }
         if (config.fieldsConfig[fieldId].type == null)
-            config.fieldsConfig[fieldId].type = this.guessType(fieldId, fieldValue);
+            config.fieldsConfig[fieldId].type = guessType(fieldId, fieldValue);
     });
 
     return config;

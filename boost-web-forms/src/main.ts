@@ -1,6 +1,46 @@
 import '../style.css'
+import {createForm} from "./FormService";
+import {renderFormVanilla} from "./VanillaFormRenderer";
 
+let forObject = {
+    name: '',
+    email: '',
+    password: '',
+    gender: 0,
+    confirmPassword: '',
+    accountType: '',
+    dateOfBirth: "2001-02-01",
+    receiveNewsletter: false,
+    comment: '',
+    requestDiscount: 5.5
+};
+const form = createForm(forObject, {
+    readonly: false,
+    fieldsConfig: {
+        password: {required: true},
+        email: {required: true, placeholder: 'mail@company.com'},
+        confirmPassword: {type: 'password'},
+        dateOfBirth: {type: 'date'},
+        accountType: {
+            type: 'select',
+            placeholder: '-- Select Account Type --',
+            selectOptions: {
+                options: ['Commercial', 'Personal'],
+            }
+        },
+        gender: {type: 'select',
+            selectOptions: {
+                options: {0: 'Male', 1: 'Female'}
+            }
+        },
+        comment: {type: 'textarea'}
+    },
+    validate: val => (val.password != val.confirmPassword ? 'Passwords do not match.' : '')
+})
 document.querySelector('#app').innerHTML = `
-  <h1>Hello Vite!</h1>
-  <a href="https://vitejs.dev/guide/features.html" target="_blank">Documentation</a>
+    <h3>Registration</h3>
+    ${renderFormVanilla(forObject, form)}
+    <div>
+        <button type="button">Register</button>
+    </div>
 `

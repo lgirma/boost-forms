@@ -9,9 +9,19 @@
     "dev": "vite",
     "build": "vite build",
     "declaration": "tsc --emitDeclarationOnly",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "test": "ts-mocha  -p ./tsconfig.tests.json -r jsdom-global/register 'tests/**/*.ts'"
   },
   "devDependencies": {
+    "@types/chai": "^4.2.18",
+    "@types/mocha": "^8.2.2",
+    "@types/node": "^15.0.3",
+    "chai": "^4.3.4",
+    "jsdom": "16.5.3",
+    "jsdom-global": "3.0.2",
+    "mocha": "^8.4.0",
+    "ts-mocha": "^8.0.0",
+    "typescript": "^4.2.4",
     "vite": "^2.3.0"
   },
   "dependencies": {
