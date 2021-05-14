@@ -44,7 +44,7 @@ export function fileTypeValidator(fileMimeList: string[], errorMessage = 'Please
     }
 }
 
-export function imgTypeFile(val, errorMessage = 'Please, upload images only') {
+export function imgTypeFile(errorMessage = 'Please, upload images only') {
     return fileTypeValidator(MIME_IMAGES, errorMessage)
 }
 

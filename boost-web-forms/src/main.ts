@@ -1,6 +1,7 @@
 import '../style.css'
 import {createForm} from "./FormService";
 import {renderFormVanilla} from "./VanillaFormRenderer";
+import {fileTypeValidator, imgTypeFile, MIME_PDF} from "./Validation";
 
 let forObject = {
     name: '',
@@ -12,7 +13,8 @@ let forObject = {
     dateOfBirth: "2001-02-01",
     receiveNewsletter: false,
     comment: '',
-    requestDiscount: 5.5
+    requestDiscount: 5.5,
+    passportDocument: null
 };
 const form = createForm(forObject, {
     readonly: false,
@@ -28,12 +30,17 @@ const form = createForm(forObject, {
                 options: ['Commercial', 'Personal'],
             }
         },
-        gender: {type: 'select',
+        gender: {
+            type: 'radio',
             selectOptions: {
                 options: {0: 'Male', 1: 'Female'}
             }
         },
-        comment: {type: 'textarea'}
+        comment: {type: 'textarea'},
+        passportDocument: {
+            type: 'file', validate: [fileTypeValidator(MIME_PDF)],
+            required: true
+        }
     },
     validate: val => (val.password != val.confirmPassword ? 'Passwords do not match.' : '')
 })

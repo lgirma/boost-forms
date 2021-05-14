@@ -3,6 +3,5 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
-  margin-top: 60px;
 }
-label {display: block; margin-top: 5px}
+label {display: block; margin-top: 10px; cursor: pointer}
