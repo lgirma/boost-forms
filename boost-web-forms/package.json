@@ -1,0 +1,20 @@
+{
+  "name": "boost-web-forms",
+  "version": "1.0.0",
+  "description": "Web forms utilities",
+  "module": "dist/boost-web-forms.es.js",
+  "main": "dist/boost-web-forms.umd.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "declaration": "tsc --emitDeclarationOnly",
+    "serve": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^2.3.0"
+  },
+  "dependencies": {
+    "boost-web-core": "file:../boost-web-core"
+  }
+}
