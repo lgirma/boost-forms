@@ -28,3 +28,33 @@ export function getFriendlyFileSize(bytes: number) {
 export function isEmpty(str: string) {
     return str == null || str.trim().length == 0;
 }
+
+export function isArray(a) {
+    return a != null && a.constructor === Array;
+}
+
+/**
+ * Creates a dom elements tree.
+ * Example:
+ * createDomTree(["p", "Here is a ", ["a", { href:"http://www.google.com/" }, "link"], "."]);
+ *
+ * Results:
+ *  <p>Here is a <a href="http://www.google.com/">link</a>.</p>
+ */
+export function createDomTree<T>(tag: string, attrs: {}, children?: string|null|Node|Node[]) {
+    const elt = document.createElement(tag)
+    for (const attr in attrs) {
+        if (attrs[attr] != undefined)
+        elt.setAttribute(attr, attrs[attr])
+    }
+    if (children != null) {
+        if (typeof children == 'string')
+            elt.append(children)
+        else if (children.constructor === Array) {
+            elt.append(...children)
+        } else {
+            elt.appendChild(children as Node)
+        }
+    }
+    return elt as unknown as T;
+}
