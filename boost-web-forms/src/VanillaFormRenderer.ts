@@ -26,11 +26,13 @@ export function renderFormVanilla(forObject, formConfig: WebForm, options: Vanil
     for (const field of fields) {
         const label = renderLabelVanilla(field, labelAttrs(field))
         const input = renderFieldVanilla(forObject[field.id], field, inputAttrs(field))
-        let fieldSet = createDomTree('div', {...fieldSetAttrs(field)}, [label, input])
+        let fieldSet = createDomTree('div', {...fieldSetAttrs(field)}, input.type == 'checkbox' && !field.readonly
+            ? [input, label]
+            : [label, input])
         rootElt.append(fieldSet)
     }
 
-    if (!options.excludeSubmitButton)
+    if (!options.excludeSubmitButton && !formConfig.readonly)
         rootElt.appendChild(createDomTree('div', {},
             createDomTree('input', {type: 'submit', value: 'Submit'})))
 
@@ -104,10 +106,10 @@ export function renderLabelVanilla(field: FieldConfigBase, attrs = {}) {
     if (!field.showLabel )
         return ''
     const label = createDomTree('label', {...attrs, for: field.id})
-    if (field.type == 'checkbox')
+    if (field.type == 'checkbox' || field.readonly)
         label.style.display = 'inline-block'
     label.append(field.label)
-    label.innerHTML += (field.required ? '<span style="color:red">*</span>' : '')
+    label.innerHTML += (field.required ? '<span style="color:red">*</span>' : '') + (field.readonly ? ': ' : '')
     return label
 }
 
@@ -129,6 +131,5 @@ export function getFormState(form: WebForm, formElt: HTMLElement) {
             val = elt.value;
         result[fieldId] = val
     }
-    console.log('Form state', result)
     return result
 }

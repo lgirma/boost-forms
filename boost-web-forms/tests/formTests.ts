@@ -1,4 +1,5 @@
 import { describe } from 'mocha';
+// @ts-ignore
 const chai = require('chai');
 const expect = chai.expect;
 
