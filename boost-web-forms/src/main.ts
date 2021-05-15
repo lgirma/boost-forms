@@ -7,8 +7,8 @@ let forObject = {
     name: '',
     email: '',
     password: '',
-    gender: 0,
     confirmPassword: '',
+    gender: 0,
     accountType: '',
     dateOfBirth: "2001-02-01",
     receiveNewsletter: false,
@@ -44,10 +44,4 @@ const form = createForm(forObject, {
     },
     validate: val => (val.password != val.confirmPassword ? 'Passwords do not match.' : '')
 })
-document.querySelector('#app').innerHTML = `
-    <h3>Registration</h3>
-    ${renderFormVanilla(forObject, form)}
-    <div>
-        <button type="button">Register</button>
-    </div>
-`
+document.querySelector('#app').appendChild(renderFormVanilla(forObject, form))

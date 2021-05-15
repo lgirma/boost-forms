@@ -11,7 +11,7 @@ import {notEmpty} from './Validation';
 
 export type FormFieldType = 'text' | 'email' | 'password' | 'file' | 'select' | 'autocomplete' |
     'checkbox' | 'number' | 'date' | 'datetime' | 'time' | 'textarea' | 'markdown' | 'reCaptcha' |
-    'radio';
+    'radio' | 'html';
 
 export interface FormConfigBase {
     validate?: ValidateFunc | ValidateFunc[],
