@@ -1,5 +1,6 @@
 # Boost-Web Forms
 
+### What is it?
 An opinionated tiny (~3 kb) form generator for javascript objects.
 
 It basically turns this object:
@@ -12,15 +13,16 @@ let obj = {
 }
 ```
 
-without any configuration, into this:
+without any configuration or schema, into this:
 
 ![Login Form](resources/login_form.JPG)
 
-Why boost-web-forms?
+### Why boost-web-forms?
 
 * Zero dependencies
 * Works with vanilla JS
 * Built-in react and svelte support
+* No schema needed to generate forms (although supported)
 
 ## Installation
 

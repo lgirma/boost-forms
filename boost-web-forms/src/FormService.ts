@@ -20,12 +20,6 @@ export interface FormConfigBase {
     id?: string
     readonly?: boolean
     showLabel?: boolean
-    step?: number
-    pattern?: string
-    min?: number
-    max?: number
-    maxlength?: number
-    disabled?: boolean
 }
 
 export interface FieldConfigBase extends FormConfigBase {
@@ -37,6 +31,12 @@ export interface FieldConfigBase extends FormConfigBase {
     placeholder?: string
     validationResult?: ValidationResult
     customOptions?: any,
+    step?: number
+    pattern?: string
+    min?: number
+    max?: number
+    maxlength?: number
+    disabled?: boolean
     selectOptions?: {
         multiple?: boolean
         options: string[] | {[k: string]: string}
@@ -82,6 +82,12 @@ export function createFormConfig(forObject, config: WebForm = {}): WebForm {
             required: false,
             placeholder: '',
             label: humanize(fieldId),
+            step: null,
+            pattern: '',
+            min: null,
+            max: null,
+            maxlength: null,
+            disabled: false,
             ...config.fieldsConfig[fieldId],
             selectOptions: {
                 multiple: false,
