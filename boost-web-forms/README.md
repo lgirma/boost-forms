@@ -16,10 +16,22 @@ without any configuration, into this:
 
 ![Login Form](resources/login_form.JPG)
 
+Why boost-web-forms?
+
+* Zero dependencies
+* Works with vanilla JS
+* Built-in react and svelte support
+
 ## Installation
 
 ```shell
 npm i boost-web-forms
+```
+
+or 
+
+```shell
+yarn add boost-web-forms
 ```
 
 ## Getting Started
@@ -55,11 +67,16 @@ document.body.append(formHtmlElt)
 
 **For Svelte**:
 ```jsx
+import {SvelteFormComponent as Form} from 'boost-web-config'
+
 <Form forObject={forObj} formConfig={formConfig} />
 ```
 
 **For React**:
 ```jsx
+import {GetReactFormComponent} from 'boost-web-forms'
+
+const Form = GetReactFormComponent(React.createElement)
 <Form forObject={forObj} formConfig={formConfig} />
 ```
 
@@ -178,7 +195,7 @@ The `validate` field would accept:
 * A custom method that returns an error message
 * A built-in validate method (like `notEmpty`)
 * A built-in validator generator (like `getMinLenValidator(4)`)
-* An array of any of the above
+* An array of, any of the above
 * An async server side validator, like:
   
 ```

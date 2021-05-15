@@ -38,6 +38,8 @@ export function isDate(str: string){
     return _regExp.test(str);
 }
 
+export type DomElement = (string|null|Node|Node)
+
 /**
  * Creates a dom elements tree.
  * Example:
@@ -48,7 +50,7 @@ export function isDate(str: string){
  * Results:
  *  <p>Here is a <a href="http://www.google.com/">link</a>.</p>
  */
-export function createDomTree<T>(tag: string, attrs: {}, children?: string|null|Node|Node[]) {
+export function createDomTree<T extends DomElement>(tag: string, attrs: {} = {}, children: DomElement|DomElement[] = []) : T {
     const elt = document.createElement(tag)
     attrs ??= {}
     for (const attr in attrs) {

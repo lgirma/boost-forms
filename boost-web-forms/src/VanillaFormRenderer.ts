@@ -20,20 +20,20 @@ function getAttrs(attrs: {} = {}) {
 export function renderForm(forObject, formConfig: WebForm, options: VanillaFormOptions = {}): HTMLElement {
     options = options || {}
     const {labelAttrs = f => ({}), fieldSetAttrs = f => ({}), inputAttrs = f => ({}), formAttrs = {}} = options
-    let rootElt = createDomTree(options.excludeFormTag ? 'div' : 'form', {...formAttrs})
+    let rootElt = createDomTree<HTMLFormElement>(options.excludeFormTag ? 'div' : 'form', {...formAttrs})
 
     let fields = Object.keys(formConfig.fieldsConfig).map(k => formConfig.fieldsConfig[k])
     for (const field of fields) {
         const label = renderLabel(field, labelAttrs(field))
         const input = renderField(forObject[field.id], field, inputAttrs(field))
-        let fieldSet = createDomTree('div', {...fieldSetAttrs(field)}, input.type == 'checkbox' && !field.readonly
+        let fieldSet = createDomTree('div', {...fieldSetAttrs(field)}, field.type == 'checkbox' && !field.readonly
             ? [input, label]
             : [label, input])
         rootElt.append(fieldSet)
     }
 
     if (!options.excludeSubmitButton && !formConfig.readonly)
-        rootElt.appendChild(createDomTree('div', {},
+        rootElt.append(createDomTree('div', {},
             createDomTree('input', {type: 'submit', value: 'Submit'})))
 
     rootElt.addEventListener('submit',  async e => {
@@ -53,7 +53,7 @@ export function renderForm(forObject, formConfig: WebForm, options: VanillaFormO
     return rootElt
 }
 
-export function renderField(val, field: FieldConfigBase, attrs = {}) {
+export function renderField(val, field: FieldConfigBase, attrs = {}): string|HTMLElement {
     if (field.readonly) {
         if (field.type == 'checkbox')
             return val ? 'Yes' : 'No'
@@ -63,7 +63,7 @@ export function renderField(val, field: FieldConfigBase, attrs = {}) {
             return result
         }
         else if (field.type == 'markdown') {
-            const result = createDomTree('div')
+            const result = createDomTree<HTMLDivElement>('div')
             result.innerHTML = val
             return result
         }
@@ -91,9 +91,9 @@ export function renderField(val, field: FieldConfigBase, attrs = {}) {
     }
     if (field.type == 'select') {
         return createDomTree('select', {...eltAttrs}, [
-            ...(field.required ? null : [createDomTree('option', {value: ''}, field.placeholder ?? '')]),
+            ...(field.required ? null : [createDomTree<HTMLOptionElement>('option', {value: ''}, field.placeholder ?? '')]),
             ...Object.keys(field.selectOptions.options as {})
-                .map(k => createDomTree('option', {value: k, selected: k == `${val}` ? true : undefined}, field.selectOptions.options[k]))
+                .map(k => createDomTree<HTMLOptionElement>('option', {value: k, selected: k == `${val}` ? true : undefined}, field.selectOptions.options[k]))
         ])
     }
     if (field.type == 'radio') {
@@ -110,10 +110,10 @@ export function renderField(val, field: FieldConfigBase, attrs = {}) {
     return createDomTree('input', {...eltAttrs, type: field.type, value: `${val == null ? '' : val}`})
 }
 
-export function renderLabel(field: FieldConfigBase, attrs = {}) {
+export function renderLabel(field: FieldConfigBase, attrs = {}): string|HTMLLabelElement {
     if (!field.showLabel )
         return ''
-    const label = createDomTree('label', {...attrs, for: field.id})
+    const label = createDomTree<HTMLLabelElement>('label', {...attrs, for: field.id})
     if (field.type == 'checkbox' || field.readonly)
         label.style.display = 'inline-block'
     label.append(field.label)
