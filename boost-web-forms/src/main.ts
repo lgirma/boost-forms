@@ -23,7 +23,6 @@ const form = createFormConfig(forObject, {
         password: {required: true},
         email: {required: true, placeholder: 'mail@company.com'},
         confirmPassword: {type: 'password'},
-        dateOfBirth: {type: 'date'},
         accountType: {
             type: 'select',
             placeholder: '-- Select Account Type --',
@@ -39,7 +38,7 @@ const form = createFormConfig(forObject, {
         },
         comment: {type: 'textarea'},
         passportDocument: {
-            type: 'file', validate: [fileTypeValidator(MIME_PDF)],
+            type: 'files', validate: [fileTypeValidator(MIME_PDF)],
             required: true
         }
     },

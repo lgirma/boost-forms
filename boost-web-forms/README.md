@@ -24,7 +24,9 @@ npm i boost-web-forms
 
 ## Getting Started
 
-To generate a login form, use the source object:
+To generate a login form, 
+
+1. Create your model:
 
 ```javascript
 let forObj = {
@@ -34,7 +36,7 @@ let forObj = {
 }
 ```
 
-Then create a form configuration by calling the `createFormConfig` method:
+2. Then create a form configuration by calling the `createFormConfig` method:
 
 ```javascript
 import {createFormConfig} from 'boost-web-forms'
@@ -42,9 +44,9 @@ import {createFormConfig} from 'boost-web-forms'
 const formConfig = createFormConfig(forObj)
 ```
 
-Then this form object can be rendered into the DOM:
+3. Finally, render the form on the DOM:
 
-**For Vanilla Javascript**:
+**For vanilla javascript**:
 
 ```javascript
 const formHtmlElt = renderForm(forObj, formConfig)
@@ -61,7 +63,7 @@ document.body.append(formHtmlElt)
 <Form forObject={forObj} formConfig={formConfig} />
 ```
 
-This will render a plain HTML form with 3 fields,
+This will render an HTML form with 3 fields,
 
 * Email field with label
 * Password field with type password
@@ -69,9 +71,9 @@ This will render a plain HTML form with 3 fields,
 
 ## Configuring the Form
 
-While the library includes good set of defaults, the form can be configured as one likes.
+While the library includes good set of defaults, the form can be configured as needed.
 
-For example, to make the form readonly and hide all labels, use:
+For example, to make the form read-only and hide all labels, use:
 
 ```javascript
 const formConfig = createFormConfig(forObj, {

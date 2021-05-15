@@ -74,6 +74,12 @@ export function renderField(val, field: FieldConfigBase, attrs = {}) {
         id: field.id,
         name: field.id,
         placeholder: field.placeholder,
+        step: field.step,
+        pattern: field.pattern,
+        min: field.min,
+        max: field.max,
+        maxlength: field.maxlength,
+        disabled: field.disabled,
         ...attrs
     }
 
@@ -99,6 +105,8 @@ export function renderField(val, field: FieldConfigBase, attrs = {}) {
                 ])))
 
     }
+    if (field.type == 'files')
+        return createDomTree('input', {...eltAttrs, type: 'file', multiple: 'multiple', value: `${val == null ? '' : val}`})
     return createDomTree('input', {...eltAttrs, type: field.type, value: `${val == null ? '' : val}`})
 }
 

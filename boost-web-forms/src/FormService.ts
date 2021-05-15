@@ -1,4 +1,4 @@
-import {humanize, isEmpty} from 'boost-web-core';
+import {humanize, isDate} from 'boost-web-core';
 import {
     FormValidationResult,
     ValidationResult,
@@ -9,9 +9,10 @@ import {
 import {notEmpty} from './Validation';
 
 
-export type FormFieldType = 'text' | 'email' | 'password' | 'file' | 'select' | 'autocomplete' |
-    'checkbox' | 'number' | 'date' | 'datetime' | 'time' | 'textarea' | 'markdown' | 'reCaptcha' |
-    'radio' | 'html';
+export type FormFieldType = 'text' | 'email' | 'password' | 'file' | 'files' | 'select' | 'autocomplete' |
+    'checkbox' | 'number' | 'date' | 'time' | 'textarea' | 'markdown' | 'reCaptcha' |
+    'radio' | 'html' | 'color' | 'datetime-local' | 'month' | 'range' | 'reset' | 'tel' | 'url' | 'week' |
+    'multiselect-checkbox' | 'composite';
 
 export interface FormConfigBase {
     validate?: ValidateFunc | ValidateFunc[],
@@ -19,6 +20,12 @@ export interface FormConfigBase {
     id?: string
     readonly?: boolean
     showLabel?: boolean
+    step?: number
+    pattern?: string
+    min?: number
+    max?: number
+    maxlength?: number
+    disabled?: boolean
 }
 
 export interface FieldConfigBase extends FormConfigBase {
@@ -107,8 +114,11 @@ export function guessType(fieldId, fieldValue): FormFieldType {
 
     if (jsType === 'boolean')
         return 'checkbox';
-    if (jsType === 'string')
+    if (jsType === 'string') {
+        if (isDate(fieldValue))
+            return 'date';
         return 'text';
+    }
     if (jsType === 'number')
         return 'number';
 

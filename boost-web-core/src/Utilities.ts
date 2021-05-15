@@ -33,6 +33,11 @@ export function isArray(a) {
     return a != null && a.constructor === Array;
 }
 
+export function isDate(str: string){
+    const _regExp  = new RegExp('[1-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]');
+    return _regExp.test(str);
+}
+
 /**
  * Creates a dom elements tree.
  * Example:
