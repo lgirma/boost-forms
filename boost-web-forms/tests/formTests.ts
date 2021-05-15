@@ -3,7 +3,7 @@ import { describe } from 'mocha';
 const chai = require('chai');
 const expect = chai.expect;
 
-import {guessType, createForm, validateForm} from '../src/FormService'
+import {guessType, createFormConfig, validateForm} from '../src/FormService'
 
 describe('Form service tests', () => {
 
@@ -18,7 +18,7 @@ describe('Form service tests', () => {
 
     it('Sets up form config properly', () => {
         let forObject = {userName: '', password: '', rememberMe: false, agreeToTerms: false};
-        let config = createForm(forObject, {
+        let config = createFormConfig(forObject, {
             showLabel: false,
             fieldsConfig: {
                 agreeToTerms: {
@@ -41,7 +41,7 @@ describe('Form service tests', () => {
 
     it('Validates forms correctly', async () => {
         let forObject = {userName: '', age: 17, email: 'abe@example.com', city: ''};
-        let config = createForm(forObject, {
+        let config = createFormConfig(forObject, {
             showLabel: false,
             fieldsConfig: {
                 userName: {required: true},
@@ -60,7 +60,7 @@ describe('Form service tests', () => {
 
     it('Does form level validation', async () => {
         let registration = {userName: '', password: 'a', confirmPassword: 'b'};
-        let formConfig = createForm(registration, {
+        let formConfig = createFormConfig(registration, {
             validate: form => (form.password != form.confirmPassword ? 'PASSWORDS_DONT_MATCH' : '')
         });
         let validationResult = await validateForm(registration, formConfig);

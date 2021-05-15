@@ -1,7 +1,7 @@
 import '../style.css'
-import {createForm} from "./FormService";
-import {renderFormVanilla} from "./VanillaFormRenderer";
-import {fileTypeValidator, imgTypeFile, MIME_PDF} from "./Validation";
+import {createFormConfig} from "./FormService";
+import {renderForm} from "./VanillaFormRenderer";
+import {fileTypeValidator, imgTypeFile, MIME_PDF, notEmpty, validName} from "./Validation";
 
 let forObject = {
     name: '',
@@ -16,9 +16,10 @@ let forObject = {
     requestDiscount: 5.5,
     passportDocument: null
 };
-const form = createForm(forObject, {
+const form = createFormConfig(forObject, {
     readonly: false,
     fieldsConfig: {
+        name: {validate: [notEmpty, validName]},
         password: {required: true},
         email: {required: true, placeholder: 'mail@company.com'},
         confirmPassword: {type: 'password'},
@@ -44,4 +45,4 @@ const form = createForm(forObject, {
     },
     validate: val => (val.password != val.confirmPassword ? 'Passwords do not match.' : '')
 })
-document.querySelector('#app').appendChild(renderFormVanilla(forObject, form))
+document.querySelector('#app').appendChild(renderForm(forObject, form))

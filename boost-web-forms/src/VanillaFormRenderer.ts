@@ -17,15 +17,15 @@ function getAttrs(attrs: {} = {}) {
     return `${Object.keys(attrs).map(a => `${a}="${attrs[a]}"`).join(' ')}`
 }
 
-export function renderFormVanilla(forObject, formConfig: WebForm, options: VanillaFormOptions = {}): HTMLElement {
+export function renderForm(forObject, formConfig: WebForm, options: VanillaFormOptions = {}): HTMLElement {
     options = options || {}
     const {labelAttrs = f => ({}), fieldSetAttrs = f => ({}), inputAttrs = f => ({}), formAttrs = {}} = options
     let rootElt = createDomTree(options.excludeFormTag ? 'div' : 'form', {...formAttrs})
 
     let fields = Object.keys(formConfig.fieldsConfig).map(k => formConfig.fieldsConfig[k])
     for (const field of fields) {
-        const label = renderLabelVanilla(field, labelAttrs(field))
-        const input = renderFieldVanilla(forObject[field.id], field, inputAttrs(field))
+        const label = renderLabel(field, labelAttrs(field))
+        const input = renderField(forObject[field.id], field, inputAttrs(field))
         let fieldSet = createDomTree('div', {...fieldSetAttrs(field)}, input.type == 'checkbox' && !field.readonly
             ? [input, label]
             : [label, input])
@@ -53,7 +53,7 @@ export function renderFormVanilla(forObject, formConfig: WebForm, options: Vanil
     return rootElt
 }
 
-export function renderFieldVanilla(val, field: FieldConfigBase, attrs = {}) {
+export function renderField(val, field: FieldConfigBase, attrs = {}) {
     if (field.readonly) {
         if (field.type == 'checkbox')
             return val ? 'Yes' : 'No'
@@ -102,7 +102,7 @@ export function renderFieldVanilla(val, field: FieldConfigBase, attrs = {}) {
     return createDomTree('input', {...eltAttrs, type: field.type, value: `${val == null ? '' : val}`})
 }
 
-export function renderLabelVanilla(field: FieldConfigBase, attrs = {}) {
+export function renderLabel(field: FieldConfigBase, attrs = {}) {
     if (!field.showLabel )
         return ''
     const label = createDomTree('label', {...attrs, for: field.id})

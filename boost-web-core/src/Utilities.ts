@@ -36,13 +36,16 @@ export function isArray(a) {
 /**
  * Creates a dom elements tree.
  * Example:
- * createDomTree(["p", "Here is a ", ["a", { href:"http://www.google.com/" }, "link"], "."]);
+ * createDomTree('p', {},
+ *      createDomTree("a", { href:"http://www.google.com/" }, "link"),
+ *      ".");
  *
  * Results:
  *  <p>Here is a <a href="http://www.google.com/">link</a>.</p>
  */
 export function createDomTree<T>(tag: string, attrs: {}, children?: string|null|Node|Node[]) {
     const elt = document.createElement(tag)
+    attrs ??= {}
     for (const attr in attrs) {
         if (attrs[attr] != undefined)
         elt.setAttribute(attr, attrs[attr])

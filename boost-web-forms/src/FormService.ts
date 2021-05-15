@@ -45,7 +45,7 @@ export interface WebForm extends FormConfigBase {
     fieldsConfig?: FieldsConfig
 }
 
-export function createForm(forObject, config: WebForm = {}): WebForm {
+export function createFormConfig(forObject, config: WebForm = {}): WebForm {
     config.fieldsConfig = {
         ...Object.keys(forObject).reduce((a, b) => ({...a, [b]: null}), {}),
         ...config.fieldsConfig
