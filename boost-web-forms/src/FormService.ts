@@ -10,7 +10,7 @@ import {notEmpty} from './Validation';
 
 
 export type FormFieldType = 'text' | 'email' | 'password' | 'file' | 'files' | 'select' | 'autocomplete' |
-    'checkbox' | 'number' | 'date' | 'time' | 'textarea' | 'markdown' | 'reCaptcha' |
+    'checkbox' | 'toggle' | 'number' | 'date' | 'time' | 'textarea' | 'markdown' | 'reCaptcha' |
     'radio' | 'html' | 'color' | 'datetime-local' | 'month' | 'range' | 'reset' | 'tel' | 'url' | 'week' |
     'multiselect-checkbox' | 'composite';
 
@@ -38,10 +38,8 @@ export interface FieldConfigBase extends FormConfigBase {
     maxlength?: number
     disabled?: boolean
     hidden?: boolean
-    selectOptions?: {
-        multiple?: boolean
-        options: string[] | {[k: string]: string}
-    }
+    multiple?: boolean
+    choices?: string[] | {[k: string]: string}
 }
 
 export type FieldsConfig = {
@@ -69,6 +67,8 @@ export function createFormConfig(forObject, config: WebForm = {}): WebForm {
         let fieldId = _;
         let fieldValue = forObject[fieldId];
 
+        let type = config.fieldsConfig[fieldId]?.type ?? guessType(fieldId, fieldValue)
+
         config.fieldsConfig[fieldId] = {
             scale: config.scale,
             readonly: config.readonly,
@@ -89,31 +89,32 @@ export function createFormConfig(forObject, config: WebForm = {}): WebForm {
             max: null,
             maxlength: null,
             disabled: false,
+            multiple: false,
+            type: type,
+            ...guessConfig(config.fieldsConfig[fieldId], fieldValue, type),
             ...config.fieldsConfig[fieldId],
-            selectOptions: {
-                multiple: false,
-                ...(config.fieldsConfig[fieldId]?.selectOptions),
-                options: (config.fieldsConfig[fieldId]?.selectOptions == null
-                    ? []
-                    : (config.fieldsConfig[fieldId].selectOptions.options?.constructor === Array
-                        ? (config.fieldsConfig[fieldId].selectOptions.options as string[]).reduce((a,b)=> ({...a, [b]: b}), {})
-                        : config.fieldsConfig[fieldId].selectOptions.options))
-            }
         }
-        if (config.fieldsConfig[fieldId].type == null)
-            config.fieldsConfig[fieldId].type = guessType(fieldId, fieldValue);
+        config.fieldsConfig[fieldId].choices = (config.fieldsConfig[fieldId]?.choices == null
+            ? {}
+            : (config.fieldsConfig[fieldId].choices?.constructor === Array
+                ? (config.fieldsConfig[fieldId].choices as string[]).reduce((acc, b)=> ({...acc, [b]: b}), {})
+                : config.fieldsConfig[fieldId].choices))
     });
 
     return config;
 }
 
 export function guessType(fieldId, fieldValue): FormFieldType {
-    if (fieldId === 'password')
+    if (fieldId.toLowerCase().endsWith('password'))
         return 'password';
-    if (fieldId === 'email')
+    if (fieldId.toLowerCase().endsWith('email'))
         return 'email';
-    if (fieldId === 'name')
+    if (fieldId.toLowerCase().endsWith('name'))
         return 'text';
+    if (fieldId.toLowerCase().endsWith('quantity') || fieldId.toLowerCase().endsWith('amount'))
+        return 'number';
+    if (fieldId.toLowerCase().endsWith('date') || fieldId.toLowerCase().indexOf('date') == 0)
+        return 'date';
     if (fieldValue == null)
         return 'text';
 
@@ -128,8 +129,22 @@ export function guessType(fieldId, fieldValue): FormFieldType {
     }
     if (jsType === 'number')
         return 'number';
+    if (fieldValue.constructor === Array)
+        return 'radio';
 
     return 'text';
+}
+
+export function guessConfig(fieldConfig: FieldConfigBase, val: any, fieldType: FormFieldType) : FieldConfigBase {
+    let result: FieldConfigBase = {}
+    fieldConfig ??= {}
+    if (val != null && val.constructor === Array && fieldType == 'radio') {
+        result.choices = val.reduce((acc, el) => ({...acc, [el]: humanize(el)}), {})
+        result.multiple = true
+    }
+    if (fieldType == 'password')
+        result.required = true
+    return result
 }
 
 export async function validateForm(forObject, formConfig?: WebForm) : Promise<FormValidationResult> {

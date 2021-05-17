@@ -63,16 +63,16 @@ document.body.append(formHtmlElt)
 
 **For Svelte**:
 ```jsx
-import {SvelteFormComponent as Form} from 'boost-web-forms'
+import {SvelteForm as Form} from 'boost-web-forms'
 
 <Form forObject={forObj} />
 ```
 
 **For React**:
 ```jsx
-import {GetReactFormComponent} from 'boost-web-forms'
+import {GetReactForm} from 'boost-web-forms'
 
-const Form = GetReactFormComponent(React.createElement)
+const Form = GetReactForm(React.createElement)
 <Form forObject={forObj} />
 ```
 
@@ -280,3 +280,4 @@ validationResult = {
   - [ ] Re-using existing html fields as possible
 - [ ] Try making VanillaFormRenderer re-usable by react/svelte renderers
 - [ ] Improve guessType
+- [ ] Document each field type

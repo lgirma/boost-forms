@@ -13,7 +13,7 @@ export interface ReactFormProps {
     options?: WebForm
 }
 
-export function GetReactFormComponent(createElement) {
+export function GetReactForm(createElement) {
     return ({forObject, options}: ReactFormProps) => {
         options = options || createFormConfig(forObject)
         const fields = Object.keys(options.fieldsConfig).map(k => options.fieldsConfig[k])

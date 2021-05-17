@@ -12,6 +12,7 @@ let forObject = {
     accountType: '',
     dateOfBirth: "2001-02-01",
     receiveNewsletter: false,
+    packages: ['newsLetter', 'premiumSupport'],
     comment: '',
     requestDiscount: 5.5,
     passportDocument: null
@@ -20,21 +21,15 @@ const form = createFormConfig(forObject, {
     readonly: false,
     fieldsConfig: {
         name: {validate: [notEmpty, validName]},
-        password: {required: true},
         email: {required: true, placeholder: 'mail@company.com'},
-        confirmPassword: {type: 'password'},
         accountType: {
             type: 'select',
             placeholder: '-- Select Account Type --',
-            selectOptions: {
-                options: ['Commercial', 'Personal'],
-            }
+            choices: ['Commercial', 'Personal']
         },
         gender: {
-            type: 'radio',
-            selectOptions: {
-                options: {0: 'Male', 1: 'Female'}
-            }
+            type: 'radio', readonly: false,
+            choices: {0: 'Male', 1: 'Female'}
         },
         comment: {type: 'textarea'},
         passportDocument: {
@@ -44,4 +39,5 @@ const form = createFormConfig(forObject, {
     },
     validate: val => (val.password != val.confirmPassword ? 'Passwords do not match.' : '')
 })
+console.log(form)
 document.querySelector('#app').appendChild(renderForm(forObject, form))

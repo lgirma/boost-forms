@@ -1,5 +1,5 @@
 import {createFormConfig, FieldConfigBase, FormConfigBase, validateForm, WebForm} from "./FormService";
-import {WebFormEvents, WebFormFieldEvents} from "./Models";
+import {FormValidationResult, WebFormEvents, WebFormFieldEvents} from "./Models";
 import {createDomTree, humanize} from 'boost-web-core'
 
 export interface VanillaFormOptions extends WebFormEvents, WebFormFieldEvents {
@@ -23,17 +23,23 @@ export function getHtmlAttrs(field: FieldConfigBase) {
         max: field.max,
         maxlength: field.maxlength,
         disabled: field.disabled,
-        hidden: field.hidden
+        hidden: field.hidden,
+        required: field.required
     }
-    let result : any = {}
+    let result : any = {
+        name: field.id
+    }
     for (const k in src) {
         let val = field[k]
-        if (val != null) {
+        if (val != null && val != '') {
             if (k == 'disabled') {
                 if (val) result.disabled = true
             }
             else if (k == 'hidden') {
                 if (val) result.hidden = true
+            }
+            else if (k == 'required') {
+                if (val) result.required = true
             }
             else
                 result[k] = val
@@ -42,7 +48,8 @@ export function getHtmlAttrs(field: FieldConfigBase) {
     return result
 }
 
-export function renderForm(forObject, formConfig?: WebForm, options: VanillaFormOptions = {}): HTMLElement {
+export function renderForm(forObject, formConfig?: WebForm, validationResult?: FormValidationResult, options: VanillaFormOptions = {}): HTMLElement {
+    validationResult ??= {errorMessage: '', hasError: false, fields: {}}
     options = options || {}
     formConfig = formConfig || createFormConfig(forObject)
     const {labelAttrs = f => ({}), fieldSetAttrs = f => ({}), inputAttrs = f => ({}), formAttrs = {}} = options
@@ -93,6 +100,11 @@ export function renderField(val, field: FieldConfigBase, attrs = {}): string|HTM
             result.innerHTML = val
             return result
         }
+        else if (field.type == 'select' || field.type == 'radio') {
+            const result = createDomTree<HTMLDivElement>('div')
+            result.innerHTML = field.choices[val]
+            return result
+        }
         return `${val == null ? '' : val}`
     }
 
@@ -107,19 +119,27 @@ export function renderField(val, field: FieldConfigBase, attrs = {}): string|HTM
     if (field.type == 'checkbox') {
         return createDomTree('input', {type: 'checkbox', checked: !!val, ...eltAttrs})
     }
+    if (field.type == 'toggle') {
+        return createDomTree('input', {type: 'checkbox', checked: val != null, value: field.choices[0], ...eltAttrs})
+    }
     if (field.type == 'select') {
         return createDomTree('select', {...eltAttrs}, [
             ...(field.required ? null : [createDomTree<HTMLOptionElement>('option', {value: ''}, field.placeholder ?? '')]),
-            ...Object.keys(field.selectOptions.options as {})
-                .map(k => createDomTree<HTMLOptionElement>('option', {value: k, selected: k == `${val}` ? true : undefined}, field.selectOptions.options[k]))
+            ...Object.keys(field.choices as {})
+                .map(k => createDomTree<HTMLOptionElement>('option', {value: k, selected: k == `${val}` ? true : undefined}, field.choices[k]))
         ])
     }
     if (field.type == 'radio') {
-        return createDomTree('div', {}, Object.keys(field.selectOptions.options as {})
+        return createDomTree('div', {}, Object.keys(field.choices as {})
             .map(k => createDomTree('label', {},
                 [
-                    createDomTree('input', {...eltAttrs, id: undefined, type: 'radio', value: `${k}`, checked: k == val ? true : undefined}),
-                    field.selectOptions.options[k]
+                    createDomTree('input', {
+                        ...eltAttrs,
+                        id: undefined,
+                        type: (field.multiple ? 'checkbox' : 'radio'),
+                        value: `${k}`,
+                        checked: (field.multiple ? (val as any[]).indexOf(k) > -1 : k == val) ? true : undefined}),
+                    field.choices[k]
                 ])))
 
     }
@@ -143,19 +163,25 @@ export function getFormState(form: WebForm, formElt: HTMLElement) {
     let result = {}
     for (const fieldId in form.fieldsConfig) {
         const field = form.fieldsConfig[fieldId]
-        let val: any = ''
-        const elt = formElt.querySelector('#' + fieldId) as any
-        if (field.type == 'radio') {
-            let radios = [...document.getElementsByName(fieldId)] as HTMLInputElement[]
-            val = radios.find((r) => r.checked)?.value ?? ''
-        }
-        else if (field.type == 'checkbox')
-            val = elt.checked
-        else if (field.type == 'file')
-            val = elt.files
-        else
-            val = elt.value;
-        result[fieldId] = val
+        result[fieldId] = readFieldValue(field, formElt)
     }
     return result
+}
+
+export function readFieldValue(field: FieldConfigBase, formElt: HTMLElement) {
+    let val: any = ''
+    const elt = formElt.querySelector('#' + field.id) as any
+    if (field.type == 'radio') {
+        let radios = [...document.getElementsByName(field.id)] as HTMLInputElement[]
+        val = field.multiple
+            ? radios.find(r => r.checked)?.value ?? ''
+            : radios.filter(r => r.checked).map(r => r.value) ?? []
+    }
+    else if (field.type == 'checkbox')
+        val = elt.checked
+    else if (field.type == 'file')
+        val = elt.files
+    else
+        val = elt.value
+    return val
 }
