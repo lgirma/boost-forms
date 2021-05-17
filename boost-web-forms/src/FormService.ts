@@ -37,6 +37,7 @@ export interface FieldConfigBase extends FormConfigBase {
     max?: number
     maxlength?: number
     disabled?: boolean
+    hidden?: boolean
     selectOptions?: {
         multiple?: boolean
         options: string[] | {[k: string]: string}
@@ -131,7 +132,8 @@ export function guessType(fieldId, fieldValue): FormFieldType {
     return 'text';
 }
 
-export async function validateForm(forObject, formConfig: WebForm) : Promise<FormValidationResult> {
+export async function validateForm(forObject, formConfig?: WebForm) : Promise<FormValidationResult> {
+    formConfig = formConfig || createFormConfig(forObject)
     let fieldsConfig = formConfig.fieldsConfig;
     let result: FormValidationResult = {
         hasError: false,

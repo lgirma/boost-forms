@@ -1,4 +1,4 @@
-import {FieldConfigBase, FormConfigBase, validateForm, WebForm} from "./FormService";
+import {createFormConfig, FieldConfigBase, FormConfigBase, validateForm, WebForm} from "./FormService";
 import {WebFormEvents, WebFormFieldEvents} from "./Models";
 import {createDomTree, humanize} from 'boost-web-core'
 
@@ -12,13 +12,39 @@ export interface VanillaFormOptions extends WebFormEvents, WebFormFieldEvents {
     excludeSubmitButton?: boolean
 }
 
-function getAttrs(attrs: {} = {}) {
-    attrs = attrs || {}
-    return `${Object.keys(attrs).map(a => `${a}="${attrs[a]}"`).join(' ')}`
+export function getHtmlAttrs(field: FieldConfigBase) {
+    const src = {
+        id: field.id,
+        name: field.id,
+        placeholder: field.placeholder,
+        step: field.step,
+        pattern: field.pattern,
+        min: field.min,
+        max: field.max,
+        maxlength: field.maxlength,
+        disabled: field.disabled,
+        hidden: field.hidden
+    }
+    let result : any = {}
+    for (const k in src) {
+        let val = field[k]
+        if (val != null) {
+            if (k == 'disabled') {
+                if (val) result.disabled = true
+            }
+            else if (k == 'hidden') {
+                if (val) result.hidden = true
+            }
+            else
+                result[k] = val
+        }
+    }
+    return result
 }
 
-export function renderForm(forObject, formConfig: WebForm, options: VanillaFormOptions = {}): HTMLElement {
+export function renderForm(forObject, formConfig?: WebForm, options: VanillaFormOptions = {}): HTMLElement {
     options = options || {}
+    formConfig = formConfig || createFormConfig(forObject)
     const {labelAttrs = f => ({}), fieldSetAttrs = f => ({}), inputAttrs = f => ({}), formAttrs = {}} = options
     let rootElt = createDomTree<HTMLFormElement>(options.excludeFormTag ? 'div' : 'form', {...formAttrs})
 
@@ -71,15 +97,7 @@ export function renderField(val, field: FieldConfigBase, attrs = {}): string|HTM
     }
 
     const eltAttrs = {
-        id: field.id,
-        name: field.id,
-        placeholder: field.placeholder,
-        step: field.step,
-        pattern: field.pattern,
-        min: field.min,
-        max: field.max,
-        maxlength: field.maxlength,
-        disabled: field.disabled,
+        ...getHtmlAttrs(field),
         ...attrs
     }
 

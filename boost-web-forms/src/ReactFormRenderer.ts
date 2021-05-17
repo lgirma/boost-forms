@@ -1,4 +1,4 @@
-import {FieldConfigBase, FieldsConfig, WebForm} from "./FormService";
+import {createFormConfig, FieldConfigBase, FieldsConfig, WebForm} from "./FormService";
 
 /**
  * Returns a react form component
@@ -10,16 +10,17 @@ import {FieldConfigBase, FieldsConfig, WebForm} from "./FormService";
 
 export interface ReactFormProps {
     forObject: any,
-    formConfig: WebForm
+    options?: WebForm
 }
 
 export function GetReactFormComponent(createElement) {
-    return (props: ReactFormProps) => {
-        const fields = Object.keys(props.formConfig.fieldsConfig).map(k => props.formConfig.fieldsConfig[k])
+    return ({forObject, options}: ReactFormProps) => {
+        options = options || createFormConfig(forObject)
+        const fields = Object.keys(options.fieldsConfig).map(k => options.fieldsConfig[k])
         return createElement("form", { id: "", onSubmit: e => alert('Submitted') },
             fields.map(field => createElement("div", {key: field.id},
                 GetReactLabel(createElement, field),
-                GetReactField(createElement, props.forObject[field.id], field)
+                GetReactField(createElement, forObject[field.id], field)
             )),
             createElement("div", null, createElement("input", {
                 type: "submit",

@@ -50,28 +50,22 @@ let forObj = {
 }
 ```
 
-2. Then create a form configuration by calling the `createFormConfig` method:
-
-```javascript
-import {createFormConfig} from 'boost-web-forms'
-
-const formConfig = createFormConfig(forObj)
-```
-
-3. Finally, render the form on the DOM:
+2. Render the form on the DOM:
 
 **For vanilla javascript**:
 
 ```javascript
-const formHtmlElt = renderForm(forObj, formConfig)
+import {renderForm} from 'boost-web-forms'
+
+const formHtmlElt = renderForm(forObj)
 document.body.append(formHtmlElt)
 ```
 
 **For Svelte**:
 ```jsx
-import {SvelteFormComponent as Form} from 'boost-web-config'
+import {SvelteFormComponent as Form} from 'boost-web-forms'
 
-<Form forObject={forObj} formConfig={formConfig} />
+<Form forObject={forObj} />
 ```
 
 **For React**:
@@ -79,7 +73,7 @@ import {SvelteFormComponent as Form} from 'boost-web-config'
 import {GetReactFormComponent} from 'boost-web-forms'
 
 const Form = GetReactFormComponent(React.createElement)
-<Form forObject={forObj} formConfig={formConfig} />
+<Form forObject={forObj} />
 ```
 
 This will render an HTML form with 3 fields,
@@ -95,10 +89,27 @@ While the library includes good set of defaults, the form can be configured as n
 For example, to make the form read-only and hide all labels, use:
 
 ```javascript
-const formConfig = createFormConfig(forObj, {
+import {createFormConfig} from 'boost-web-forms'
+
+const options = createFormConfig(forObj, {
     readonly: true,
     hideLabel: true
 })
+```
+
+Then pass the configuration to any of the renderers:
+
+```jsx
+// Vanilla
+document.body.append(
+    renderForm(forObj, options)
+)
+
+// React
+<Form forObject={forObj} options={options} />
+
+// Svelte
+<Form forObject={forObj} options={options} />
 ```
 
 All available form configuration
@@ -200,10 +211,12 @@ The `validate` field would accept:
 * An array of, any of the above
 * An async server side validator, like:
   
-```
-async (val) => { 
-    return await (await fetch('http://server.com/username-taken/' + val)).json() 
-})
+```javascript
+async (val) => {
+    return 'true' == await (await fetch('http://server.com/username-taken/' + val)).json()
+        ? 'User name already taken'
+        : ''
+}
 ```
 
 Built-in validation methods:
@@ -258,3 +271,12 @@ validationResult = {
     }
 }
 ```
+
+## Todo
+
+- [x] Remove compulsory dependency on `createFormConfig`
+- [ ] Various layouts (inline, in-table, disabled vs. readonly)
+- [ ] Clean up config fields (hideLabel vs hideLabels, etc.)
+  - [ ] Re-using existing html fields as possible
+- [ ] Try making VanillaFormRenderer re-usable by react/svelte renderers
+- [ ] Improve guessType
