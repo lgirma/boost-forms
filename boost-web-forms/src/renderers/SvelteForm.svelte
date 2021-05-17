@@ -1,7 +1,7 @@
 <script lang="ts">
-    import type {FieldConfigBase, WebForm} from "./FormService";
-    import type {FormValidationResult} from "./Models";
-    import {createFormConfig, validateForm} from "./FormService";
+    import type {FieldConfigBase, WebForm} from "../FormService";
+    import type {FormValidationResult} from "../Models";
+    import {createFormConfig, validateForm} from "../FormService";
     import {renderField, renderLabel} from "./VanillaFormRenderer";
 
     export let forObject

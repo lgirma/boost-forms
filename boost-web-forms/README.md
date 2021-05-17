@@ -171,22 +171,13 @@ All available field configuration
 
 Supported field types are:
 
-* text 
-* email 
-* password 
-* file 
-* select 
-* autocomplete 
-* checkbox 
-* number 
-* date 
-* datetime 
-* time 
-* textarea 
-* markdown 
-* reCaptcha 
-* radio
-* html
+```typescript
+'text' | 'email' | 'password' | 'file' | 'files' | 'select' | 'autocomplete' |
+'checkbox' | 'toggle' | 'number' | 'date' | 'time' | 'textarea' | 'markdown' | 'reCaptcha' |
+'radio' | 'html' | 'color' | 'datetime-local' | 'month' | 'year' | 'range' | 'reset' | 'tel' | 'url' | 'week' |
+'multiselect-checkbox' | 'composite' | 'version' | 'avatar' | 'city' | 'country' | 'ipv4' | 'ipv6' | 'guid' |
+'isbn' | 'location' | 'language' | 'money' | 'timezone' | 'title' | 'gallery' | 'submit'
+```
 
 ## Validation
 
@@ -255,7 +246,7 @@ To run validations manually:
 ```javascript
 import {validateForm} from 'boost-web-form'
 
-let validationResult = validateForm(forObj, formConfig)
+let validationResult = await validateForm(forObj, formConfig)
 ```
 
 Would give a validation result such as:
@@ -279,5 +270,13 @@ validationResult = {
 - [ ] Clean up config fields (hideLabel vs hideLabels, etc.)
   - [ ] Re-using existing html fields as possible
 - [ ] Try making VanillaFormRenderer re-usable by react/svelte renderers
+  - [ ] `renderers/Common.ts`
 - [ ] Improve guessType
 - [ ] Document each field type
+- [ ] Easily manage field types
+  - [ ] Lots of field types (see https://www.mockaroo.com/)
+  - [ ] Make sure renderers support field types
+  - [ ] How to extend type system and renderers
+  - [ ] Manage external dependencies (captcha, gallery, etc.)
+- [ ] Provide easier integration with Bootstrap/Tailwind/Bulma/etc.
+  

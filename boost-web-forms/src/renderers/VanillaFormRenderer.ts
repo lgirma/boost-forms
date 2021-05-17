@@ -1,5 +1,5 @@
-import {createFormConfig, FieldConfigBase, FormConfigBase, validateForm, WebForm} from "./FormService";
-import {FormValidationResult, WebFormEvents, WebFormFieldEvents} from "./Models";
+import {createFormConfig, FieldConfigBase, FormConfigBase, validateForm, WebForm} from "../FormService";
+import {FormValidationResult, WebFormEvents, WebFormFieldEvents} from "../Models";
 import {createDomTree, humanize} from 'boost-web-core'
 
 export interface VanillaFormOptions extends WebFormEvents, WebFormFieldEvents {

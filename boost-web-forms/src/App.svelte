@@ -1,5 +1,5 @@
 <script>
-    import SvelteForm from './SvelteForm.svelte'
+    import SvelteForm from './renderers/SvelteForm.svelte'
     import {createFormConfig} from "./FormService";
     let forObj = {
         userName: '',

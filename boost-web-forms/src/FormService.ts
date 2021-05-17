@@ -11,8 +11,9 @@ import {notEmpty} from './Validation';
 
 export type FormFieldType = 'text' | 'email' | 'password' | 'file' | 'files' | 'select' | 'autocomplete' |
     'checkbox' | 'toggle' | 'number' | 'date' | 'time' | 'textarea' | 'markdown' | 'reCaptcha' |
-    'radio' | 'html' | 'color' | 'datetime-local' | 'month' | 'range' | 'reset' | 'tel' | 'url' | 'week' |
-    'multiselect-checkbox' | 'composite';
+    'radio' | 'html' | 'color' | 'datetime-local' | 'month' | 'year' | 'range' | 'reset' | 'tel' | 'url' | 'week' |
+    'multiselect-checkbox' | 'composite' | 'version' | 'avatar' | 'city' | 'country' | 'ipv4' | 'ipv6' | 'guid' |
+    'isbn' | 'location' | 'language' | 'money' | 'timezone' | 'title' | 'gallery' | 'submit';
 
 export interface FormConfigBase {
     validate?: ValidateFunc | ValidateFunc[],
@@ -40,6 +41,7 @@ export interface FieldConfigBase extends FormConfigBase {
     hidden?: boolean
     multiple?: boolean
     choices?: string[] | {[k: string]: string}
+    variation?: string
 }
 
 export type FieldsConfig = {
@@ -105,16 +107,23 @@ export function createFormConfig(forObject, config: WebForm = {}): WebForm {
 }
 
 export function guessType(fieldId, fieldValue): FormFieldType {
-    if (fieldId.toLowerCase().endsWith('password'))
-        return 'password';
-    if (fieldId.toLowerCase().endsWith('email'))
-        return 'email';
-    if (fieldId.toLowerCase().endsWith('name'))
-        return 'text';
-    if (fieldId.toLowerCase().endsWith('quantity') || fieldId.toLowerCase().endsWith('amount'))
-        return 'number';
-    if (fieldId.toLowerCase().endsWith('date') || fieldId.toLowerCase().indexOf('date') == 0)
-        return 'date';
+    let table = {
+        'password$': 'password',
+        'email$': 'email',
+        'name$': 'name',
+        'quantity$|number$': 'number',
+        '^amount|amount$': 'money',
+        '^date|date$': 'date', '^year|year$': 'year', '^month|month$': 'month',
+        '^phone|phone$': 'tel',
+        '^captcha|captcha^': 'reCaptcha',
+        '^language|language$': 'language'
+    }
+    const fieldIdLower = fieldId.toLowerCase()
+
+    for (const reg in table) {
+        if (RegExp(reg).test(fieldIdLower))
+            return table[reg]
+    }
     if (fieldValue == null)
         return 'text';
 

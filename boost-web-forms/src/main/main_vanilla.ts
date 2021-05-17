@@ -1,7 +1,7 @@
-import '../style.css'
-import {createFormConfig} from "./FormService";
-import {renderForm} from "./VanillaFormRenderer";
-import {fileTypeValidator, imgTypeFile, MIME_PDF, notEmpty, validName} from "./Validation";
+import '../../style.css'
+import {createFormConfig} from "../FormService";
+import {renderForm} from "../renderers/VanillaFormRenderer";
+import {fileTypeValidator, imgTypeFile, MIME_PDF, notEmpty, validName} from "../Validation";
 
 let forObject = {
     name: '',

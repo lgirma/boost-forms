@@ -1,12 +1,5 @@
-import {createFormConfig, FieldConfigBase, FieldsConfig, WebForm} from "./FormService";
-
-/**
- * Returns a react form component
- * @param createElement createElement
- * @param forObject
- * @param formConfig
- * @constructor
- */
+import {createFormConfig, FieldConfigBase, FieldsConfig, WebForm} from "../FormService";
+import {renderField, renderLabel} from "./VanillaFormRenderer";
 
 export interface ReactFormProps {
     forObject: any,
@@ -31,14 +24,11 @@ export function GetReactForm(createElement) {
 }
 
 function GetReactField(createElement, val, field: FieldConfigBase) {
-    return createElement("input", {
-        type: field.type,
-        name: field.id,
-        id: field.id,
-        value: val
-    })
+    let fieldHTML = renderField(val, field)
+    return createElement("span", {dangerouslySetInnerHTML: {__html: (typeof fieldHTML == 'string' ? fieldHTML : fieldHTML.outerHTML)}})
 }
 
 function GetReactLabel(createElement, field: FieldConfigBase) {
-    return createElement("label", { htmlFor: field.id }, field.label)
+    let fieldLabel = renderLabel(field)
+    return createElement("span", {dangerouslySetInnerHTML: {__html: (typeof fieldLabel == 'string' ? fieldLabel : fieldLabel.outerHTML)}})
 }
