@@ -2,6 +2,7 @@ import {createFormConfig} from "../FormService";
 import {GetReactForm} from "../renderers/ReactFormRenderer";
 import React from 'react'
 import ReactDOM from 'react-dom'
+import '../../style.css'
 
 const obj = {
     email: '',

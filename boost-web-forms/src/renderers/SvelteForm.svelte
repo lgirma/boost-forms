@@ -2,35 +2,63 @@
     import type {FieldConfigBase, WebForm} from "../FormService";
     import type {FormValidationResult} from "../Models";
     import {createFormConfig, validateForm} from "../FormService";
-    import {renderField, renderLabel} from "./VanillaFormRenderer";
+    import type {RenderFormOptions} from "./Common";
+    import SvelteFieldLabel from "./SvelteFieldLabel.svelte";
+    import SvelteReadOnlyValue from "./SvelteReadOnlyValue.svelte";
+    import SvelteFormField from "./SvelteFormField.svelte";
+    import { createEventDispatcher } from 'svelte';
+
+    const dispatch = createEventDispatcher();
 
     export let forObject
-    export let options: WebForm|null = null
-    export let validationResult: FormValidationResult|null = {errorMessage: '', fields: {}, hasError: false}
+    export let options: WebForm | null = null
+    export let renderOptions: RenderFormOptions = {}
+    export let validationResult: FormValidationResult | null = {errorMessage: '', fields: {}, hasError: false}
+    let _safeOptions = options ?? createFormConfig(forObject)
+    let _safeRenderOptions = renderOptions ?? { }
 
-    $: config = options || createFormConfig(forObject)
-    $: fields = Object.keys(config.fieldsConfig).map(k => config?.fieldsConfig[k]) as FieldConfigBase[]
+    function initConfig(opts) {
+        _safeOptions = opts ?? createFormConfig(forObject)
+    }
+
+    $: initConfig(options)
 
     async function onSubmit(e) {
-        validationResult = await validateForm(forObject, config)
-        if (validationResult.hasError)
+        validationResult = await validateForm(forObject, _safeOptions)
+        dispatch('validate', {...e, validationResult})
+        if (validationResult.hasError) {
             e.preventDefault()
+            dispatch('error', {...e, validationResult})
+        }
+        else {
+            dispatch('submit', {...e, forObject});
+            options.onsubmit(e)
+        }
     }
+
+    // $: console.log('Config', config)
+    // $: console.log('Change', forObject)
 </script>
 
 <form on:submit={onSubmit}>
-    {#each fields as field}
+    {#each Object.entries(_safeOptions.fieldsConfig) as [fieldId, field]}
         <div>
-            {@html renderLabel(field).outerHTML}
-            {@html renderField(forObject[field.id], field).outerHTML}
-            {#if validationResult.fields[field.id]?.hasError}
-                <div style="color: red">
-                    {validationResult.fields[field.id].errorMessage}
-                </div>
+            {#if field.type !== 'checkbox' || field.readonly}
+                <SvelteFieldLabel {field} />
+            {/if}
+            {#if options.readonly}
+                <SvelteReadOnlyValue value={forObject[fieldId]} {field} />
+            {:else}
+                <SvelteFormField bind:value={forObject[fieldId]} {field} attrs={renderOptions.inputAttrs && renderOptions.inputAttrs(field)} />
+            {/if}
+            {#if field.type === 'checkbox' && !field.readonly}
+                <SvelteFieldLabel {field} />
             {/if}
         </div>
     {/each}
-    <div>
-        <input type="submit" value="Submit" />
-    </div>
+    {#if !renderOptions.excludeSubmitButton}
+        <div>
+            <input type="submit" value="Submit" />
+        </div>
+    {/if}
 </form>

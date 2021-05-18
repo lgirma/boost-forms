@@ -1,61 +1,22 @@
-import {createFormConfig, FieldConfigBase, FormConfigBase, validateForm, WebForm} from "../FormService";
+import {
+    createFormConfig,
+    FieldConfigBase,
+    getFieldConfigs,
+    validateForm,
+    WebForm
+} from "../FormService";
 import {FormValidationResult, WebFormEvents, WebFormFieldEvents} from "../Models";
 import {createDomTree, humanize} from 'boost-web-core'
+import {getHtmlAttrs, RenderFormOptions} from "./Common";
 
-export interface VanillaFormOptions extends WebFormEvents, WebFormFieldEvents {
-    labelAttrs?: (fieldConfig: FieldConfigBase) => {}
-    inputAttrs?: (fieldConfig: FieldConfigBase) => {}
-    fieldSetAttrs?: (fieldConfig: FieldConfigBase) => {}
-    formAttrs?: {}
-
-    excludeFormTag?: boolean
-    excludeSubmitButton?: boolean
-}
-
-export function getHtmlAttrs(field: FieldConfigBase) {
-    const src = {
-        id: field.id,
-        name: field.id,
-        placeholder: field.placeholder,
-        step: field.step,
-        pattern: field.pattern,
-        min: field.min,
-        max: field.max,
-        maxlength: field.maxlength,
-        disabled: field.disabled,
-        hidden: field.hidden,
-        required: field.required
-    }
-    let result : any = {
-        name: field.id
-    }
-    for (const k in src) {
-        let val = field[k]
-        if (val != null && val != '') {
-            if (k == 'disabled') {
-                if (val) result.disabled = true
-            }
-            else if (k == 'hidden') {
-                if (val) result.hidden = true
-            }
-            else if (k == 'required') {
-                if (val) result.required = true
-            }
-            else
-                result[k] = val
-        }
-    }
-    return result
-}
-
-export function renderForm(forObject, formConfig?: WebForm, validationResult?: FormValidationResult, options: VanillaFormOptions = {}): HTMLElement {
+export function renderForm(forObject, formConfig?: WebForm, validationResult?: FormValidationResult, options?: RenderFormOptions): HTMLElement {
     validationResult ??= {errorMessage: '', hasError: false, fields: {}}
-    options = options || {}
+    options = options || {} as any
     formConfig = formConfig || createFormConfig(forObject)
-    const {labelAttrs = f => ({}), fieldSetAttrs = f => ({}), inputAttrs = f => ({}), formAttrs = {}} = options
-    let rootElt = createDomTree<HTMLFormElement>(options.excludeFormTag ? 'div' : 'form', {...formAttrs})
+    const {labelAttrs = f => ({}), fieldSetAttrs = f => ({}), inputAttrs = f => ({})} = options
+    let rootElt = createDomTree<HTMLFormElement>(options.excludeFormTag ? 'div' : 'form'/*, {...formAttrs}*/)
 
-    let fields = Object.keys(formConfig.fieldsConfig).map(k => formConfig.fieldsConfig[k])
+    let fields = getFieldConfigs(formConfig)
     for (const field of fields) {
         const label = renderLabel(field, labelAttrs(field))
         const input = renderField(forObject[field.id], field, inputAttrs(field))
@@ -80,8 +41,8 @@ export function renderForm(forObject, formConfig?: WebForm, validationResult?: F
             options.onValidation(e, validationResult)
     });
 
-    if (options.onSubmit)
-        rootElt.addEventListener('submit', options.onSubmit)
+    if (formConfig.onsubmit)
+        rootElt.addEventListener('submit', formConfig.onsubmit)
 
     return rootElt
 }
@@ -149,7 +110,7 @@ export function renderField(val, field: FieldConfigBase, attrs = {}): string|HTM
 }
 
 export function renderLabel(field: FieldConfigBase, attrs = {}): string|HTMLLabelElement {
-    if (!field.showLabel )
+    if (field.hideLabel)
         return ''
     const label = createDomTree<HTMLLabelElement>('label', {...attrs, for: field.id})
     if (field.type == 'checkbox' || field.readonly)

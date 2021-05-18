@@ -15,42 +15,52 @@ export type FormFieldType = 'text' | 'email' | 'password' | 'file' | 'files' | '
     'multiselect-checkbox' | 'composite' | 'version' | 'avatar' | 'city' | 'country' | 'ipv4' | 'ipv6' | 'guid' |
     'isbn' | 'location' | 'language' | 'money' | 'timezone' | 'title' | 'gallery' | 'submit';
 
-export interface FormConfigBase {
+/*export interface FormConfigBase extends Partial<HTMLElement> {
     validate?: ValidateFunc | ValidateFunc[],
     scale?: number
-    id?: string
+    hideLabels?: boolean
     readonly?: boolean
-    showLabel?: boolean
-}
+    id?: string
+}*/
 
-export interface FieldConfigBase extends FormConfigBase {
+export interface FieldConfigBase extends Partial<HTMLInputElement> {
     icon?: string
     type?: FormFieldType
-    required?: boolean
     helpText?: string
     label?: string
-    placeholder?: string
     validationResult?: ValidationResult
     customOptions?: any,
-    step?: number
-    pattern?: string
-    min?: number
-    max?: number
-    maxlength?: number
-    disabled?: boolean
-    hidden?: boolean
+    maxlength?: string
     multiple?: boolean
     choices?: string[] | {[k: string]: string}
     variation?: string
+    hideLabel?: boolean
+    scale?: number
+    readonly?: boolean
+    validate?: ValidateFunc | ValidateFunc[]
+
+    //disabled?: boolean
+    //hidden?: boolean
+    //step?: string
+    //pattern?: string
+    //min?: string
+    //max?: string
+    //required?: boolean
+    //placeholder?: string
 }
 
 export type FieldsConfig = {
     [key: string]: FieldConfigBase;
 }
 
-export interface WebForm extends FormConfigBase {
+export interface WebForm extends Partial<HTMLFormElement> {
     columns?: number
     fieldsConfig?: FieldsConfig
+    validate?: ValidateFunc | ValidateFunc[],
+    scale?: number
+    hideLabels?: boolean
+    readonly?: boolean
+    validationResult?: FormValidationResult
 }
 
 export function createFormConfig(forObject, config: WebForm = {}): WebForm {
@@ -60,7 +70,7 @@ export function createFormConfig(forObject, config: WebForm = {}): WebForm {
     }
     config.scale ??= 1;
     config.readonly ??= false;
-    config.showLabel ??= true;
+    config.hideLabels ??= false;
     config.columns ??= 1;
     if (config.columns < 1)
         config.columns = 1;
@@ -74,7 +84,7 @@ export function createFormConfig(forObject, config: WebForm = {}): WebForm {
         config.fieldsConfig[fieldId] = {
             scale: config.scale,
             readonly: config.readonly,
-            showLabel: config.showLabel,
+            hideLabel: config.hideLabels,
             icon: null,
             helpText: '',
             validationResult: {
@@ -82,15 +92,15 @@ export function createFormConfig(forObject, config: WebForm = {}): WebForm {
                 hasError: false
             },
             id: fieldId,
-            required: false,
-            placeholder: '',
             label: humanize(fieldId),
-            step: null,
-            pattern: '',
-            min: null,
-            max: null,
-            maxlength: null,
-            disabled: false,
+            // required: false,
+            // placeholder: '',
+            // step: null,
+            // pattern: '',
+            // min: null,
+            // max: null,
+            // maxlength: null,
+            // disabled: false,
             multiple: false,
             type: type,
             ...guessConfig(config.fieldsConfig[fieldId], fieldValue, type),
@@ -211,4 +221,8 @@ export async function runValidator(validator: ValidateFunc | ValidateFunc[], val
         return getValidationResult('Failed to validate this entry.');
     }
     return getValidationResult();
+}
+
+export function getFieldConfigs(form: WebForm): FieldConfigBase[] {
+    return Object.keys(form.fieldsConfig).map(k => form.fieldsConfig[k])
 }

@@ -24,7 +24,6 @@ export type ValidateFunc = AsyncValidateFunc | ((val, errorMessage?: string) => 
 export type FormValidateFunc = (formData: any) => Promise<string>
 
 export interface WebFormEvents {
-    onSubmit?: (e) => void
     onValidation?: (e, validationResult: ValidationResult) => void
 }
 

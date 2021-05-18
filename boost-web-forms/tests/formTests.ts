@@ -19,30 +19,30 @@ describe('Form service tests', () => {
     it('Sets up form config properly', () => {
         let forObject = {userName: '', password: '', rememberMe: false, agreeToTerms: false};
         let config = createFormConfig(forObject, {
-            showLabel: false,
+            hideLabels: true,
             fieldsConfig: {
                 agreeToTerms: {
                     label: "I agree to terms",
-                    showLabel: true
+                    hideLabel: false
                 }
             }
         })
         expect(config.fieldsConfig['userName'].label).to.equal('User Name');
         expect(config.fieldsConfig['userName'].id).to.equal('userName');
-        expect(config.fieldsConfig['userName'].showLabel).to.equal(false);
+        expect(config.fieldsConfig['userName'].hideLabel).to.equal(false);
         expect(config.fieldsConfig['password'].label).to.equal('Password');
         expect(config.fieldsConfig['password'].id).to.equal('password');
         expect(config.fieldsConfig['rememberMe'].label).to.equal('Remember Me');
         expect(config.fieldsConfig['rememberMe'].id).to.equal('rememberMe');
         expect(config.fieldsConfig['agreeToTerms'].label).to.equal('I agree to terms');
         expect(config.fieldsConfig['agreeToTerms'].id).to.equal('agreeToTerms');
-        expect(config.fieldsConfig['agreeToTerms'].showLabel).to.equal(true);
+        expect(config.fieldsConfig['agreeToTerms'].hideLabel).to.equal(true);
     });
 
     it('Validates forms correctly', async () => {
         let forObject = {userName: '', age: 17, email: 'abe@example.com', city: ''};
         let config = createFormConfig(forObject, {
-            showLabel: false,
+            hideLabels: true,
             fieldsConfig: {
                 userName: {required: true},
                 email: {required: true},
