@@ -1,16 +1,25 @@
-<script>
-    import {getHtmlAttrs} from "./Common";
+<script lang="ts">
+    import {getHtmlAttrs, SimpleTextTypes} from "./Common";
 
     export let value
     export let field
     export let attrs = {}
+    export let renderer: (() => string|HTMLElement) = null
 
     function onSimpleInputChange(e, field) {
         value = e.target.value
     }
+
+    let customHtml = renderer == null ? null : renderer()
 </script>
 
-{#if field.type === 'textarea'}
+{#if renderer != null}
+    {#if typeof(customHtml) === 'string'}
+        {@html customHtml}
+    {:else}
+        {@html customHtml.outerHTML}
+    {/if}
+{:else if field.type === 'textarea'}
     <textarea bind:value={value} rows="3" {...getHtmlAttrs(field)} {...attrs}></textarea>
 {:else if field.type === 'checkbox'}
     <input type="checkbox" bind:checked={value} {...getHtmlAttrs(field)} {...attrs} />
@@ -46,6 +55,8 @@
     <input type="file" {...getHtmlAttrs(field)} {...attrs} bind:files={value} />
 {:else if field.type === 'number'}
     <input type="number" {...getHtmlAttrs(field)} {...attrs} bind:value={value} />
-{:else}
+{:else if field.type == null || field.type.length === 0 || SimpleTextTypes.indexOf(field.type) > -1}
     <input type={field.type} on:input={e => onSimpleInputChange(e, field)} {...getHtmlAttrs(field)} {...attrs} value={value} />
+{:else}
+    {console.warn(`Unsupported field type: '${field.type}' for field '${field.id}'.`) || ''}
 {/if}

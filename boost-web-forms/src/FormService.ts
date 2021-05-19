@@ -1,27 +1,31 @@
-import {humanize, isDate} from 'boost-web-core';
+import {humanize, isDate, uuid} from 'boost-web-core';
 import {
     FormValidationResult,
     ValidationResult,
     ValidateFunc,
     getValidationResult,
-    AsyncValidateFunc
+    AsyncValidateFunc,
+    CustomFieldRenderer,
+    FormFieldType
 } from "./Models";
 import {notEmpty} from './Validation';
 
 
-export type FormFieldType = 'text' | 'email' | 'password' | 'file' | 'files' | 'select' | 'autocomplete' |
-    'checkbox' | 'toggle' | 'number' | 'date' | 'time' | 'textarea' | 'markdown' | 'reCaptcha' |
-    'radio' | 'html' | 'color' | 'datetime-local' | 'month' | 'year' | 'range' | 'reset' | 'tel' | 'url' | 'week' |
-    'multiselect-checkbox' | 'composite' | 'version' | 'avatar' | 'city' | 'country' | 'ipv4' | 'ipv6' | 'guid' |
-    'isbn' | 'location' | 'language' | 'money' | 'timezone' | 'title' | 'gallery' | 'submit';
 
-/*export interface FormConfigBase extends Partial<HTMLElement> {
-    validate?: ValidateFunc | ValidateFunc[],
-    scale?: number
-    hideLabels?: boolean
-    readonly?: boolean
-    id?: string
-}*/
+let customFieldRenderers : CustomFieldRenderer[] = []
+
+export function addCustomFieldRenderer(renderer: CustomFieldRenderer): string {
+    const id = uuid().substr(0, 8)
+    customFieldRenderers.push({...renderer, id})
+    return id
+}
+
+export function findCustomRenderer(forType: string): CustomFieldRenderer|null {
+    return customFieldRenderers.find(cfr =>
+        typeof(cfr.forType) === 'string'
+            ? forType.toLowerCase() == cfr.forType.toLowerCase()
+            : cfr.forType.indexOf(forType) > -1)
+}
 
 export interface FieldConfigBase extends Partial<HTMLInputElement> {
     icon?: string
@@ -47,6 +51,13 @@ export interface FieldConfigBase extends Partial<HTMLInputElement> {
     //max?: string
     //required?: boolean
     //placeholder?: string
+}
+
+export function field(value: FieldConfigBase) {
+    console.log('value:', value)
+    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+        console.log(target, propertyKey, descriptor)
+    };
 }
 
 export type FieldsConfig = {

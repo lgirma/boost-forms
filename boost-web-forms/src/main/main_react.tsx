@@ -3,16 +3,11 @@ import {GetReactForm} from "../renderers/ReactFormRenderer";
 import React from 'react'
 import ReactDOM from 'react-dom'
 import '../../style.css'
-
-const obj = {
-    email: '',
-    password: '',
-    rememberMe: true
-}
+import {forObj, options} from "./main_common";
 
 const Form = GetReactForm(React.createElement)
 
 ReactDOM.render(
-    <Form forObject={obj} />,
+    <Form forObject={forObj} options={options} />,
     document.getElementById('app')
 );

@@ -1,7 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "include": [
-    "src/**/*",
+
     "tests/**/*"
   ],
   "exclude": [
@@ -13,6 +13,9 @@
     "esModuleInterop": true,
     "moduleResolution": "node",
     "module": "commonjs",
-    "strict": false
+    "strict": false,
+    "noEmit": false,
+    "target": "ES5",
+    "downlevelIteration": true
   }
 }

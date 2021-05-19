@@ -7,7 +7,7 @@ import {
 } from "../FormService";
 import {FormValidationResult, WebFormEvents, WebFormFieldEvents} from "../Models";
 import {createDomTree, humanize} from 'boost-web-core'
-import {getHtmlAttrs, RenderFormOptions} from "./Common";
+import {getHtmlAttrs, RenderFormOptions, SimpleTextTypes} from "./Common";
 
 export function renderForm(forObject, formConfig?: WebForm, validationResult?: FormValidationResult, options?: RenderFormOptions): HTMLElement {
     validationResult ??= {errorMessage: '', hasError: false, fields: {}}
@@ -106,7 +106,12 @@ export function renderField(val, field: FieldConfigBase, attrs = {}): string|HTM
     }
     if (field.type == 'files')
         return createDomTree('input', {...eltAttrs, type: 'file', multiple: 'multiple', value: `${val == null ? '' : val}`})
-    return createDomTree('input', {...eltAttrs, type: field.type, value: `${val == null ? '' : val}`})
+    if (field.type == 'number')
+        return createDomTree('input', {...eltAttrs, type: 'number', value: `${val == null ? '' : val}`})
+    if (SimpleTextTypes.indexOf(field.type) > -1)
+        return createDomTree('input', {...eltAttrs, type: field.type, value: `${val == null ? '' : val}`})
+    console.warn(`Unsupported field type: '${field.type}' for field '${field.id}'.`)
+    return ''
 }
 
 export function renderLabel(field: FieldConfigBase, attrs = {}): string|HTMLLabelElement {
@@ -142,6 +147,8 @@ export function readFieldValue(field: FieldConfigBase, formElt: HTMLElement) {
         val = elt.checked
     else if (field.type == 'file')
         val = elt.files
+    else if (field.type == 'number')
+        val = parseFloat(elt.value)
     else
         val = elt.value
     return val

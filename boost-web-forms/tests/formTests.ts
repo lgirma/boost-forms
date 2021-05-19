@@ -29,14 +29,14 @@ describe('Form service tests', () => {
         })
         expect(config.fieldsConfig['userName'].label).to.equal('User Name');
         expect(config.fieldsConfig['userName'].id).to.equal('userName');
-        expect(config.fieldsConfig['userName'].hideLabel).to.equal(false);
+        expect(config.fieldsConfig['userName'].hideLabel).to.equal(true);
         expect(config.fieldsConfig['password'].label).to.equal('Password');
         expect(config.fieldsConfig['password'].id).to.equal('password');
         expect(config.fieldsConfig['rememberMe'].label).to.equal('Remember Me');
         expect(config.fieldsConfig['rememberMe'].id).to.equal('rememberMe');
         expect(config.fieldsConfig['agreeToTerms'].label).to.equal('I agree to terms');
         expect(config.fieldsConfig['agreeToTerms'].id).to.equal('agreeToTerms');
-        expect(config.fieldsConfig['agreeToTerms'].hideLabel).to.equal(true);
+        expect(config.fieldsConfig['agreeToTerms'].hideLabel).to.equal(false);
     });
 
     it('Validates forms correctly', async () => {

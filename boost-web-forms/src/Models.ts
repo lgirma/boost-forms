@@ -1,5 +1,5 @@
 import {isEmpty} from "boost-web-core";
-import {WebForm} from "./FormService";
+import {FieldConfigBase, WebForm} from "./FormService";
 
 export interface ValidationResult {
     errorMessage: string,
@@ -33,4 +33,39 @@ export interface WebFormFieldEvents {
     onFocus?: (e) => void
     onBlur?: (e) => void
     onValidation?: (e, validationResult: ValidationResult) => void
+}
+
+export type HTMLInputType =
+    'button' |
+    'checkbox' |
+    'color' |
+    'date' |
+    'datetime-local' |
+    'email' |
+    'file' |
+    'hidden' |
+    'image' |
+    'month' |
+    'number' |
+    'password' |
+    'radio' |
+    'range' |
+    'reset' |
+    'search' |
+    'submit' |
+    'tel' |
+    'text' |
+    'time' |
+    'url' |
+    'week';
+
+export type FormFieldType =  HTMLInputType | 'name' | 'files' | 'select' | 'autocomplete' |
+    'toggle' | 'number' | 'textarea' | 'markdown' | 'reCaptcha' | 'html' | 'year' |
+    'multiselect-checkbox' | 'composite' | 'version' | 'avatar' | 'city' | 'country' | 'ipv4' | 'ipv6' | 'guid' |
+    'isbn' | 'location' | 'language' | 'money' | 'timezone' | 'title' | 'gallery';
+
+export interface CustomFieldRenderer {
+    forType: string|string[]
+    id?: string
+    renderField(forObject: any, formConfig: WebForm, field: FieldConfigBase): string|HTMLElement
 }

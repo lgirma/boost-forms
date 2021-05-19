@@ -1,10 +1,11 @@
-import {FieldConfigBase, FormFieldType} from "../FormService";
-import {ValidateFunc, ValidationResult, WebFormEvents, WebFormFieldEvents} from "../Models";
+import {FieldConfigBase, FieldsConfig, WebForm} from "../FormService";
+import {FormValidationResult, ValidateFunc, ValidationResult, WebFormEvents, WebFormFieldEvents, FormFieldType} from "../Models";
 
 export interface RenderFormOptions extends WebFormEvents, WebFormFieldEvents {
     labelAttrs?: (fieldConfig: FieldConfigBase) => {}
     inputAttrs?: (fieldConfig: FieldConfigBase) => {}
     fieldSetAttrs?: (fieldConfig: FieldConfigBase) => {}
+    submitAttrs?: (forObject, options: WebForm) => {}
 
     excludeFormTag?: boolean
     excludeSubmitButton?: boolean
@@ -50,3 +51,34 @@ export function getHtmlAttrs(field: FieldConfigBase) {
     }
     return result
 }
+
+export function getHtmlFormAttrs(form: WebForm) {
+    const src: WebForm = {
+        ...form,
+        columns: null,
+        fieldsConfig: null,
+        validate: null,
+        scale: null,
+        hideLabels: null,
+        readonly: null,
+        validationResult: null
+    }
+    let result : any = {}
+    for (const [key, val] of Object.entries(src)) {
+        if (val != null && val != '') {
+            if (key == 'disabled') {
+                if (val) result.disabled = true
+            }
+            else if (key == 'hidden') {
+                if (val) result.hidden = true
+            }
+            else
+                result[key] = val
+        }
+    }
+    return result
+}
+
+export const SimpleTextTypes : FormFieldType[] = [
+    'text', 'name', 'password', 'date', 'datetime-local', 'email', 'search', 'url', 'time', 'month', 'week', 'tel'
+]

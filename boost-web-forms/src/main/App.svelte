@@ -1,47 +1,9 @@
 <script>
-    import SvelteForm from './renderers/SvelteForm.svelte'
-    import {createFormConfig, field} from "./FormService";
-    import {fileTypeValidator, MIME_PDF, notEmpty, validName} from "./Validation";
-    import {Bootstrap5} from "./renderers/Plugins";
+    import SvelteForm from '../renderers/SvelteForm.svelte'
+    import {Bootstrap5} from "../renderers/Plugins";
 
-    let forObj= {
-        //@field({type: 'tel'})
-        name: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-        gender: '0',
-        accountType: '',
-        dateOfBirth: "2001-02-01",
-        receiveNewsletter: false,
-        packages: ['newsLetter', 'premiumSupport'],
-        comment: '',
-        requestDiscount: 5.5,
-        passportDocument: null
-    };
-    const options = createFormConfig(forObj, {
-        readonly: false,
-        style: 'width: 50%; margin: 10px',
-        fieldsConfig: {
-            name: {validate: [notEmpty, validName]},
-            email: {required: true, placeholder: 'mail@company.com'},
-            accountType: {
-                type: 'select',
-                placeholder: '-- Select Account Type --',
-                choices: ['Commercial', 'Personal']
-            },
-            gender: {
-                type: 'radio', readonly: false,
-                choices: {0: 'Male', 1: 'Female'}
-            },
-            comment: {type: 'textarea'},
-            passportDocument: {
-                type: 'files', validate: [fileTypeValidator(MIME_PDF)],
-                required: true
-            }
-        },
-        validate: val => (val.password !== val.confirmPassword ? 'Passwords do not match.' : '')
-    })
+import {forObj, options} from "./main_common";
+
 </script>
 
 <SvelteForm forObject={forObj} {options} renderOptions={Bootstrap5}
