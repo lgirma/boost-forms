@@ -1,8 +1,11 @@
 <script>
     import SvelteForm from './renderers/SvelteForm.svelte'
-    import {createFormConfig} from "./FormService";
+    import {createFormConfig, field} from "./FormService";
     import {fileTypeValidator, MIME_PDF, notEmpty, validName} from "./Validation";
+    import {Bootstrap5} from "./renderers/Plugins";
+
     let forObj= {
+        //@field({type: 'tel'})
         name: '',
         email: '',
         password: '',
@@ -18,6 +21,7 @@
     };
     const options = createFormConfig(forObj, {
         readonly: false,
+        style: 'width: 50%; margin: 10px',
         fieldsConfig: {
             name: {validate: [notEmpty, validName]},
             email: {required: true, placeholder: 'mail@company.com'},
@@ -40,4 +44,5 @@
     })
 </script>
 
-<SvelteForm forObject={forObj} {options} on:submit={e => alert('submitting')} on:error={e => alert('invalid input')} />
+<SvelteForm forObject={forObj} {options} renderOptions={Bootstrap5}
+            on:submit={e => alert('submitting')} on:error={e => alert('invalid input')} />

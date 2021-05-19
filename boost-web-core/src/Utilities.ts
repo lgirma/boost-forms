@@ -38,7 +38,7 @@ export function isDate(str: string){
     return _regExp.test(str);
 }
 
-export type DomElement = (string|null|Node|Node)
+export type DomElement = (string|null|Node)
 
 /**
  * Creates a dom elements tree.
@@ -67,4 +67,11 @@ export function createDomTree<T extends DomElement>(tag: string, attrs: {} = {},
         }
     }
     return elt as unknown as T;
+}
+
+export function uuid() {
+    // UUID v4
+    return (([1e7] as any)+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    )
 }
