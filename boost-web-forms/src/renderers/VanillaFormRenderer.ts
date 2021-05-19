@@ -9,40 +9,43 @@ import {FormValidationResult, WebFormEvents, WebFormFieldEvents} from "../Models
 import {createDomTree, humanize} from 'boost-web-core'
 import {getHtmlAttrs, RenderFormOptions, SimpleTextTypes} from "./Common";
 
-export function renderForm(forObject, formConfig?: WebForm, validationResult?: FormValidationResult, options?: RenderFormOptions): HTMLElement {
+export function renderForm(forObject, options?: WebForm, validationResult?: FormValidationResult, renderOptions?: RenderFormOptions): HTMLElement {
     validationResult ??= {errorMessage: '', hasError: false, fields: {}}
-    options = options || {} as any
-    formConfig = formConfig || createFormConfig(forObject)
-    const {labelAttrs = f => ({}), fieldSetAttrs = f => ({}), inputAttrs = f => ({})} = options
-    let rootElt = createDomTree<HTMLFormElement>(options.excludeFormTag ? 'div' : 'form'/*, {...formAttrs}*/)
+    renderOptions = renderOptions || {} as any
+    options = options || createFormConfig(forObject)
+    const {
+        labelAttrs = f => ({}), fieldSetAttrs = f => ({}),
+        inputAttrs = f => ({}), submitAttrs = (a,b) => ({}),
+    } = renderOptions
+    let rootElt = createDomTree<HTMLFormElement>(renderOptions.excludeFormTag ? 'div' : 'form', {...getHtmlAttrs(options)})
 
-    let fields = getFieldConfigs(formConfig)
+    let fields = getFieldConfigs(options)
     for (const field of fields) {
         const label = renderLabel(field, labelAttrs(field))
         const input = renderField(forObject[field.id], field, inputAttrs(field))
         let fieldSet = createDomTree('div', {...fieldSetAttrs(field)}, field.type == 'checkbox' && !field.readonly
-            ? [input, label]
-            : [label, input])
+            ? [input, ' ', label]
+            : [label, ' ', input])
         rootElt.append(fieldSet)
     }
 
-    if (!options.excludeSubmitButton && !formConfig.readonly)
+    if (!renderOptions.excludeSubmitButton && !options.readonly)
         rootElt.append(createDomTree('div', {},
-            createDomTree('input', {type: 'submit', value: 'Submit'})))
+            createDomTree('input', {type: 'submit', value: 'Submit', ...submitAttrs(forObject, options)})))
 
     rootElt.addEventListener('submit',  async e => {
-        const validationResult = await validateForm(getFormState(formConfig, rootElt), formConfig)
+        const validationResult = await validateForm(getFormState(options, rootElt), options)
         if (validationResult.hasError) {
             e.preventDefault()
             alert(`Validation error: \n${validationResult.errorMessage} \n ${Object.keys(validationResult.fields).filter(k => validationResult.fields[k].hasError)
                     .map(k => `${humanize(k)}: ${validationResult.fields[k].errorMessage}`).join('\n')}`)
         }
-        if (options.onValidation)
-            options.onValidation(e, validationResult)
+        if (renderOptions.onValidation)
+            renderOptions.onValidation(e, validationResult)
     });
 
-    if (formConfig.onsubmit)
-        rootElt.addEventListener('submit', formConfig.onsubmit)
+    if (options.onsubmit)
+        rootElt.addEventListener('submit', options.onsubmit)
 
     return rootElt
 }
@@ -78,7 +81,9 @@ export function renderField(val, field: FieldConfigBase, attrs = {}): string|HTM
         return createDomTree('textarea', {rows: 3, ...eltAttrs}, val||'')
     }
     if (field.type == 'checkbox') {
-        return createDomTree('input', {type: 'checkbox', checked: !!val, ...eltAttrs})
+        let result = createDomTree<HTMLInputElement>('input', {type: 'checkbox', checked: !!val, ...eltAttrs})
+        result.checked = !!val;
+        return result;
     }
     if (field.type == 'toggle') {
         return createDomTree('input', {type: 'checkbox', checked: val != null, value: field.choices[0], ...eltAttrs})
@@ -100,6 +105,7 @@ export function renderField(val, field: FieldConfigBase, attrs = {}): string|HTM
                         type: (field.multiple ? 'checkbox' : 'radio'),
                         value: `${k}`,
                         checked: (field.multiple ? (val as any[]).indexOf(k) > -1 : k == val) ? true : undefined}),
+                    ' ',
                     field.choices[k]
                 ])))
 

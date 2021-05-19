@@ -1,5 +1,7 @@
 import {createFormConfig} from "../FormService";
 import {fileTypeValidator, MIME_PDF, notEmpty, validName} from "../Validation";
+import {RenderFormOptions} from "../renderers/Common";
+import {Bootstrap5, Bulma, MaterialDesignLite, Bootstrap4} from "../renderers/Plugins";
 
 export let forObj= {
     //@field({type: 'tel'})
@@ -41,3 +43,7 @@ export const options = createFormConfig(forObj, {
     },
     validate: val => (val.password !== val.confirmPassword ? 'Passwords do not match.' : '')
 })
+
+export const renderOptions: RenderFormOptions = {
+    ...Bootstrap4
+}
