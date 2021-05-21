@@ -54,7 +54,9 @@
 {:else if field.type === 'file'}
     <input type="file" {...getHtmlAttrs(field)} {...attrs} bind:files={value} />
 {:else if field.type === 'number'}
-    <input type="number" {...getHtmlAttrs(field)} {...attrs} bind:value={value} />
+    <input type="number" step="0.1" {...getHtmlAttrs(field)} {...attrs} bind:value={value} />
+{:else if field.type === 'money'}
+    <input type="number" step="0.01" min="0" {...getHtmlAttrs(field)} {...attrs} bind:value={value} />
 {:else if field.type == null || field.type.length === 0 || SimpleTextTypes.indexOf(field.type) > -1}
     <input type={field.type} on:input={e => onSimpleInputChange(e, field)} {...getHtmlAttrs(field)} {...attrs} value={value} />
 {:else}

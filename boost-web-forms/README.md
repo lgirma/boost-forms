@@ -266,17 +266,20 @@ validationResult = {
 ## Todo
 
 - [x] Remove compulsory dependency on `createFormConfig`
-- [ ] Various layouts (inline, in-table, disabled vs. readonly)
 - [ ] Clean up config fields (hideLabel vs hideLabels, etc.)
   - [ ] Re-using existing html fields as possible
-- [ ] Try making VanillaFormRenderer re-usable by react/svelte renderers
-  - [ ] `renderers/Common.ts`
+- [x] Try making VanillaFormRenderer re-usable by react/svelte renderers
+  - [x] `renderers/Common.ts`
 - [ ] Improve guessType
 - [ ] Document each field type
 - [ ] Easily manage field types
   - [ ] Lots of field types (see https://www.mockaroo.com/)
   - [ ] Make sure renderers support field types
-  - [ ] How to extend type system and renderers
+  - [x] How to extend type system and renderers
   - [ ] Manage external dependencies (captcha, gallery, etc.)
 - [ ] Provide easier integration with Bootstrap/Tailwind/Bulma/etc.
+  - [ ] Various layouts (inline, in-table, disabled vs. readonly)
+- [ ] Find easier way to configure form. `formConfig.fieldsConfig.age.type` is too deep
+- [ ] Events: form-level and field-level
+  - Example:- Being able to run validation up on input blur or submission
   

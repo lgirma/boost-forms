@@ -33,8 +33,27 @@ export function isArray(a) {
     return a != null && a.constructor === Array;
 }
 
+/**
+ * Matches date string in the formats YYYY/MM/DD or YYYY-MM-DD
+ * @param str
+ */
 export function isDate(str: string){
-    const _regExp  = new RegExp('[1-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]');
+    const _regExp  = new RegExp('(((19|20)([2468][048]|[13579][26]|0[48])|2000)[/-]02[/-]29|((19|20)[0-9]{2}[/-](0[4678]|1[02])[/-](0[1-9]|[12][0-9]|30)|(19|20)[0-9]{2}[/-](0[1359]|11)[/-](0[1-9]|[12][0-9]|3[01])|(19|20)[0-9]{2}[/-]02[/-](0[1-9]|1[0-9]|2[0-8])))');
+    return _regExp.test(str);
+}
+
+export function isTime(str: string){
+    const _regExp  = new RegExp('([01][0-9]|2[0-3]):([012345][0-9])((:([012345][0-9]))|(\\sAM)|(\\sam)|(\\sPM)|(\\spm))');
+    return _regExp.test(str);
+}
+
+export function isDateTime(str: string){
+    const _regExp  = new RegExp('((((19|20)([2468][048]|[13579][26]|0[48])|2000)-02-29|((19|20)[0-9]{2}-(0[4678]|1[02])-(0[1-9]|[12][0-9]|30)|(19|20)[0-9]{2}-(0[1359]|11)-(0[1-9]|[12][0-9]|3[01])|(19|20)[0-9]{2}-02-(0[1-9]|1[0-9]|2[0-8])))\\s([01][0-9]|2[0-3]):([012345][0-9]):([012345][0-9]))$');
+    return _regExp.test(str);
+}
+
+export function isYear(str: string){
+    const _regExp  = new RegExp('[1-2][0-9][0-9][0-9]$');
     return _regExp.test(str);
 }
 

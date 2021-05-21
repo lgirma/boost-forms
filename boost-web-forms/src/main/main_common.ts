@@ -17,7 +17,8 @@ export let forObj= {
     comment: '',
     requestDiscount: 5.5,
     passportDocument: null,
-    arrivalTime: '09:08:00'
+    arrivalTime: '09:08:00',
+    price: 50.99
 };
 export const options = createFormConfig(forObj, {
     readonly: false,

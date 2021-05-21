@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type {FieldConfigBase} from "../FormService";
+    import type {FieldConfigBase} from "../Models";
 
     export let field: FieldConfigBase
     export let attrs = {}

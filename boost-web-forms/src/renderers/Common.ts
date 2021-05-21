@@ -1,5 +1,7 @@
-import {FieldConfigBase, FieldsConfig, WebForm} from "../FormService";
-import {FormValidationResult, ValidateFunc, ValidationResult, WebFormEvents, WebFormFieldEvents, FormFieldType} from "../Models";
+import {
+    FormValidationResult, ValidateFunc, ValidationResult, WebFormEvents, WebFormFieldEvents, FormFieldType,
+    FieldConfigBase, FieldsConfig, WebForm
+} from "../Models";
 
 export interface RenderFormOptions extends WebFormEvents, WebFormFieldEvents {
     labelAttrs?: (fieldConfig: FieldConfigBase) => {}

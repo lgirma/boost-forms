@@ -68,4 +68,17 @@ describe('Form service tests', () => {
         expect(validationResult.errorMessage).to.equal('PASSWORDS_DONT_MATCH');
     });
 
+    it('Respects user config choices', () => {
+        let registration = {userName: '', password: 'a', confirmPassword: 'b'};
+        let formConfig = createFormConfig(registration, {
+            readonly: true, id: 'ab',
+            fieldsConfig: {
+                userName: {label: 'User ID', placeholder: 'Your unique name', readonly: false}
+            }
+        });
+        let formConfig2 = createFormConfig(registration, formConfig);
+
+        expect(JSON.stringify(formConfig)).to.equal(JSON.stringify(formConfig2));
+    })
+
 });

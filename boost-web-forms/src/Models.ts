@@ -1,5 +1,45 @@
 import {isEmpty} from "boost-web-core";
-import {FieldConfigBase, WebForm} from "./FormService";
+
+
+export type FieldsConfig = {
+    [key: string]: FieldConfigBase;
+}
+
+export interface FieldConfigBase extends Partial<HTMLInputElement> {
+    icon?: string
+    type?: FormFieldType
+    helpText?: string
+    label?: string
+    validationResult?: ValidationResult
+    customOptions?: any,
+    maxlength?: string
+    multiple?: boolean
+    choices?: string[] | {[k: string]: string}
+    variation?: string
+    hideLabel?: boolean
+    scale?: number
+    readonly?: boolean
+    validate?: ValidateFunc | ValidateFunc[]
+
+    //disabled?: boolean
+    //hidden?: boolean
+    //step?: string
+    //pattern?: string
+    //min?: string
+    //max?: string
+    //required?: boolean
+    //placeholder?: string
+}
+
+export interface WebForm extends Partial<HTMLFormElement> {
+    columns?: number
+    fieldsConfig?: FieldsConfig
+    validate?: ValidateFunc | ValidateFunc[],
+    scale?: number
+    hideLabels?: boolean
+    readonly?: boolean
+    validationResult?: FormValidationResult
+}
 
 export interface ValidationResult {
     errorMessage: string,
@@ -59,10 +99,22 @@ export type HTMLInputType =
     'url' |
     'week';
 
-export type FormFieldType =  HTMLInputType | 'name' | 'files' | 'select' | 'autocomplete' |
+export type FormFieldType =  HTMLInputType | 'name' | 'files' | 'select' |
     'toggle' | 'number' | 'textarea' | 'markdown' | 'reCaptcha' | 'html' | 'year' |
     'multiselect-checkbox' | 'composite' | 'version' | 'avatar' | 'city' | 'country' | 'ipv4' | 'ipv6' | 'guid' |
-    'isbn' | 'location' | 'language' | 'money' | 'timezone' | 'title' | 'gallery';
+    'isbn' | 'location' | 'language' | 'money' | 'timezone' | 'title' |
+    /**
+     * Where use uploads one or more preview-able images
+     */
+    'gallery' |
+    /**
+     * where new items can be added or removed
+     */
+    'list' |
+    /**
+     * Choice of one or more items fetched from a paged data source
+     */
+    'autocomplete';
 
 export interface CustomFieldRenderer {
     forType: string|string[]

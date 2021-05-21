@@ -1,11 +1,9 @@
 import {
     createFormConfig,
-    FieldConfigBase,
     getFieldConfigs,
     validateForm,
-    WebForm
 } from "../FormService";
-import {FormValidationResult, WebFormEvents, WebFormFieldEvents} from "../Models";
+import {FormValidationResult, WebFormEvents, WebFormFieldEvents, FieldConfigBase, WebForm} from "../Models";
 import {createDomTree, humanize} from 'boost-web-core'
 import {getHtmlAttrs, RenderFormOptions, SimpleTextTypes} from "./Common";
 
@@ -114,6 +112,8 @@ export function renderField(val, field: FieldConfigBase, attrs = {}): string|HTM
         return createDomTree('input', {...eltAttrs, type: 'file', multiple: 'multiple', value: `${val == null ? '' : val}`})
     if (field.type == 'number')
         return createDomTree('input', {...eltAttrs, type: 'number', value: `${val == null ? '' : val}`})
+    if (field.type == 'money')
+        return createDomTree('input', {min: '0', step: '0.01', ...eltAttrs, type: 'number', value: `${val == null ? '' : val}`})
     if (SimpleTextTypes.indexOf(field.type) > -1)
         return createDomTree('input', {...eltAttrs, type: field.type, value: `${val == null ? '' : val}`})
     console.warn(`Unsupported field type: '${field.type}' for field '${field.id}'.`)

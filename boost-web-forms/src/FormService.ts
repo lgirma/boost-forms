@@ -1,4 +1,4 @@
-import {humanize, isDate, uuid} from 'boost-web-core';
+import {humanize, uuid, isDate, isDateTime, isYear, isTime} from 'boost-web-core';
 import {
     FormValidationResult,
     ValidationResult,
@@ -6,10 +6,10 @@ import {
     getValidationResult,
     AsyncValidateFunc,
     CustomFieldRenderer,
-    FormFieldType
+    FormFieldType,
+    FieldConfigBase, WebForm
 } from "./Models";
 import {notEmpty} from './Validation';
-
 
 
 let customFieldRenderers : CustomFieldRenderer[] = []
@@ -27,51 +27,11 @@ export function findCustomRenderer(forType: string): CustomFieldRenderer|null {
             : cfr.forType.indexOf(forType) > -1)
 }
 
-export interface FieldConfigBase extends Partial<HTMLInputElement> {
-    icon?: string
-    type?: FormFieldType
-    helpText?: string
-    label?: string
-    validationResult?: ValidationResult
-    customOptions?: any,
-    maxlength?: string
-    multiple?: boolean
-    choices?: string[] | {[k: string]: string}
-    variation?: string
-    hideLabel?: boolean
-    scale?: number
-    readonly?: boolean
-    validate?: ValidateFunc | ValidateFunc[]
-
-    //disabled?: boolean
-    //hidden?: boolean
-    //step?: string
-    //pattern?: string
-    //min?: string
-    //max?: string
-    //required?: boolean
-    //placeholder?: string
-}
-
 export function field(value: FieldConfigBase) {
     console.log('value:', value)
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
         console.log(target, propertyKey, descriptor)
     };
-}
-
-export type FieldsConfig = {
-    [key: string]: FieldConfigBase;
-}
-
-export interface WebForm extends Partial<HTMLFormElement> {
-    columns?: number
-    fieldsConfig?: FieldsConfig
-    validate?: ValidateFunc | ValidateFunc[],
-    scale?: number
-    hideLabels?: boolean
-    readonly?: boolean
-    validationResult?: FormValidationResult
 }
 
 export function createFormConfig(forObject, config: WebForm = {}): WebForm {
@@ -104,14 +64,6 @@ export function createFormConfig(forObject, config: WebForm = {}): WebForm {
             },
             id: fieldId,
             label: humanize(fieldId),
-            // required: false,
-            // placeholder: '',
-            // step: null,
-            // pattern: '',
-            // min: null,
-            // max: null,
-            // maxlength: null,
-            // disabled: false,
             multiple: false,
             type: type,
             ...guessConfig(config.fieldsConfig[fieldId], fieldValue, type),
@@ -128,13 +80,14 @@ export function createFormConfig(forObject, config: WebForm = {}): WebForm {
 }
 
 export function guessType(fieldId, fieldValue): FormFieldType {
-    let table = {
+    let table : {[regex: string]: FormFieldType} = {
         'password$': 'password',
         'email$': 'email',
         'name$': 'name',
         'quantity$|number$': 'number',
-        '^amount|amount$': 'money',
+        '^amount|amount$|^price|price$': 'money',
         '^date|date$': 'date', '^year|year$': 'year', '^month|month$': 'month',
+        '^time|time$': 'datetime-local',
         '^phone|phone$': 'tel',
         '^captcha|captcha^': 'reCaptcha',
         '^language|language$': 'language'
@@ -153,8 +106,14 @@ export function guessType(fieldId, fieldValue): FormFieldType {
     if (jsType === 'boolean')
         return 'checkbox';
     if (jsType === 'string') {
+        if (isDateTime(fieldValue))
+            return 'datetime-local';
         if (isDate(fieldValue))
             return 'date';
+        if (isTime(fieldValue))
+            return 'time';
+        if (isYear(fieldValue))
+            return 'year';
         return 'text';
     }
     if (jsType === 'number')

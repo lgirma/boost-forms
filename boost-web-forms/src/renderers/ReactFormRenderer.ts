@@ -1,4 +1,5 @@
-import {createFormConfig, FieldConfigBase, FieldsConfig, WebForm} from "../FormService";
+import {createFormConfig} from "../FormService";
+import {FieldConfigBase, WebForm} from '../Models'
 import {renderField, renderLabel} from "./VanillaFormRenderer";
 
 export interface ReactFormProps {
