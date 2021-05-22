@@ -8,20 +8,25 @@ import {AbstractDomElement, createAbstractDom, DomElementChildrenFrom, humanize,
 import {FormLayout, LayoutRenderer, getHtmlAttrs, RenderFormOptions, SimpleTextTypes} from "./Common";
 
 export const DefaultLayout: FormLayout = {
-    renderFieldSet(field: FieldConfigBase, fieldValue: any, renderer: LayoutRenderer): DomElementChildrenFrom {
-        const label = renderer.label(field)
-        let input = renderer.input(fieldValue, field)
-        if (field.type === 'radio') {
-            input = Object.keys(field.choices as {})
-                .map((k, i) => createAbstractDom('label', {}, [
-                    input[i],
-                    ' ',
-                    field.choices[k]
-                ]))
+    renderForm(forObject, form: WebForm, renderer: LayoutRenderer): DomElementChildrenFrom {
+        const result = createAbstractDom('div', {})
+        for (const [fieldId, field] of Object.entries(form.fieldsConfig)) {
+            const label = renderer.label(field)
+            let input = renderer.input(forObject[fieldId], field)
+            if (field.type === 'radio') {
+                input = Object.keys(field.choices as {})
+                    .map((k, i) => createAbstractDom('label', {}, [
+                        input[i],
+                        ' ',
+                        field.choices[k]
+                    ]))
+            }
+            const fieldSet = createAbstractDom('div', {}, field.type == 'checkbox' && !field.readonly
+                ? [...(input.constructor === Array ? input : [input]), ' ', label]
+                : [label, ' ', ...(input.constructor === Array ? input : [input])] as any)
+            result.children.push(fieldSet)
         }
-        return createAbstractDom('div', {}, field.type == 'checkbox' && !field.readonly
-            ? [...(input.constructor === Array ? input : [input]), ' ', label]
-            : [label, ' ', ...(input.constructor === Array ? input : [input])] as any)
+        return result;
     }
 }
 
@@ -49,11 +54,12 @@ export function getAbstractForm(forObject, options?: WebForm, validationResult?:
 
 
     let rootElt = createAbstractDom(renderOptions.excludeFormTag ? 'div' : 'form', {...getHtmlAttrs(options)})
+    rootElt.children.push(layout.renderForm(forObject, options, VanillaJSRenderer))
 
-    for (const [fieldId, field] of Object.entries(options.fieldsConfig)) {
+   /* for (const [fieldId, field] of Object.entries(options.fieldsConfig)) {
         const fieldSet = layout.renderFieldSet(field, forObject[fieldId], VanillaJSRenderer, options, forObject)
         rootElt.children.push(fieldSet)
-    }
+    }*/
 
     if (!renderOptions.excludeSubmitButton && !options.readonly)
         rootElt.children.push(createAbstractDom('div', {},
@@ -76,7 +82,7 @@ export function getAbstractForm(forObject, options?: WebForm, validationResult?:
     return rootElt
 }
 
-export function renderInput(val, field: FieldConfigBase, attrs = {}) {
+export function renderInput(val, field: FieldConfigBase, attrs = {}): string|AbstractDomElement|(AbstractDomElement|string)[] {
     if (field.readonly) {
         if (field.type == 'checkbox')
             return val ? 'Yes' : 'No'

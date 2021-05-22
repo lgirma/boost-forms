@@ -283,4 +283,6 @@ validationResult = {
   - Example:- Being able to run validation up on input blur or submission
 - [ ] Don't handle submit separately
   - [ ] Auto-append a submit-field in the form
-  
+- [ ] Groups
+- Property grid (see https://github.com/ValYouW/jqPropertyGrid)
+- [ ] Colspans for individual columns

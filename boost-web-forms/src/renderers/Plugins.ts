@@ -7,6 +7,13 @@ export const Bootstrap5 : (o?: PluginOptions) => RenderFormOptions = pluginOptio
         return {class: 'btn btn-primary'}
     },
     layout: {
+        renderForm(forObject, form: WebForm, renderer: LayoutRenderer): DomElementChildrenFrom {
+            const result = createAbstractDom('div', {class: 'row'})
+            for (const [fieldId, field] of Object.entries(form.fieldsConfig)) {
+                result.children.push(this.renderFieldSet(field, forObject[fieldId], renderer, form, forObject))
+            }
+            return result;
+        },
         renderFieldSet(field: FieldConfigBase, fieldValue: any, renderer: LayoutRenderer, form?: WebForm, forObject?): DomElementChildrenFrom {
             const isCheckBox = field.type === 'checkbox' || field.type === 'radio'
 
@@ -45,6 +52,40 @@ export const Bootstrap5 : (o?: PluginOptions) => RenderFormOptions = pluginOptio
     }
 })
 
+export const PropertyGrid : (o?: PluginOptions) => RenderFormOptions = pluginOptions => ({
+    submitAttrs: (forObj, options) => {
+        return {class: 'btn btn-primary'}
+    },
+    layout: {
+        renderForm(forObject, form: WebForm, renderer: LayoutRenderer): DomElementChildrenFrom {
+            const result = createAbstractDom('table', {style: 'border-collapse: collapse; border: 1px solid lightgrey;'},
+                createAbstractDom('tbody', {},
+                    Object.entries(form.fieldsConfig).map((kv) => {
+                        const [fieldId, field] = kv
+                        return this.renderFieldSet(field, forObject[fieldId], renderer, form, forObject)
+                    })))
+            return result;
+        },
+        renderFieldSet(field: FieldConfigBase, fieldValue: any, renderer: LayoutRenderer, form?: WebForm, forObject?): DomElementChildrenFrom {
+            const label = renderer.label(field)
+            let input = renderer.input(forObject[field.id], field)
+            if (field.type === 'radio') {
+                input = Object.keys(field.choices as {})
+                    .map((k, i) => createAbstractDom('label', {}, [
+                        input[i],
+                        ' ',
+                        field.choices[k]
+                    ]))
+            }
+            return  createAbstractDom('tr', {style: 'border: 1px solid lightgrey;'}, [
+                createAbstractDom('td', {style: 'border: 1px solid lightgrey;'}, label),
+                createAbstractDom('td', {style: 'border: 1px solid lightgrey;'}, input),
+            ])
+        }
+    }
+})
+
+/*
 export const Bootstrap4 : RenderFormOptions = {
     submitAttrs: (forObj, options) => {
         return {class: 'btn btn-primary'}
@@ -162,4 +203,4 @@ export const MDB5 : RenderFormOptions = {
                 [...(input.constructor === Array ? input : [input]), label] as any)
         }
     }
-}
+}*/
