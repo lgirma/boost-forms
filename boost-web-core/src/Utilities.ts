@@ -57,35 +57,109 @@ export function isYear(str: string){
     return _regExp.test(str);
 }
 
-export type DomElement = (string|null|Node)
+export type DomElementChildren = (AbstractDomElement|string)[]
+
+export type DomElementChildrenFrom = string|AbstractDomElement|null|(AbstractDomElement|string)[]
+
+export interface AbstractDomElement {
+    tag: string
+    attrs?: {[p: string]: any}
+    children?: DomElementChildren
+}
 
 /**
- * Creates a dom elements tree.
+ * Creates an abstract dom elements tree.
  * Example:
- * createDomTree('p', {},
- *      createDomTree("a", { href:"http://www.google.com/" }, "link"),
- *      ".");
+ * createAbstractDom('p', {}, [
+ *      createAbstractDom("a", { href:"http://www.google.com/" }, "link"),
+ *      "."
+ * ]);
  *
  * Results:
  *  <p>Here is a <a href="http://www.google.com/">link</a>.</p>
  */
-export function createDomTree<T extends DomElement>(tag: string, attrs: {} = {}, children: DomElement|DomElement[] = []) : T {
-    const elt = document.createElement(tag)
+export function createAbstractDom(tag: string,
+                                  attrs: {} = {},
+                                  children: DomElementChildrenFrom = null) : AbstractDomElement {
+    const elt: AbstractDomElement = {tag, attrs: {}, children: []}
     attrs ??= {}
-    for (const attr in attrs) {
-        if (attrs[attr] != undefined)
-        elt.setAttribute(attr, attrs[attr])
+    for (const k in attrs) {
+        if (attrs[k] != undefined)
+            elt.attrs[k] = attrs[k]
     }
+
     if (children != null) {
-        if (typeof children == 'string')
-            elt.append(children)
+        if (typeof children === 'string')
+            elt.children.push(children)
         else if (children.constructor === Array) {
-            elt.append(...children)
+            elt.children.push(...children)
         } else {
-            elt.appendChild(children as Node)
+            elt.children.push(children as AbstractDomElement)
         }
     }
-    return elt as unknown as T;
+    return elt
+}
+
+export function toJsx<T>(reactCreateElement, root: AbstractDomElement, key?: any): T {
+    let attrs: any = {}
+    if (key != null) attrs.key = key;
+    for (const [k, v] of Object.entries({...root.attrs})) {
+        if (k === 'class') attrs.className = v
+        else if (k == 'style') attrs.STYLE = v
+        else if (k == 'for') attrs.htmlFor = v
+        else if (k == 'value') attrs.defaultValue = v
+        else if (k == 'checked') attrs.defaultChecked = v
+        else attrs[k] = v
+    }
+    if (root.children && root.children.length > 1)
+        return reactCreateElement(root.tag, attrs,
+            root.children.map((c, i) => (typeof(c) === 'string' || c == null) ? c : toJsx(reactCreateElement, c, i)))
+    else if (root.children && root.children.length == 1) {
+        let c = root.children[0]
+        return reactCreateElement(root.tag, attrs, (typeof(c) === 'string' || c == null) ? c : toJsx(reactCreateElement, c))
+    }
+    else
+        return reactCreateElement(root.tag, attrs)
+}
+
+export function toHtmlDom<T extends Node>(documentCreateElement, document, root: AbstractDomElement): T {
+    const result = documentCreateElement.call(document, root.tag)
+    for (const k in root.attrs) {
+        result.setAttribute(k, root.attrs[k])
+    }
+    for (const child of root.children) {
+        if (child != null) {
+            if (typeof child === 'string')
+                result.append(child)
+            else {
+                result.appendChild(toHtmlDom(documentCreateElement, document, child))
+            }
+        }
+    }
+
+    return result as T;
+}
+
+export function toHtmlString(root: AbstractDomElement): string {
+    let result = `<${root.tag}`
+    for (const k in root.attrs) {
+        result += ` ${k}="${root.attrs[k]}"`
+    }
+    result += ">"
+
+    for (const child of root.children) {
+        if (child != null) {
+            if (typeof child === 'string')
+                result += child
+            else {
+                result += toHtmlString(child)
+            }
+        }
+    }
+
+    result += `</${root.tag}>`
+
+    return result;
 }
 
 export function uuid() {

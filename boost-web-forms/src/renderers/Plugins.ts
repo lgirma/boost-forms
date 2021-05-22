@@ -1,132 +1,165 @@
-import {RenderFormOptions} from "./Common";
+import {LayoutRenderer, PluginOptions, RenderFormOptions} from "./Common";
+import {FieldConfigBase, WebForm} from "../Models";
+import {createAbstractDom, DomElementChildrenFrom} from "boost-web-core";
 
-export const Bootstrap5 : RenderFormOptions = {
-    labelAttrs: f => {
-        if (f.type === 'checkbox' || f.type === 'radio')
-            return {class: 'form-check-label'}
-        else return {class: 'form-label'}
-    },
-    inputAttrs: f => {
-        let result : any = {};
-
-        if (f.type === 'select')
-            result = {
-                class: `form-select${f.scale > 1 ? ' form-select-lg' : ''}${(f.scale && f.scale < 1) ? ' form-select-sm' : ''}`
-            }
-        else if (f.type === 'checkbox' || f.type === 'radio')
-            result = { /*class: 'form-check-input'*/ }
-        else
-            result = {
-                class: `form-control${f.scale > 1 ? ' form-control-lg' : ''}${(f.scale && f.scale < 1) ? ' form-control-sm' : ''}`
-            }
-
-        if (f.type === 'color')
-            result.class += ' form-control-color'
-
-        return result
-    },
-    fieldSetAttrs: f => {
-        if (f.type === 'checkbox' || f.type === 'radio')
-            return {/*class: 'form-check'*/}
-        return {}
-    },
+export const Bootstrap5 : (o?: PluginOptions) => RenderFormOptions = pluginOptions => ({
     submitAttrs: (forObj, options) => {
         return {class: 'btn btn-primary'}
+    },
+    layout: {
+        renderFieldSet(field: FieldConfigBase, fieldValue: any, renderer: LayoutRenderer, form?: WebForm, forObject?): DomElementChildrenFrom {
+            const isCheckBox = field.type === 'checkbox' || field.type === 'radio'
+
+            let inputClass = 'form-control'
+            if (isCheckBox)
+                inputClass = 'form-check-input'
+            else if (field.type === 'range')
+                inputClass = 'form-range'
+            else if (field.type === 'color')
+                inputClass += ' form-control-color'
+            else if (field.type === 'select')
+                inputClass = 'form-select'
+
+            if (field.scale > 1)
+                inputClass += ' form-control-lg'
+            else if (field.scale < 1)
+                inputClass += ' form-control-sm'
+
+            const label = renderer.label(field, {class: (isCheckBox ? 'form-check-label' : 'form-label')})
+            let input = renderer.input(fieldValue, field, {class: inputClass})
+            if (field.type === 'radio') {
+                input = Object.keys(field.choices as {})
+                    .map((k, i) => createAbstractDom('div', {class: 'form-check'},
+                        createAbstractDom('label', {class: 'form-check-label'}, [
+                            input[i],
+                            ' ',
+                            field.choices[k]
+                        ])))
+            }
+
+            let colClass = pluginOptions.columns > 1 ? `col-${12 / pluginOptions.columns}` : ''
+            return createAbstractDom('div', {class: `mb-2 ${colClass} ${field.type === 'checkbox' ? 'form-check' : ''}`}, field.type === 'checkbox'
+                ? [...(input.constructor === Array ? input : [input]), label]
+                : [label, ...(input.constructor === Array ? input : [input])] as any)
+        }
     }
-}
+})
 
 export const Bootstrap4 : RenderFormOptions = {
-    labelAttrs: f => {
-        if (f.type === 'checkbox' || f.type === 'radio')
-            return {class: 'form-check-label'}
-        else return {class: 'form-label'}
-    },
-    inputAttrs: f => {
-        let result : any = {};
-
-        if (f.type === 'checkbox' || f.type === 'radio')
-            result = { class: 'form-check-input' }
-        else if (f.type === 'file' || f.type === 'files')
-            result = { class: 'form-control-file' }
-        else if (f.type === 'range')
-            result = { class: 'form-control-range' }
-        else
-            result = {
-                class: `form-control${f.scale > 1 ? ' form-control-lg' : ''}${(f.scale && f.scale < 1) ? ' form-control-sm' : ''}`
-            }
-
-        if (f.type === 'color')
-            result.class += ' form-control-color'
-
-        return result
-    },
-    fieldSetAttrs: f => {
-        if (f.type === 'checkbox' || f.type === 'radio')
-            return {/*class: 'form-check'*/}
-        return {}
-    },
     submitAttrs: (forObj, options) => {
         return {class: 'btn btn-primary'}
+    },
+    layout: {
+        renderFieldSet(field: FieldConfigBase, fieldValue: any, renderer: LayoutRenderer, form?: WebForm, forObject?): DomElementChildrenFrom {
+            const isCheckBox = field.type === 'checkbox' || field.type === 'radio'
+
+            let inputClass = 'form-control'
+            if (isCheckBox)
+                inputClass = 'form-check-input'
+            else if (field.type === 'file' || field.type === 'files')
+                inputClass = 'form-control-file'
+            else if (field.type === 'range')
+                inputClass = 'form-control-range'
+
+            if (field.scale > 1)
+                inputClass += ' form-control-lg'
+            else if (field.scale < 1)
+                inputClass += ' form-control-sm'
+
+            const label = renderer.label(field, {class: (isCheckBox ? 'form-check-label' : '')})
+            let input = renderer.input(fieldValue, field, {class: inputClass})
+            if (field.type === 'radio') {
+                input = Object.keys(field.choices as {})
+                    .map((k, i) => createAbstractDom('div', {class: 'form-check'}, createAbstractDom('label', {}, [
+                        input[i],
+                        ' ',
+                        field.choices[k]
+                    ])))
+            }
+
+            return createAbstractDom('div', {class: `form-group ${field.type === 'checkbox' ? 'form-check' : ''}`}, field.type === 'checkbox'
+                ? [...(input.constructor === Array ? input : [input]), label]
+                : [label, ...(input.constructor === Array ? input : [input])] as any)
+        }
     }
 }
 
 export const Bulma : RenderFormOptions = {
-    labelAttrs: f => {
-        if (f.type === 'checkbox' || f.type === 'radio')
-            return {/*class: f.type*/}
-        else return {class: 'label'}
+    submitAttrs: (forObj, options) => {
+        return {class: 'button is-primary'}
     },
-    inputAttrs: f => {
-        let result : any = {};
+    layout: {
+        renderFieldSet(field: FieldConfigBase, fieldValue: any, renderer: LayoutRenderer, form?: WebForm, forObject?): DomElementChildrenFrom {
+            const isCheckBox = field.type === 'checkbox' || field.type === 'radio'
 
-        if (f.type === 'textarea')
-            result = {class: 'textarea'}
-        else if (f.type !== 'checkbox' && f.type !== 'radio')
-            result = {
-                class: `input${f.scale > 1 ? ' is-large' : ''}${(f.scale && f.scale < 1) ? ' is-small' : ''}`
+            let inputClass = 'input'
+            if (field.type === 'textarea')
+                inputClass = 'textarea'
+            else if (field.type !== 'checkbox' && field.type !== 'radio')
+                inputClass = `input${field.scale > 1 ? ' is-large' : ''}${(field.scale && field.scale < 1) ? ' is-small' : ''}`
+            else if (field.type === 'checkbox' || field.type === 'radio')
+                inputClass = ''
+
+            const label = renderer.label(field, {class: (isCheckBox ? 'checkbox' : 'label')})
+            let input = renderer.input(fieldValue, field, {class: inputClass})
+            if (field.type === 'radio') {
+                input = createAbstractDom('div', {class: 'control'},
+                    Object.keys(field.choices as {})
+                    .map((k, i) => createAbstractDom('label', {class: 'radio'}, [
+                        input[i],
+                        ' ',
+                        field.choices[k]
+                    ]))
+                )
+            }
+            else if (field.type === 'select') {
+                input = createAbstractDom('div', {class: 'select'}, input)
             }
 
-        if (f.type === 'color')
-            result.class += ' form-control-color'
-
-        return result
-    },
-    fieldSetAttrs: f => {
-        if (f.type === 'select' || f.type === 'checkbox' || f.type === 'radio')
-            return {/*class: 'select'*/}
-        return {class: 'field'}
-    },
-    submitAttrs: (forObj, options) => {
-        return {class: 'btn is-primary'}
+            return createAbstractDom('div', {class: `form-group ${field.type === 'checkbox' ? 'form-check' : ''}`}, field.type === 'checkbox'
+                ? [...(input.constructor === Array ? input : [input]), label]
+                : [label, ...(input.constructor === Array ? input : [input])] as any)
+        }
     }
 }
 
-export const MaterialDesignLite : RenderFormOptions = {
-    labelAttrs: f => {
-        if (f.type === 'checkbox')
-            return {class: 'mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect'}
-        if (f.type === 'radio')
-            return {class: 'demo-list-radio mdl-radio mdl-js-radio mdl-js-ripple-effect'}
-        return {class: 'mdl-textfield__label'}
-    },
-    inputAttrs: f => {
-        let result : any = {};
-
-        if (f.type === 'textarea')
-            result = {class: 'mdl-textfield__input'}
-        else if (f.type === 'checkbox')
-            result = {class: 'mdl-checkbox__input'}
-        else if (f.type === 'radio')
-            result = {class: 'mdl-radio__button'}
-        else
-            result = { class: `mdl-textfield__input` }
-
-        return result
-    },
-    fieldSetAttrs: f => {
-        return {class: 'mdl-textfield mdl-js-textfield mdl-textfield--floating-label'}
-    },
+export const MDB5 : RenderFormOptions = {
     submitAttrs: (forObj, options) => {
-        return {class: 'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored'}
+        return {class: 'btn btn-primary'}
+    },
+    layout: {
+        renderFieldSet(field: FieldConfigBase, fieldValue: any, renderer: LayoutRenderer, form?: WebForm, forObject?): DomElementChildrenFrom {
+            const isCheckBox = field.type === 'checkbox' || field.type === 'radio'
+
+            let inputClass = 'form-control'
+            if (isCheckBox)
+                inputClass = 'form-check-input'
+            else if (field.type === 'range')
+                inputClass = 'form-range'
+            else if (field.type === 'color')
+                inputClass += ' form-control-color'
+            else if (field.type === 'select')
+                inputClass = 'form-select'
+
+            if (field.scale > 1)
+                inputClass += ' form-control-lg'
+            else if (field.scale < 1)
+                inputClass += ' form-control-sm'
+
+            const label = renderer.label(field, {class: (isCheckBox ? 'form-check-label' : 'form-label')})
+            let input = renderer.input(fieldValue, field, {class: inputClass})
+            if (field.type === 'radio') {
+                input = Object.keys(field.choices as {})
+                    .map((k, i) => createAbstractDom('div', {class: 'form-check'},
+                        createAbstractDom('label', {class: 'form-check-label'}, [
+                            input[i],
+                            ' ',
+                            field.choices[k]
+                        ])))
+            }
+
+            return createAbstractDom('div', {class: `mb-2 ${isCheckBox || field.type === 'file' || field.type === 'files' ? '' : ''}`},
+                [...(input.constructor === Array ? input : [input]), label] as any)
+        }
     }
 }

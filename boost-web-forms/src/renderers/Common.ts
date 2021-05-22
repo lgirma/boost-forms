@@ -2,6 +2,24 @@ import {
     FormValidationResult, ValidateFunc, ValidationResult, WebFormEvents, WebFormFieldEvents, FormFieldType,
     FieldConfigBase, FieldsConfig, WebForm
 } from "../Models";
+import {renderInput, renderLabel} from "./VanillaFormRenderer";
+import {AbstractDomElement, DomElementChildren, DomElementChildrenFrom} from "boost-web-core";
+
+export interface LayoutRenderer {
+    label: (field: FieldConfigBase, attrs?: any) => DomElementChildrenFrom,
+    input: (val: any, field: FieldConfigBase, attrs?: any) => DomElementChildrenFrom,
+    //fields: () => DomElementChildrenFrom
+}
+export interface FormLayout {
+    //renderForm(renderer: LayoutRenderer, form?: WebForm, forObject?): DomElementChildrenFrom
+    renderFieldSet(field: FieldConfigBase, fieldValue: any, renderer: LayoutRenderer, form?: WebForm, forObject?): DomElementChildrenFrom
+}
+
+export interface PluginOptions {
+    columns?: number
+    inline?: boolean
+    horizontal?: boolean
+}
 
 export interface RenderFormOptions extends WebFormEvents, WebFormFieldEvents {
     labelAttrs?: (fieldConfig: FieldConfigBase) => {}
@@ -11,7 +29,7 @@ export interface RenderFormOptions extends WebFormEvents, WebFormFieldEvents {
 
     excludeFormTag?: boolean
     excludeSubmitButton?: boolean
-    layout?: string
+    layout?: FormLayout
 }
 
 export function getHtmlAttrs(field: FieldConfigBase) {
@@ -57,7 +75,6 @@ export function getHtmlAttrs(field: FieldConfigBase) {
 export function getHtmlFormAttrs(form: WebForm) {
     const src: WebForm = {
         ...form,
-        columns: null,
         fieldsConfig: null,
         validate: null,
         scale: null,

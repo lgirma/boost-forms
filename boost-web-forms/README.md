@@ -118,7 +118,6 @@ All available form configuration
 | --- | ----------- | ---------|
 | `readonly` | boolean | false |
 | `hideLabel` | boolean | false |
-| `columns` | number | 1 |
 
 ## Configuring Fields
 
@@ -282,4 +281,6 @@ validationResult = {
 - [ ] Find easier way to configure form. `formConfig.fieldsConfig.age.type` is too deep
 - [ ] Events: form-level and field-level
   - Example:- Being able to run validation up on input blur or submission
+- [ ] Don't handle submit separately
+  - [ ] Auto-append a submit-field in the form
   

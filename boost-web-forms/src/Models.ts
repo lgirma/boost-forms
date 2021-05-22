@@ -32,7 +32,6 @@ export interface FieldConfigBase extends Partial<HTMLInputElement> {
 }
 
 export interface WebForm extends Partial<HTMLFormElement> {
-    columns?: number
     fieldsConfig?: FieldsConfig
     validate?: ValidateFunc | ValidateFunc[],
     scale?: number

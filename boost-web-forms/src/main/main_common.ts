@@ -1,7 +1,7 @@
 import {createFormConfig} from "../FormService";
 import {fileTypeValidator, MIME_PDF, notEmpty, validName} from "../Validation";
 import {RenderFormOptions} from "../renderers/Common";
-import {Bootstrap5, Bulma, MaterialDesignLite, Bootstrap4} from "../renderers/Plugins";
+import {Bootstrap5, Bulma, MDB5, Bootstrap4} from "../renderers/Plugins";
 
 export let forObj= {
     //@field({type: 'tel'})
@@ -18,7 +18,10 @@ export let forObj= {
     requestDiscount: 5.5,
     passportDocument: null,
     arrivalTime: '09:08:00',
-    price: 50.99
+    price: 50.99,
+    volume: 50,
+    fiscalYear: 2005,
+    invalidTyped: null
 };
 export const options = createFormConfig(forObj, {
     readonly: false,
@@ -40,11 +43,12 @@ export const options = createFormConfig(forObj, {
             type: 'files', validate: [fileTypeValidator(MIME_PDF)],
             required: true
         },
-        arrivalTime: {type: 'go'} as any
+        volume: {type: "range", max: '1000', min: '0', step: '5'},
+        invalidTyped: {type: 'go'} as any
     },
     validate: val => (val.password !== val.confirmPassword ? 'Passwords do not match.' : '')
 })
 
 export const renderOptions: RenderFormOptions = {
-    ...Bootstrap4
+    ...Bootstrap5({columns: 2})
 }

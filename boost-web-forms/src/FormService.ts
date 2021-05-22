@@ -42,9 +42,6 @@ export function createFormConfig(forObject, config: WebForm = {}): WebForm {
     config.scale ??= 1;
     config.readonly ??= false;
     config.hideLabels ??= false;
-    config.columns ??= 1;
-    if (config.columns < 1)
-        config.columns = 1;
 
     Object.keys(forObject).forEach(_ => {
         let fieldId = _;
