@@ -17,18 +17,16 @@ export interface FormLayout {
 
 export interface PluginOptions {
     columns?: number
-    inline?: boolean
-    horizontal?: boolean
+    isInline?: boolean
+    isHorizontal?: boolean
 }
 
 export interface RenderFormOptions extends WebFormEvents, WebFormFieldEvents {
     labelAttrs?: (fieldConfig: FieldConfigBase) => {}
     inputAttrs?: (fieldConfig: FieldConfigBase) => {}
     fieldSetAttrs?: (fieldConfig: FieldConfigBase) => {}
-    submitAttrs?: (forObject, options: WebForm) => {}
 
     excludeFormTag?: boolean
-    excludeSubmitButton?: boolean
     layout?: FormLayout
 }
 
@@ -79,6 +77,7 @@ export function getHtmlFormAttrs(form: WebForm) {
         validate: null,
         scale: null,
         hideLabels: null,
+        excludeSubmitButton: null,
         readonly: null,
         validationResult: null
     }

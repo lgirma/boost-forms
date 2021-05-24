@@ -3,18 +3,15 @@ import {FieldConfigBase, WebForm} from "../Models";
 import {createAbstractDom, DomElementChildrenFrom} from "boost-web-core";
 
 export const Bootstrap5 : (o?: PluginOptions) => RenderFormOptions = pluginOptions => ({
-    submitAttrs: (forObj, options) => {
-        return {class: 'btn btn-primary'}
-    },
     layout: {
         renderForm(forObject, form: WebForm, renderer: LayoutRenderer): DomElementChildrenFrom {
             const result = createAbstractDom('div', {class: 'row'})
             for (const [fieldId, field] of Object.entries(form.fieldsConfig)) {
-                result.children.push(this.renderFieldSet(field, forObject[fieldId], renderer, form, forObject))
+                result.children.push(this.renderFieldSet(field, forObject[fieldId], renderer))
             }
             return result;
         },
-        renderFieldSet(field: FieldConfigBase, fieldValue: any, renderer: LayoutRenderer, form?: WebForm, forObject?): DomElementChildrenFrom {
+        renderFieldSet(field: FieldConfigBase, fieldValue: any, renderer: LayoutRenderer): DomElementChildrenFrom {
             const isCheckBox = field.type === 'checkbox' || field.type === 'radio'
 
             let inputClass = 'form-control'
@@ -22,6 +19,8 @@ export const Bootstrap5 : (o?: PluginOptions) => RenderFormOptions = pluginOptio
                 inputClass = 'form-check-input'
             else if (field.type === 'range')
                 inputClass = 'form-range'
+            else if (field.type === 'submit')
+                inputClass = 'btn btn-primary'
             else if (field.type === 'color')
                 inputClass += ' form-control-color'
             else if (field.type === 'select')
@@ -58,29 +57,25 @@ export const PropertyGrid : (o?: PluginOptions) => RenderFormOptions = pluginOpt
     },
     layout: {
         renderForm(forObject, form: WebForm, renderer: LayoutRenderer): DomElementChildrenFrom {
-            const result = createAbstractDom('table', {style: 'border-collapse: collapse; border: 1px solid lightgrey;'},
+            return createAbstractDom('table', {style: {borderCollapse: 'collapse', border: '1px solid lightgrey'}},
                 createAbstractDom('tbody', {},
                     Object.entries(form.fieldsConfig).map((kv) => {
                         const [fieldId, field] = kv
-                        return this.renderFieldSet(field, forObject[fieldId], renderer, form, forObject)
+                        const label = renderer.label(field)
+                        let input = renderer.input(forObject[fieldId], field)
+                        if (field.type === 'radio') {
+                            input = Object.keys(field.choices as {})
+                                .map((k, i) => createAbstractDom('label', {}, [
+                                    input[i],
+                                    ' ',
+                                    field.choices[k]
+                                ]))
+                        }
+                        return  createAbstractDom('tr', {style: {border: '1px solid lightgrey'}}, [
+                            createAbstractDom('td', {style: {border: '1px solid lightgrey'}}, label),
+                            createAbstractDom('td', {style: {border: '1px solid lightgrey'}}, input),
+                        ])
                     })))
-            return result;
-        },
-        renderFieldSet(field: FieldConfigBase, fieldValue: any, renderer: LayoutRenderer, form?: WebForm, forObject?): DomElementChildrenFrom {
-            const label = renderer.label(field)
-            let input = renderer.input(forObject[field.id], field)
-            if (field.type === 'radio') {
-                input = Object.keys(field.choices as {})
-                    .map((k, i) => createAbstractDom('label', {}, [
-                        input[i],
-                        ' ',
-                        field.choices[k]
-                    ]))
-            }
-            return  createAbstractDom('tr', {style: 'border: 1px solid lightgrey;'}, [
-                createAbstractDom('td', {style: 'border: 1px solid lightgrey;'}, label),
-                createAbstractDom('td', {style: 'border: 1px solid lightgrey;'}, input),
-            ])
         }
     }
 })

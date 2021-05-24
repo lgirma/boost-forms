@@ -42,6 +42,15 @@ export function createFormConfig(forObject, config: WebForm = {}): WebForm {
     config.scale ??= 1;
     config.readonly ??= false;
     config.hideLabels ??= false;
+    config.excludeSubmitButton ??= false;
+
+    if (!config.excludeSubmitButton) {
+        config.fieldsConfig['$$submit'] = {
+            ...getDefaultFieldConfig('$$submit', 'submit', config),
+            hideLabel: true,
+            label: 'Submit'
+        }
+    }
 
     Object.keys(forObject).forEach(_ => {
         let fieldId = _;
@@ -50,19 +59,8 @@ export function createFormConfig(forObject, config: WebForm = {}): WebForm {
         let type = config.fieldsConfig[fieldId]?.type ?? guessType(fieldId, fieldValue)
 
         config.fieldsConfig[fieldId] = {
-            scale: config.scale,
-            readonly: config.readonly,
-            hideLabel: config.hideLabels,
-            icon: null,
-            helpText: '',
-            validationResult: {
-                errorMessage: '',
-                hasError: false
-            },
-            id: fieldId,
+            ...getDefaultFieldConfig(fieldId, type, config),
             label: humanize(fieldId),
-            multiple: false,
-            type: type,
             ...guessConfig(config.fieldsConfig[fieldId], fieldValue, type),
             ...config.fieldsConfig[fieldId],
         }
@@ -74,6 +72,23 @@ export function createFormConfig(forObject, config: WebForm = {}): WebForm {
     });
 
     return config;
+}
+
+export function getDefaultFieldConfig(fieldId: string, type: FormFieldType, formConfig: WebForm): FieldConfigBase {
+    return {
+        scale: formConfig.scale,
+        readonly: formConfig.readonly,
+        hideLabel: formConfig.hideLabels,
+        icon: null,
+        helpText: '',
+        validationResult: {
+            errorMessage: '',
+            hasError: false
+        },
+        id: fieldId,
+        multiple: false,
+        type: type,
+    }
 }
 
 export function guessType(fieldId, fieldValue): FormFieldType {

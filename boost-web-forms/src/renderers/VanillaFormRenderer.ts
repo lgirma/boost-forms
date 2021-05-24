@@ -5,7 +5,7 @@ import {
 } from "../FormService";
 import {FormValidationResult, WebFormEvents, WebFormFieldEvents, FieldConfigBase, WebForm} from "../Models";
 import {AbstractDomElement, createAbstractDom, DomElementChildrenFrom, humanize, toHtmlDom} from 'boost-web-core'
-import {FormLayout, LayoutRenderer, getHtmlAttrs, RenderFormOptions, SimpleTextTypes} from "./Common";
+import {FormLayout, LayoutRenderer, getHtmlAttrs, RenderFormOptions, SimpleTextTypes, getHtmlFormAttrs} from "./Common";
 
 export const DefaultLayout: FormLayout = {
     renderForm(forObject, form: WebForm, renderer: LayoutRenderer): DomElementChildrenFrom {
@@ -23,7 +23,7 @@ export const DefaultLayout: FormLayout = {
             }
             const fieldSet = createAbstractDom('div', {}, field.type == 'checkbox' && !field.readonly
                 ? [...(input.constructor === Array ? input : [input]), ' ', label]
-                : [label, ' ', ...(input.constructor === Array ? input : [input])] as any)
+                : [label, ' ', ...(input.constructor === Array ? input : [input])])
             result.children.push(fieldSet)
         }
         return result;
@@ -47,23 +47,19 @@ export function getAbstractForm(forObject, options?: WebForm, validationResult?:
     options = options || createFormConfig(forObject)
     const {
         labelAttrs = f => ({}), fieldSetAttrs = f => ({}),
-        inputAttrs = f => ({}), submitAttrs = (a,b) => ({}),
+        inputAttrs = f => ({}),
         layout = DefaultLayout
     } = renderOptions
 
 
 
-    let rootElt = createAbstractDom(renderOptions.excludeFormTag ? 'div' : 'form', {...getHtmlAttrs(options)})
+    let rootElt = createAbstractDom(renderOptions.excludeFormTag ? 'div' : 'form', {...getHtmlFormAttrs(options)})
     rootElt.children.push(layout.renderForm(forObject, options, VanillaJSRenderer))
 
    /* for (const [fieldId, field] of Object.entries(options.fieldsConfig)) {
         const fieldSet = layout.renderFieldSet(field, forObject[fieldId], VanillaJSRenderer, options, forObject)
         rootElt.children.push(fieldSet)
     }*/
-
-    if (!renderOptions.excludeSubmitButton && !options.readonly)
-        rootElt.children.push(createAbstractDom('div', {},
-            createAbstractDom('input', {type: 'submit', value: 'Submit', ...submitAttrs(forObject, options)})))
 
     rootElt.attrs.onsubmit = async (e: Event) => {
         const validationResult = await validateForm(getFormState(options, rootElt), options)
@@ -105,6 +101,9 @@ export function renderInput(val, field: FieldConfigBase, attrs = {}): string|Abs
 
     if (field.type == 'textarea') {
         return createAbstractDom('textarea', {rows: 3, ...eltAttrs}, val||'')
+    }
+    if (field.type == 'submit') {
+        return createAbstractDom('input', {type: 'submit', value: field.label ?? 'Submit', ...eltAttrs})
     }
     if (field.type == 'checkbox') {
         return createAbstractDom('input', {type: 'checkbox', checked: !!val, ...eltAttrs})
@@ -148,9 +147,9 @@ export function renderLabel(field: FieldConfigBase, attrs = {}) {
         return ''
     const label = createAbstractDom('label', {...attrs, for: field.id})
     if (field.type == 'checkbox' || field.readonly)
-        label.attrs.style = 'display: inline-block'
+        label.attrs.style = { display: 'inline-block' }
     label.children.push(field.label)
-    label.children.push(field.required ? createAbstractDom('span', {style: 'color: red'}, '*') : '')
+    label.children.push(field.required ? createAbstractDom('span', {style: {color: 'red'}}, '*') : '')
     label.children.push(field.readonly ? ': ' : '')
     return label
 }

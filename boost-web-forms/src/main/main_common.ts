@@ -25,7 +25,7 @@ export let forObj= {
 };
 export const options = createFormConfig(forObj, {
     readonly: false,
-    style: 'width: 50%; margin: 10px' as any,
+    style: { width: '50%', margin: '10px' },
     fieldsConfig: {
         name: {validate: [notEmpty, validName]},
         email: {required: true, placeholder: 'mail@company.com'},
@@ -50,5 +50,5 @@ export const options = createFormConfig(forObj, {
 })
 
 export const renderOptions: RenderFormOptions = {
-    ...PropertyGrid({columns: 2})
+    ...Bootstrap5({columns: 2})
 }

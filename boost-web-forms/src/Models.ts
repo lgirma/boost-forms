@@ -31,13 +31,18 @@ export interface FieldConfigBase extends Partial<HTMLInputElement> {
     //placeholder?: string
 }
 
-export interface WebForm extends Partial<HTMLFormElement> {
+type DeepPartial<T> = {
+    [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};
+
+export interface WebForm extends DeepPartial<HTMLFormElement> {
     fieldsConfig?: FieldsConfig
-    validate?: ValidateFunc | ValidateFunc[],
+    validate?: ValidateFunc | ValidateFunc[]
     scale?: number
     hideLabels?: boolean
     readonly?: boolean
     validationResult?: FormValidationResult
+    excludeSubmitButton?: boolean
 }
 
 export interface ValidationResult {
