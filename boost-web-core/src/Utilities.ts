@@ -105,7 +105,7 @@ export function toJsx<T>(reactCreateElement, root: AbstractDomElement, key?: any
     if (key != null) attrs.key = key;
     for (const [k, v] of Object.entries({...root.attrs})) {
         if (k === 'class') attrs.className = v
-        else if (k == 'style') attrs.STYLE = v
+        //else if (k == 'style') attrs.style = v
         else if (k == 'for') attrs.htmlFor = v
         else if (k == 'value') attrs.defaultValue = v
         else if (k == 'checked') attrs.defaultChecked = v
@@ -113,19 +113,30 @@ export function toJsx<T>(reactCreateElement, root: AbstractDomElement, key?: any
     }
     if (root.children && root.children.length > 1)
         return reactCreateElement(root.tag, attrs,
-            root.children.map((c, i) => (typeof(c) === 'string' || c == null) ? c : toJsx(reactCreateElement, c, i)))
+            root.children.map((c, i) => (typeof (c) === 'string' || c == null) ? c : toJsx(reactCreateElement, c, i)))
     else if (root.children && root.children.length == 1) {
         let c = root.children[0]
-        return reactCreateElement(root.tag, attrs, (typeof(c) === 'string' || c == null) ? c : toJsx(reactCreateElement, c))
+        if (root.tag === 'textarea')
+            return reactCreateElement(root.tag, {...attrs, defaultValue: c})
+        else
+            return reactCreateElement(root.tag, attrs, (typeof(c) === 'string' || c == null) ? c : toJsx(reactCreateElement, c))
     }
     else
         return reactCreateElement(root.tag, attrs)
 }
 
-export function toHtmlDom<T extends Node>(documentCreateElement, document, root: AbstractDomElement): T {
-    const result = documentCreateElement.call(document, root.tag)
+export function toHtmlDom<T extends HTMLElement>(documentCreateElement, document, root: AbstractDomElement): T {
+    const result = documentCreateElement.call(document, root.tag) as HTMLElement
     for (const k in root.attrs) {
-        result.setAttribute(k, root.attrs[k])
+        const val = root.attrs[k]
+        if (k === 'style' && typeof(val) === 'object') {
+            for (const [sk, sv] of val) {
+                if (sv != null)
+                    result.style.setProperty(sk, `${sv}`);
+            }
+        }
+        else
+            result.setAttribute(k, val)
     }
     for (const child of root.children) {
         if (child != null) {
@@ -143,7 +154,14 @@ export function toHtmlDom<T extends Node>(documentCreateElement, document, root:
 export function toHtmlString(root: AbstractDomElement): string {
     let result = `<${root.tag}`
     for (const k in root.attrs) {
-        result += ` ${k}="${root.attrs[k]}"`
+        const val = root.attrs[k]
+        if (k === 'style' && typeof(val) === 'object') {
+            for (const [sk, sv] of val) {
+                if (sv != null)
+                    result += ` ${sk}="${sv}"`
+            }
+        }
+        result += ` ${k}="${val}"`
     }
     result += ">"
 
