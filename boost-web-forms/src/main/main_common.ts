@@ -1,7 +1,7 @@
 import {createFormConfig} from "../FormService";
 import {fileTypeValidator, MIME_PDF, notEmpty, validName} from "../Validation";
 import {RenderFormOptions} from "../renderers/Common";
-import {Bootstrap5, PropertyGrid/*, Bulma, MDB5, Bootstrap4*/} from "../renderers/Plugins";
+import {Bootstrap5, PropertyGrid, Bootstrap4, Bootstrap3/*, Bulma, MDB5*/} from "../renderers/Plugins";
 
 export let forObj= {
     //@field({type: 'tel'})
@@ -50,5 +50,5 @@ export const options = createFormConfig(forObj, {
 })
 
 export const renderOptions: RenderFormOptions = {
-    ...Bootstrap5({columns: 2})
+    ...Bootstrap3({columns: 2})
 }

@@ -264,12 +264,6 @@ validationResult = {
 
 ## Todo
 
-- [x] Remove compulsory dependency on `createFormConfig`
-- [ ] Clean up config fields (hideLabel vs hideLabels, etc.)
-  - [ ] Re-using existing html fields as possible
-- [x] Try making VanillaFormRenderer re-usable by react/svelte renderers
-  - [x] `renderers/Common.ts`
-- [ ] Improve guessType
 - [ ] Document each field type
 - [ ] Easily manage field types
   - [ ] Lots of field types (see https://www.mockaroo.com/)
@@ -281,8 +275,4 @@ validationResult = {
 - [ ] Find easier way to configure form. `formConfig.fieldsConfig.age.type` is too deep
 - [ ] Events: form-level and field-level
   - Example:- Being able to run validation up on input blur or submission
-- [ ] Don't handle submit separately
-  - [ ] Auto-append a submit-field in the form
 - [ ] Groups
-- Property grid (see https://github.com/ValYouW/jqPropertyGrid)
-- [ ] Colspans for individual columns

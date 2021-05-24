@@ -46,15 +46,12 @@ export const Bootstrap5 : (o?: PluginOptions) => RenderFormOptions = pluginOptio
             let colClass = pluginOptions.columns > 1 ? `col-${12 / pluginOptions.columns}` : ''
             return createAbstractDom('div', {class: `mb-2 ${colClass} ${field.type === 'checkbox' ? 'form-check' : ''}`}, field.type === 'checkbox'
                 ? [...(input.constructor === Array ? input : [input]), label]
-                : [label, ...(input.constructor === Array ? input : [input])] as any)
+                : [label, ...(input.constructor === Array ? input : [input])])
         }
     }
 })
 
 export const PropertyGrid : (o?: PluginOptions) => RenderFormOptions = pluginOptions => ({
-    submitAttrs: (forObj, options) => {
-        return {class: 'btn btn-primary'}
-    },
     layout: {
         renderForm(forObject, form: WebForm, renderer: LayoutRenderer): DomElementChildrenFrom {
             return createAbstractDom('table', {style: {borderCollapse: 'collapse', border: '1px solid lightgrey'}},
@@ -80,27 +77,27 @@ export const PropertyGrid : (o?: PluginOptions) => RenderFormOptions = pluginOpt
     }
 })
 
-/*
-export const Bootstrap4 : RenderFormOptions = {
-    submitAttrs: (forObj, options) => {
-        return {class: 'btn btn-primary'}
-    },
+
+export const Bootstrap4 : (o?: PluginOptions) => RenderFormOptions = pluginOptions => ({
     layout: {
+        renderForm(forObject, form: WebForm, renderer: LayoutRenderer): DomElementChildrenFrom {
+            const result = createAbstractDom('div', {class: 'row'})
+            for (const [fieldId, field] of Object.entries(form.fieldsConfig)) {
+                result.children.push(this.renderFieldSet(field, forObject[fieldId], renderer))
+            }
+            return result;
+        },
         renderFieldSet(field: FieldConfigBase, fieldValue: any, renderer: LayoutRenderer, form?: WebForm, forObject?): DomElementChildrenFrom {
             const isCheckBox = field.type === 'checkbox' || field.type === 'radio'
 
-            let inputClass = 'form-control'
-            if (isCheckBox)
-                inputClass = 'form-check-input'
-            else if (field.type === 'file' || field.type === 'files')
-                inputClass = 'form-control-file'
-            else if (field.type === 'range')
-                inputClass = 'form-control-range'
-
-            if (field.scale > 1)
-                inputClass += ' form-control-lg'
-            else if (field.scale < 1)
-                inputClass += ' form-control-sm'
+            let classTable = {
+                checkbox: 'form-check-input', radio: 'form-check-input',
+                file: 'form-control-file', files: 'form-control-file',
+                range: 'form-control-range', submit: 'btn btn-primary'
+            }
+            let inputClass = classTable[field.type] || 'form-control'
+            if (field.scale != 1)
+                inputClass += ` form-control-${field.scale > 1 ? 'lg' : 'sm'}`
 
             const label = renderer.label(field, {class: (isCheckBox ? 'form-check-label' : '')})
             let input = renderer.input(fieldValue, field, {class: inputClass})
@@ -113,13 +110,55 @@ export const Bootstrap4 : RenderFormOptions = {
                     ])))
             }
 
-            return createAbstractDom('div', {class: `form-group ${field.type === 'checkbox' ? 'form-check' : ''}`}, field.type === 'checkbox'
+            let colClass = pluginOptions.columns > 1 ? `col-${12 / pluginOptions.columns}` : ''
+            return createAbstractDom('div', {class: `mb-2 ${colClass} ${field.type === 'checkbox' ? 'form-check' : ''}`}, field.type === 'checkbox'
                 ? [...(input.constructor === Array ? input : [input]), label]
-                : [label, ...(input.constructor === Array ? input : [input])] as any)
+                : [label, ...(input.constructor === Array ? input : [input])])
         }
     }
-}
+})
 
+
+
+export const Bootstrap3 : (o?: PluginOptions) => RenderFormOptions = pluginOptions => ({
+    layout: {
+        renderForm(forObject, form: WebForm, renderer: LayoutRenderer): DomElementChildrenFrom {
+            const result = createAbstractDom('div', {class: 'row'})
+            for (const [fieldId, field] of Object.entries(form.fieldsConfig)) {
+                result.children.push(this.renderFieldSet(field, forObject[fieldId], renderer))
+            }
+            return result;
+        },
+        renderFieldSet(field: FieldConfigBase, fieldValue: any, renderer: LayoutRenderer, form?: WebForm, forObject?): DomElementChildrenFrom {
+            const isCheckBox = field.type === 'checkbox' || field.type === 'radio'
+
+            let classTable = {
+                submit: 'btn btn-default', file: ' ', files: ' ', checkbox: ' ', radio: ' ', range: ' '
+            }
+            let inputClass = classTable[field.type] || 'form-control'
+            if (field.scale != 1)
+                inputClass += ` input-${field.scale > 1 ? 'lg' : 'sm'}`
+
+            const label = renderer.label(field, {})
+            let input = renderer.input(fieldValue, field, {class: inputClass})
+            if (field.type === 'radio') {
+                input = Object.keys(field.choices as {})
+                    .map((k, i) => createAbstractDom('div', {class: (field.multiple ? 'checkbox' : 'radio')}, createAbstractDom('label', {}, [
+                        input[i],
+                        ' ',
+                        field.choices[k]
+                    ])))
+            }
+
+            let colClass = pluginOptions.columns > 1 ? `col-md-${12 / pluginOptions.columns}` : ''
+            return createAbstractDom('div', {class: `${colClass} ${field.type === 'checkbox' ? 'checkbox' : 'form-group'}`}, field.type === 'checkbox'
+                ? [...(input.constructor === Array ? input : [input]), label]
+                : [label, ...(input.constructor === Array ? input : [input])])
+        }
+    }
+})
+
+/*
 export const Bulma : RenderFormOptions = {
     submitAttrs: (forObj, options) => {
         return {class: 'button is-primary'}

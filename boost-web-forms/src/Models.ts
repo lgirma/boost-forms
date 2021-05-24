@@ -8,6 +8,7 @@ export type FieldsConfig = {
 export interface FieldConfigBase extends Partial<HTMLInputElement> {
     icon?: string
     type?: FormFieldType
+    colSpan?: number
     helpText?: string
     label?: string
     validationResult?: ValidationResult

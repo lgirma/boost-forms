@@ -79,6 +79,7 @@ export function getDefaultFieldConfig(fieldId: string, type: FormFieldType, form
         scale: formConfig.scale,
         readonly: formConfig.readonly,
         hideLabel: formConfig.hideLabels,
+        colSpan: 1,
         icon: null,
         helpText: '',
         validationResult: {
