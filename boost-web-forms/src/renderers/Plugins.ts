@@ -52,6 +52,8 @@ export const Bootstrap5 : (o?: PluginOptions) => RenderFormOptions = pluginOptio
             if (!isEmpty(colClass))
                 fieldSet = vdom('div', {class: `mb-2 ${colClass}`}, fieldSet)
             else fieldSet.attrs.class += ' mb-2'
+            if (!isEmpty(field.helpText))
+                fieldSet.children.push(vdom('div', {class: 'form-text'}, field.helpText))
             return fieldSet
         }
     }
@@ -94,6 +96,8 @@ export const Bootstrap4 : (o?: PluginOptions) => RenderFormOptions = pluginOptio
             if (!isEmpty(colClass))
                 fieldSet = vdom('div', {class: `mb-2 ${colClass}`}, fieldSet)
             else fieldSet.attrs.class += ' mb-2'
+            if (!isEmpty(field.helpText))
+                fieldSet.children.push(vdom('small', {class: 'form-text text-muted'}, field.helpText))
             return fieldSet
         }
     }
@@ -129,6 +133,8 @@ export const Bootstrap3 : (o?: PluginOptions) => RenderFormOptions = pluginOptio
             let fieldSet = vdom('div', {class: `${field.type === 'checkbox' ? 'checkbox' : 'form-group'}`}, field.type === 'checkbox'
                 ? [...(input.constructor === Array ? input : [input]), label]
                 : [label, ...(input.constructor === Array ? input : [input])])
+            if (!isEmpty(field.helpText))
+                fieldSet.children.push(vdom('p', {class: 'help-block'}, field.helpText))
             if (!isEmpty(colClass))
                 fieldSet = vdom('div', {class: colClass}, fieldSet)
             return fieldSet

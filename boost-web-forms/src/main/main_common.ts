@@ -28,7 +28,7 @@ export const options = createFormConfig(forObj, {
     style: { width: '50%', margin: '10px' },
     fieldsConfig: {
         name: {validate: [notEmpty, validName]},
-        email: {required: true, placeholder: 'mail@company.com'},
+        email: {required: true, placeholder: 'mail@company.com', helpText: 'We will send you verification code through this'},
         accountType: {
             type: 'select',
             placeholder: '-- Select Account Type --',
@@ -50,5 +50,5 @@ export const options = createFormConfig(forObj, {
 })
 
 export const renderOptions: RenderFormOptions = {
-    //...Bulma({columns: 2})
+    ...Bootstrap3({columns: 2})
 }

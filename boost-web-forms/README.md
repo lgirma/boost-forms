@@ -270,13 +270,16 @@ validationResult = {
   - [ ] Make sure renderers support field types
   - [x] How to extend type system and renderers
   - [ ] Manage external dependencies (captcha, gallery, etc.)
-- [ ] Provide easier integration with Bootstrap/Tailwind/Bulma/etc.
+- [ ] Provide integration with Bootstrap/Tailwind/Bulma/etc.
   - [ ] Various layouts (inline, in-table, disabled vs. readonly)
+  - [ ] Rendering validation results
+  - [ ] Rendering `helpText`
 - [ ] Find easier way to configure form. `formConfig.fieldsConfig.age.type` is too deep
 - [ ] Events: form-level and field-level
   - Example:- Being able to run validation up on input blur or submission
 - [ ] Groups
 - [ ] Publish to npm
+- [ ] Explore on how to unify v-dom and Svelte
 
 ### Bugs
 
