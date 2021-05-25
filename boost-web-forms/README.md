@@ -276,3 +276,8 @@ validationResult = {
 - [ ] Events: form-level and field-level
   - Example:- Being able to run validation up on input blur or submission
 - [ ] Groups
+- [ ] Publish to npm
+
+### Bugs
+
+- [ ] Datetime parser

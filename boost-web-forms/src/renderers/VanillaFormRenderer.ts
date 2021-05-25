@@ -4,24 +4,24 @@ import {
     validateForm,
 } from "../FormService";
 import {FormValidationResult, WebFormEvents, WebFormFieldEvents, FieldConfigBase, WebForm} from "../Models";
-import {AbstractDomElement, createAbstractDom, DomElementChildrenFrom, humanize, toHtmlDom} from 'boost-web-core'
+import {AbstractDomElement, vdom, DomElementChildrenFrom, humanize, toHtmlDom} from 'boost-web-core'
 import {FormLayout, LayoutRenderer, getHtmlAttrs, RenderFormOptions, SimpleTextTypes, getHtmlFormAttrs} from "./Common";
 
 export const DefaultLayout: FormLayout = {
     renderForm(forObject, form: WebForm, renderer: LayoutRenderer): DomElementChildrenFrom {
-        const result = createAbstractDom('div', {})
+        const result = vdom('div', {})
         for (const [fieldId, field] of Object.entries(form.fieldsConfig)) {
             const label = renderer.label(field)
             let input = renderer.input(forObject[fieldId], field)
             if (field.type === 'radio') {
                 input = Object.keys(field.choices as {})
-                    .map((k, i) => createAbstractDom('label', {}, [
+                    .map((k, i) => vdom('label', {}, [
                         input[i],
                         ' ',
                         field.choices[k]
                     ]))
             }
-            const fieldSet = createAbstractDom('div', {}, field.type == 'checkbox' && !field.readonly
+            const fieldSet = vdom('div', {}, field.type == 'checkbox' && !field.readonly
                 ? [...(input.constructor === Array ? input : [input]), ' ', label]
                 : [label, ' ', ...(input.constructor === Array ? input : [input])])
             result.children.push(fieldSet)
@@ -38,7 +38,8 @@ export function renderForm(forObject, options?: WebForm, validationResult?: Form
 const VanillaJSRenderer: LayoutRenderer = {
     label: (field, attrs) => renderLabel(field, attrs),
     input: (val, field, attrs) => renderInput(val, field, attrs),
-    //fields: (forObj, formConfig) =>
+    form: (formConfig: WebForm, attrs?: any, rootTag = 'form') =>
+        vdom(rootTag, {...getHtmlFormAttrs(formConfig), ...attrs})
 }
 
 export function getAbstractForm(forObject, options?: WebForm, validationResult?: FormValidationResult, renderOptions?: RenderFormOptions) {
@@ -53,8 +54,7 @@ export function getAbstractForm(forObject, options?: WebForm, validationResult?:
 
 
 
-    let rootElt = createAbstractDom(renderOptions.excludeFormTag ? 'div' : 'form', {...getHtmlFormAttrs(options)})
-    rootElt.children.push(layout.renderForm(forObject, options, VanillaJSRenderer))
+    let rootElt = layout.renderForm(forObject, options, VanillaJSRenderer)
 
    /* for (const [fieldId, field] of Object.entries(options.fieldsConfig)) {
         const fieldSet = layout.renderFieldSet(field, forObject[fieldId], VanillaJSRenderer, options, forObject)
@@ -83,13 +83,13 @@ export function renderInput(val, field: FieldConfigBase, attrs = {}): string|Abs
         if (field.type == 'checkbox')
             return val ? 'Yes' : 'No'
         else if (field.type == 'html') {
-            return createAbstractDom('div', {}, val)
+            return vdom('div', {}, val)
         }
         else if (field.type == 'markdown') {
-            return createAbstractDom('div', {}, val)
+            return vdom('div', {}, val)
         }
         else if (field.type == 'select' || field.type == 'radio') {
-            return createAbstractDom('div', {}, field.choices[val])
+            return vdom('div', {}, field.choices[val])
         }
         return `${val == null ? '' : val}`
     }
@@ -100,27 +100,27 @@ export function renderInput(val, field: FieldConfigBase, attrs = {}): string|Abs
     }
 
     if (field.type == 'textarea') {
-        return createAbstractDom('textarea', {rows: 3, ...eltAttrs}, val||'')
+        return vdom('textarea', {rows: 3, ...eltAttrs}, val||'')
     }
     if (field.type == 'submit') {
-        return createAbstractDom('input', {type: 'submit', value: field.label ?? 'Submit', ...eltAttrs})
+        return vdom('input', {type: 'submit', value: field.label ?? 'Submit', ...eltAttrs})
     }
     if (field.type == 'checkbox') {
-        return createAbstractDom('input', {type: 'checkbox', checked: !!val, ...eltAttrs})
+        return vdom('input', {type: 'checkbox', checked: !!val, ...eltAttrs})
     }
     if (field.type == 'toggle') {
-        return createAbstractDom('input', {type: 'checkbox', checked: val != null, value: field.choices[0], ...eltAttrs})
+        return vdom('input', {type: 'checkbox', checked: val != null, value: field.choices[0], ...eltAttrs})
     }
     if (field.type == 'select') {
-        return createAbstractDom('select', {...eltAttrs}, [
-            ...(field.required ? null : [createAbstractDom('option', {value: ''}, field.placeholder ?? '')]),
+        return vdom('select', {...eltAttrs}, [
+            ...(field.required ? null : [vdom('option', {value: ''}, field.placeholder ?? '')]),
             ...Object.keys(field.choices as {})
-                .map(k => createAbstractDom('option', {value: k, selected: k == `${val}` ? true : undefined}, field.choices[k]))
+                .map(k => vdom('option', {value: k, selected: k == `${val}` ? true : undefined}, field.choices[k]))
         ])
     }
     if (field.type == 'radio') {
         return Object.keys(field.choices as {})
-            .map(k => createAbstractDom('input', {
+            .map(k => vdom('input', {
                     ...eltAttrs,
                     id: undefined,
                     type: (field.multiple ? 'checkbox' : 'radio'),
@@ -129,15 +129,15 @@ export function renderInput(val, field: FieldConfigBase, attrs = {}): string|Abs
 
     }
     if (field.type == 'files')
-        return createAbstractDom('input', {...eltAttrs, type: 'file', multiple: 'multiple', value: `${val == null ? '' : val}`})
+        return vdom('input', {...eltAttrs, type: 'file', multiple: 'multiple', value: `${val == null ? '' : val}`})
     if (field.type == 'number')
-        return createAbstractDom('input', {...eltAttrs, type: 'number', value: `${val == null ? '' : val}`})
+        return vdom('input', {...eltAttrs, type: 'number', value: `${val == null ? '' : val}`})
     if (field.type == 'range')
-        return createAbstractDom('input', {...eltAttrs, type: 'range', value: `${val == null ? '' : val}`})
+        return vdom('input', {...eltAttrs, type: 'range', value: `${val == null ? '' : val}`})
     if (field.type == 'money')
-        return createAbstractDom('input', {min: '0', step: '0.01', ...eltAttrs, type: 'number', value: `${val == null ? '' : val}`})
+        return vdom('input', {min: '0', step: '0.01', ...eltAttrs, type: 'number', value: `${val == null ? '' : val}`})
     if (SimpleTextTypes.indexOf(field.type) > -1)
-        return createAbstractDom('input', {...eltAttrs, type: field.type, value: `${val == null ? '' : val}`})
+        return vdom('input', {...eltAttrs, type: field.type, value: `${val == null ? '' : val}`})
     console.warn(`Unsupported field type: '${field.type}' for field '${field.id}'.`)
     return ''
 }
@@ -145,11 +145,11 @@ export function renderInput(val, field: FieldConfigBase, attrs = {}): string|Abs
 export function renderLabel(field: FieldConfigBase, attrs = {}) {
     if (field.hideLabel)
         return ''
-    const label = createAbstractDom('label', {...attrs, for: field.id})
+    const label = vdom('label', {...attrs, for: field.id})
     if (field.type == 'checkbox' || field.readonly)
         label.attrs.style = { display: 'inline-block' }
     label.children.push(field.label)
-    label.children.push(field.required ? createAbstractDom('span', {style: {color: 'red'}}, '*') : '')
+    label.children.push(field.required ? vdom('span', {style: {color: 'red'}}, '*') : '')
     label.children.push(field.readonly ? ': ' : '')
     return label
 }

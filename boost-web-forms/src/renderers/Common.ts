@@ -8,7 +8,7 @@ import {AbstractDomElement, DomElementChildren, DomElementChildrenFrom} from "bo
 export interface LayoutRenderer {
     label: (field: FieldConfigBase, attrs?: any) => DomElementChildrenFrom,
     input: (val: any, field: FieldConfigBase, attrs?: any) => DomElementChildrenFrom,
-    //fields: () => DomElementChildrenFrom
+    form: (form: WebForm, attrs?: any, rootTag?: string) => AbstractDomElement
 }
 export interface FormLayout {
     //renderForm(renderer: LayoutRenderer, form?: WebForm, forObject?): DomElementChildrenFrom

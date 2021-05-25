@@ -1,7 +1,7 @@
 import {createFormConfig} from "../FormService";
 import {fileTypeValidator, MIME_PDF, notEmpty, validName} from "../Validation";
 import {RenderFormOptions} from "../renderers/Common";
-import {Bootstrap5, PropertyGrid, Bootstrap4, Bootstrap3/*, Bulma, MDB5*/} from "../renderers/Plugins";
+import {Bootstrap5, PropertyGrid, Bootstrap4, Bootstrap3, Bulma/*, MDB5*/} from "../renderers/Plugins";
 
 export let forObj= {
     //@field({type: 'tel'})
@@ -38,7 +38,7 @@ export const options = createFormConfig(forObj, {
             type: 'radio', readonly: false,
             choices: {0: 'Male', 1: 'Female'}
         },
-        comment: {type: 'textarea'},
+        comment: {type: 'textarea', colSpan: 2},
         passportDocument: {
             type: 'files', validate: [fileTypeValidator(MIME_PDF)],
             required: true
@@ -50,5 +50,5 @@ export const options = createFormConfig(forObj, {
 })
 
 export const renderOptions: RenderFormOptions = {
-    ...Bootstrap3({columns: 2})
+    ...Bulma({columns: 2})
 }
