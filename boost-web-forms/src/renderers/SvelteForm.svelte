@@ -13,7 +13,7 @@
     export let forObject
     export let options: WebForm | null = null
     export let renderOptions: RenderFormOptions = {}
-    export let validationResult: FormValidationResult | null = {errorMessage: '', fields: {}, hasError: false}
+    export let validationResult: FormValidationResult | null = {message: '', fields: {}, hasError: false}
     let _safeOptions = options ?? createFormConfig(forObject)
     let _safeRenderOptions = {
         inputAttrs: f => {},

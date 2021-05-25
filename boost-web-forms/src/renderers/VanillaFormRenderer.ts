@@ -43,7 +43,7 @@ const VanillaJSRenderer: LayoutRenderer = {
 }
 
 export function getAbstractForm(forObject, options?: WebForm, validationResult?: FormValidationResult, renderOptions?: RenderFormOptions) {
-    validationResult ??= {errorMessage: '', hasError: false, fields: {}}
+    validationResult ??= {message: '', hasError: false, fields: {}}
     renderOptions = renderOptions || {} as any
     options = options || createFormConfig(forObject)
     const {
@@ -53,8 +53,7 @@ export function getAbstractForm(forObject, options?: WebForm, validationResult?:
     } = renderOptions
 
 
-
-    let rootElt = layout.renderForm(forObject, options, VanillaJSRenderer)
+    let rootElt = layout.renderForm(forObject, options, VanillaJSRenderer, validationResult)
 
    /* for (const [fieldId, field] of Object.entries(options.fieldsConfig)) {
         const fieldSet = layout.renderFieldSet(field, forObject[fieldId], VanillaJSRenderer, options, forObject)
@@ -65,8 +64,8 @@ export function getAbstractForm(forObject, options?: WebForm, validationResult?:
         const validationResult = await validateForm(getFormState(options, rootElt), options)
         if (validationResult.hasError) {
             e.preventDefault()
-            alert(`Validation error: \n${validationResult.errorMessage} \n ${Object.keys(validationResult.fields).filter(k => validationResult.fields[k].hasError)
-                .map(k => `${humanize(k)}: ${validationResult.fields[k].errorMessage}`).join('\n')}`)
+            alert(`Validation error: \n${validationResult.message} \n ${Object.keys(validationResult.fields).filter(k => validationResult.fields[k].hasError)
+                .map(k => `${humanize(k)}: ${validationResult.fields[k].message}`).join('\n')}`)
         }
         if (renderOptions.onValidation)
             renderOptions.onValidation(e, validationResult)

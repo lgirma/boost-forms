@@ -12,7 +12,7 @@ export interface LayoutRenderer {
 }
 export interface FormLayout {
     //renderForm(renderer: LayoutRenderer, form?: WebForm, forObject?): DomElementChildrenFrom
-    renderForm(forObject, form: WebForm, renderer: LayoutRenderer): DomElementChildrenFrom
+    renderForm(forObject, form: WebForm, renderer: LayoutRenderer, validationResult?: FormValidationResult): DomElementChildrenFrom
 }
 
 export interface PluginOptions {

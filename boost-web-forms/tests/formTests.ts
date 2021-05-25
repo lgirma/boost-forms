@@ -54,7 +54,7 @@ describe('Form service tests', () => {
         expect(validationResult.hasError).to.be.true;
         expect(validationResult.fields.city.hasError).to.be.false;
         expect(validationResult.fields.age.hasError).to.be.true;
-        expect(validationResult.fields.age.errorMessage).to.equal('AGE_18_OR_ABOVE');
+        expect(validationResult.fields.age.message).to.equal('AGE_18_OR_ABOVE');
         expect(validationResult.fields.email.hasError).to.be.false;
     });
 
@@ -65,7 +65,7 @@ describe('Form service tests', () => {
         });
         let validationResult = await validateForm(registration, formConfig);
         expect(validationResult.hasError).to.be.true;
-        expect(validationResult.errorMessage).to.equal('PASSWORDS_DONT_MATCH');
+        expect(validationResult.message).to.equal('PASSWORDS_DONT_MATCH');
     });
 
     it('Respects user config choices', () => {

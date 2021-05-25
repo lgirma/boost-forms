@@ -83,7 +83,7 @@ export function getDefaultFieldConfig(fieldId: string, type: FormFieldType, form
         icon: null,
         helpText: '',
         validationResult: {
-            errorMessage: '',
+            message: '',
             hasError: false
         },
         id: fieldId,
@@ -154,7 +154,7 @@ export async function validateForm(forObject, formConfig?: WebForm) : Promise<Fo
     let fieldsConfig = formConfig.fieldsConfig;
     let result: FormValidationResult = {
         hasError: false,
-        errorMessage: '',
+        message: '',
         fields: {}
     };
     for (const id in forObject) {
@@ -177,12 +177,12 @@ export async function validateForm(forObject, formConfig?: WebForm) : Promise<Fo
         else if (validate == null) continue
 
         let fieldValidationResult = await runValidator(validate, value);
-        result.fields[id].errorMessage = fieldValidationResult.errorMessage;
+        result.fields[id].errorMessage = fieldValidationResult.message;
         result.fields[id].hasError = fieldValidationResult.hasError;
     }
     const formLevelValidation = await runValidator(formConfig.validate, forObject);
     result.hasError = formLevelValidation.hasError || Object.keys(result.fields).reduce((p, k) => p || result.fields[k].hasError, false)
-    result.errorMessage = formLevelValidation.errorMessage
+    result.message = formLevelValidation.message
     return result
 }
 

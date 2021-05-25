@@ -274,6 +274,7 @@ validationResult = {
   - [ ] Various layouts (inline, in-table, disabled vs. readonly)
   - [ ] Rendering validation results
   - [ ] Rendering `helpText`
+  - [ ] Tailwind, Chakra-UI, Material-UI
 - [ ] Find easier way to configure form. `formConfig.fieldsConfig.age.type` is too deep
 - [ ] Events: form-level and field-level
   - Example:- Being able to run validation up on input blur or submission
@@ -284,3 +285,5 @@ validationResult = {
 ### Bugs
 
 - [ ] Datetime parser
+- [ ] Checkboxes in bootstrap 3
+- [ ] Help text in bulma

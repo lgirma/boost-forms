@@ -47,7 +47,7 @@ export interface WebForm extends DeepPartial<HTMLFormElement> {
 }
 
 export interface ValidationResult {
-    errorMessage: string,
+    message?: string,
     hasError: boolean
 }
 
@@ -59,7 +59,7 @@ export interface FormValidationResult extends ValidationResult{
 
 export function getValidationResult(errorMessage?: string): ValidationResult {
     return {
-        errorMessage: errorMessage ?? '',
+        message: errorMessage ?? '',
         hasError: !isEmpty(errorMessage)
     }
 }
