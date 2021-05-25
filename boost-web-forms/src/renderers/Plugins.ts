@@ -184,7 +184,7 @@ export const Bulma : (o?: PluginOptions) => RenderFormOptions = pluginOptions =>
                 inputClass = 'button is-primary'
             else if (field.type !== 'checkbox' && field.type !== 'radio')
                 inputClass = `input${field.scale > 1 ? ' is-large' : ''}${(field.scale && field.scale < 1) ? ' is-small' : ''}`
-            else if (field.type === 'checkbox' || field.type === 'radio')
+            else if (field.type === 'checkbox' || field.type === 'radio' || field.type === 'range')
                 inputClass = ''
 
             const label = renderer.label(field, {class: (isCheckBox ? 'checkbox' : 'label')})

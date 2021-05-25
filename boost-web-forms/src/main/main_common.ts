@@ -50,5 +50,5 @@ export const options = createFormConfig(forObj, {
 })
 
 export const renderOptions: RenderFormOptions = {
-    ...Bulma({columns: 2})
+    //...Bulma({columns: 2})
 }

@@ -75,7 +75,7 @@ export function toHtmlDom<T extends HTMLElement>(documentCreateElement, document
     for (const k in root.attrs) {
         const val = root.attrs[k]
         if (k === 'style' && typeof(val) === 'object') {
-            for (const [sk, sv] of val) {
+            for (const [sk, sv] of Object.entries(val)) {
                 if (sv != null)
                     result.style.setProperty(sk, `${sv}`);
             }
