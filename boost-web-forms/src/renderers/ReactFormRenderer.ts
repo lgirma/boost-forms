@@ -13,7 +13,7 @@ export interface ReactFormProps {
 
 export function GetReactForm(createElement) {
     return ({forObject, options = null, renderOptions = null, validationResult = null}: ReactFormProps) => {
-        const abstractForm = getAbstractForm(forObject, options, validationResult, renderOptions)
+        const abstractForm = getAbstractForm(forObject, options, renderOptions, validationResult)
         return toJsx(createElement, abstractForm)
     }
 }

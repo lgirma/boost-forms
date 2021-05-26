@@ -54,6 +54,7 @@ export function toJsx<T>(reactCreateElement, root: AbstractDomElement, key?: any
         else if (k == 'for') attrs.htmlFor = v
         else if (k == 'value') attrs.defaultValue = v
         else if (k == 'checked') attrs.defaultChecked = v
+        // Events:
         else if (typeof(v) == 'function' && k.length > 3) {
             attrs[`on${k[2].toUpperCase()}${k.slice(3)}`] = v
         }

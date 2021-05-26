@@ -149,7 +149,7 @@ export function guessConfig(fieldConfig: FieldConfigBase, val: any, fieldType: F
 }
 
 export async function validateForm(forObject, formConfig?: WebForm) : Promise<FormValidationResult> {
-    formConfig = formConfig || createFormConfig(forObject)
+    formConfig = createFormConfig(forObject, formConfig)
     let fieldsConfig = formConfig.fieldsConfig;
     let result: FormValidationResult = {
         hasError: false,

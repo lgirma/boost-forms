@@ -31,7 +31,7 @@ export const DefaultLayout: FormLayout = {
 }
 
 export function renderForm(forObject, options?: WebForm, validationResult?: FormValidationResult, renderOptions?: RenderFormOptions): HTMLElement {
-    let rootElt = getAbstractForm(forObject, options, validationResult, renderOptions)
+    let rootElt = getAbstractForm(forObject, options, renderOptions, validationResult)
     return toHtmlDom(document.createElement, document, rootElt)
 }
 
@@ -42,10 +42,10 @@ const VanillaJSRenderer: LayoutRenderer = {
         vdom(rootTag, {...getHtmlFormAttrs(formConfig), ...attrs})
 }
 
-export function getAbstractForm(forObject, options?: WebForm, validationResult?: FormValidationResult, renderOptions?: RenderFormOptions) {
+export function getAbstractForm(forObject, options?: WebForm, renderOptions?: RenderFormOptions, validationResult?: FormValidationResult) {
     validationResult ??= {message: '', hasError: false, fields: {}}
     renderOptions = renderOptions || {} as any
-    options = options || createFormConfig(forObject)
+    options = createFormConfig(forObject, options)
     const {
         labelAttrs = f => ({}), fieldSetAttrs = f => ({}),
         inputAttrs = f => ({}), layout = DefaultLayout

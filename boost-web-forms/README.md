@@ -1,7 +1,7 @@
 # Boost-Web Forms
 
 ### What is it?
-An opinionated tiny (~3 kb) form generator for javascript objects.
+An opinionated small form generator library for javascript objects.
 
 It basically turns this object:
 
@@ -22,7 +22,9 @@ without any configuration or schema, into this:
 * Zero dependencies
 * Works with vanilla JS
 * Built-in react and svelte support
-* No schema needed to generate forms (although supported)
+* No schema or configuration needed to generate forms (although supported)
+* Built-in plugins for popular UI kits (bootstrap, bulma, etc.)
+* API is as close to the DOM API as possible
 
 ## Installation
 
@@ -36,9 +38,9 @@ or
 yarn add boost-web-forms
 ```
 
-## Getting Started
+## Quick Start
 
-To generate a login form, 
+To generate the above login form, 
 
 1. Create your model:
 
@@ -61,13 +63,6 @@ const formHtmlElt = renderForm(forObj)
 document.body.append(formHtmlElt)
 ```
 
-**For Svelte**:
-```jsx
-import {SvelteForm as Form} from 'boost-web-forms'
-
-<Form forObject={forObj} />
-```
-
 **For React**:
 ```jsx
 import {GetReactForm} from 'boost-web-forms'
@@ -76,25 +71,78 @@ const Form = GetReactForm(React.createElement)
 <Form forObject={forObj} />
 ```
 
-This will render an HTML form with 3 fields,
+**For Svelte**:
+```jsx
+import {SvelteForm as Form} from 'boost-web-forms'
 
-* Email field with label
-* Password field with type password
-* A checkbox with the label: 'Remember Me'
+<Form forObject={forObj} />
+```
+
+This will automatically render the following HTML:
+
+```html
+<form>
+  <div>
+    <label for="userName">User Name</label> 
+    <input name="userName" colspan="1" id="userName" type="name" value="">
+  </div>
+  <div>
+    <label for="password">Password<span style="color: red;">*</span></label> 
+    <input name="password" colspan="1" id="password" required="" type="password" value="">
+  </div>
+  <div>
+    <input type="checkbox" name="rememberMe" colspan="1" id="rememberMe" checked=""> 
+    <label for="rememberMe" style="display: inline-block;">Remember Me</label>
+  </div>
+  <div> 
+    <input type="submit" name="$$submit" colspan="1" id="$$submit">
+  </div>
+</form>
+```
+
+For popular UI kits [see](#plugins).
+
+## Quick Start 2
+
+Let's generate form for a more complicated registration model:
+
+```javascript
+let forObj = {
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    birthDate: '',
+    packages: ['newsLetter', 'premiumSupport'],
+    preferredTime: '00:00:00'
+}
+```
+
+Will automatically render:
+
+![Advanced form](resources/advanced_form.JPG)
+
+You can see that:
+
+* Field types were auto guessed from field names
+* Humanizes label texts (`confirmPassword` becomes `Confirm Password`)
+* Generates native `<input>` tags
+* Sets `required` fields for password inputs
 
 ## Configuring the Form
 
 While the library includes good set of defaults, the form can be configured as needed.
 
-For example, to make the form read-only and hide all labels, use:
+All valid HTML `<form>` tag [attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form) can be used.
+For example:
 
 ```javascript
-import {createFormConfig} from 'boost-web-forms'
-
-const options = createFormConfig(forObj, {
-    readonly: true,
-    hideLabel: true
-})
+const options = {
+    method: 'POST',
+    enctype: 'multipart/form-data',
+    class: 'form columns',
+    onsubmit: e => {alert('Submitting...')}
+}
 ```
 
 Then pass the configuration to any of the renderers:
@@ -112,12 +160,15 @@ document.body.append(
 <Form forObject={forObj} options={options} />
 ```
 
-All available form configuration
+All available form configuration options
 
-| Option | Type | Default Value |
-| --- | ----------- | ---------|
-| `readonly` | boolean | false |
-| `hideLabel` | boolean | false |
+| Option | Type | Description | Default Value |
+| --- | ----------- | --- | ---------|
+| `readonly` | boolean | Makes all fields readonly | false |
+| `hideLabels` | boolean | Hides labels of all fields | false |
+| `excludeSubmitButton` | boolean | Doesn't include a submit button automatically | false |
+| `scale` | number | Zoom factor for fields. Shows large or small fields | 1 |
+| All valid html `<form>` [attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form) | - | Will show up in the `<form>` tag. These include `id`, `action`, `style`, `class`, `onsubmit`, etc. | - |
 
 ## Configuring Fields
 
@@ -125,15 +176,39 @@ Every individual field can be configured in the form configuration using `fields
 For example, to make the password field readonly:
 
 ```javascript
-const formConfig = createFormConfig(forObj, {
+const options = {
     fieldsConfig: {
         password: {readonly: true}
     }
-})
+}
 ```
 
-Another example would be to set the type of fields. 
-For example, to set types for 'confirm password' and comment fields as:
+Note: All valid HTML input [attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input) can be used here.
+
+All available field configuration
+
+| Option | Description | Type | Default Value |
+| --- | ----------- | ---------| ---- |
+| `readonly` | Makes the field not editable | boolean | false |
+| `label` | Text that's shown in the label | string | Automatically guessed |
+| `hideLabel` | Whether to generate label for the input | boolean | false |
+| `type` | Specify the type of value for the field | string | Automatically guessed
+| `helpText` | Specify a description for the input | string | ''
+| `validate` | Specify validations for the field | - | Refer section: [Validation](#validation)
+| `scale` | Specify whether to show big or small input controls. | number | 1
+| `colSpan` | Column span, if the form has more than 1 column | number | 1
+| `maxlength` | Maximum length of text allowed | string | '' |
+| `multiple` | If multiple values are allowed (only for `select` and `radio` types) | boolean | false |
+| `choices` | Sets of choices the user can pick from (only for `select` and `radio` types) | `string[]` or `Object` with key-value pairs | null |
+| `readonly` | Whether the field is read-only | boolean | false |
+| All valid html `<input>` [attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input) | - | Will show up in the `<input>` tag. These include `id`, `placeholder`, `style`, `class`, `onchange`, etc. | - |
+
+
+### Field Types
+
+The type of a field can be specified using `type` attribute in the field config.
+All `<input>` tag's [type attribute values](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#input_types) are supported.
+For example, to set types for 'confirm password' and comment fields:
 
 ```javascript
 const forObj = {
@@ -143,30 +218,13 @@ const forObj = {
     comment: ''
 }
 
-const formConfig = createFormConfig(forObj, {
+const options = {
     fieldsConfig: {
         confirmPassword: {type: 'password'},
         comment: {type: 'textarea', label: 'Any Comments?'}
     }
-})
+}
 ```
-
-All available field configuration
-
-| Option | Description | Type | Default Value |
-| --- | ----------- | ---------| ---- |
-| `readonly` | Makes the field not editable | boolean | false |
-| `showLabel` | Whether to generate label for the input | boolean | true |
-| `icon` | Specify an icon for the field | string | ''
-| `type` | Specify the type of value for the field | string | Automatically guessed
-| `required` | Whether empty values are allowed | boolean | false
-| `helpText` | Specify a description for the input | string | ''
-| `label` | Text shown as the label of the input field | string | Automatically generated
-| `placeholder` | Specify the text shown as a placeholder for the input field | string | ''
-| `validate` | Specify validations for the field | - | Refer section 'Validation' below
-| `scale` | Specify whether to show big or small input controls. | number | 1
-| `id` | HTML ID of the input | string | Automatically guessed
-| `colSpan` | Column span, if the form has more than 1 column | number | 1
 
 Supported field types are:
 
@@ -178,6 +236,104 @@ Supported field types are:
 'isbn' | 'location' | 'language' | 'money' | 'timezone' | 'title' | 'gallery' | 'submit'
 ```
 
+Note: Not all the above types can be rendered right now. It is a work in progress.
+
+### Select types
+
+To use select (drop-down) field type use `choices` field to specify options:
+
+```jsx
+let options = {
+    fieldsConfig: {
+        userType: {
+            type: 'select',
+            placeholder: '-- Select User Type --',
+            choices: ['Admin', 'Guest', 'Member']
+        }
+    }
+}
+```
+
+Will render a select input like:
+
+```html
+<select id="userType" name="userType">
+  <option value="">-- Select User Type --</option>
+  <option value="Admin">Admin</option>
+  <option value="Guest">Guest</option>
+  <option value="Member">Member</option>
+</select>
+```
+
+To use different values and labels for the options, use an object with key-value pairs:
+
+```javascript
+choices: {AD: 'Admin', GU: 'Guest', ME: 'Member'}
+```
+
+Will render a select input like:
+
+```html
+<option value="AD">Admin</option>
+<option value="GU">Guest</option>
+<option value="ME">Member</option>
+```
+
+### Radio types
+
+To use radio (choices) field type use:
+
+```jsx
+let options = {
+    fieldsConfig: {
+        userType: {
+            type: 'radio',
+            choices: ['Admin', 'Guest', 'Member']
+        }
+    }
+}
+```
+
+Will render radio inputs like:
+
+```html
+<label>
+  <input name="userType" type="radio" value="Admin"> Admin
+</label>
+<label>
+  <input name="userType" type="radio" value="Guest"> Guest
+</label>
+<label>
+  <input name="userType" type="radio" value="Member"> Member
+</label>
+```
+
+To use different values and labels for the options, use an object with key-value pairs:
+
+```javascript
+choices: {AD: 'Admin', GU: 'Guest', ME: 'Member'}
+```
+
+### Multiple choices (select and radio types)
+
+To enable multiple values for both `select` and `radio` types, just set `multiple` to true
+
+```jsx
+let options = {
+    fieldsConfig: {
+        packages: {
+            type: 'radio',
+            choices: ['Newsletter', 'PremiumSupport'],
+            multiple: true
+        }
+    }
+}
+```
+
+This will change the field type to set of checkboxes as:
+
+![Multiple choices](resources/multiple_choice.JPG)
+
 ## Validation
 
 Validation specs can be added to either on the form level or individual fields.
@@ -186,11 +342,11 @@ There are good set of validation functions already included in this library:
 ```javascript
 import {notEmpty, validName} from 'boost-web-forms'
 
-const formConfig = createFormConfig(forObject, {
+const options = {
     fieldsConfig: {
         name: {validate: [notEmpty, validName]}
     }
-})
+}
 ```
 
 The `validate` field would accept:
@@ -209,6 +365,26 @@ async (val) => {
 }
 ```
 
+Then this validation result can be rendered:
+
+```jsx
+import {validateForm} from 'boost-web-forms'
+
+// Vanilla JS
+let validationResult = validateForm(forObj)
+document.body.append(
+    renderForm(forObj, null, null, validationResult)
+)
+
+// React
+let validationResult = validateForm(forObj)
+<Form forObject={forObj} validationResult={validationResult} />
+
+// Svelte
+let validationResult = validateForm(forObj)
+<Form forObject={forObj} validationResult={validationResult} />
+```
+
 Built-in validation methods:
 
 | Method | Description | For input types | Usage |
@@ -225,19 +401,19 @@ Using custom validation functions is also easy.
 Just return an error message if it should fail, empty string otherwise.
 
 ```javascript
-const formConfig = createFormConfig(forObject, {
+const options = {
     fieldsConfig: {
         age: {validate: val => (val < 18 ? 'Age must be 18 or above' : '')}
     }
-})
+}
 ```
 
 Validations can also be done on the form level as:
 
 ```javascript
-const formConfig = createFormConfig(forObject, {
+const options = {
     validate: val => (val.password != val.confirmPassword ? 'Passwords do not match.' : '')
-})
+}
 ```
 
 To run validations manually:
@@ -253,37 +429,81 @@ Would give a validation result such as:
 ```javascript
 validationResult = {
     hasErrors: true,
-    errorMessage: '', // Form level validation errors, if any
+    message: '', // Form level validation errors, if any
     fields: {
-        email: {hasError: true, errorMessage: 'Please, fill in this field.'},
-        password: {hasError: true, errorMessage: 'Password is too weak.'},
-        name: {hasError: false, errorMessage: ''}
+        email: {hasError: true, message: 'Please, fill in this field.'},
+        password: {hasError: true, message: 'Password is too weak.'},
+        name: {hasError: false, message: ''}
     }
 }
 ```
+
+## Plugins
+
+Plugins for popular UI kits are already included.
+You may have to include the required CSS/JS assets in your project first.
+Included plugins are:
+
+* Bootstrap (versions 3, 4 and 5) (visit [https://getbootstrap.com](https://getbootstrap.com))
+* Bulma (visit [https://bulma.io](https://bulma.io))
+
+To use a specific plugin, pass it over in the `renderOptions` parameter
+
+```jsx
+import {Bootstrap5} from 'boost-web-forms'
+
+// Vanilla JS
+renderForm(forObj, options, formValidationResult, Bootstrap5({columns: 2}))
+
+// React
+<Form forObject={forObj} renderOptions={Bootstrap5({columns: 2})} />
+
+// Svelte
+<Form forObject={forObj} renderOptions={Bootstrap5({columns: 2})} />
+```
+
+Will render something like:
+
+![Bootstrap5 Form](resources/bootstrap5.JPG)
+
+All available plugins:
+
+| Plugin | Description | Import |
+| --- | ----------- | ---------| 
+| `Bootstrap5` | Bootstrap v5 | `import {Bootstrap5} from 'boost-web-forms'` |
+| `Bootstrap4` | Bootstrap v4 | `import {Bootstrap4} from 'boost-web-forms'` |
+| `Bootstrap3` | Bootstrap v3 | `import {Bootstrap3} from 'boost-web-forms'` |
+| `Bulma` | Bulma | `import {Bulma} from 'boost-web-forms'` |
+
+Available plugin options:
+
+| Option | Description | Type | Default Value |
+| --- | ----------- | ---------| ---- |
+| `columns` | Number of columns to layout the form into | number | 1 |
+| `isInline` | Whether all fields are laid out horizontally | boolean | false |
+| `isHorizontal` | Whether to arrange label and input pairs side-by-side | boolean | false |
+
+## Custom Plugins and Renderers
+
+TBD
 
 ## Todo
 
 - [ ] Document each field type
 - [ ] Easily manage field types
-  - [ ] Lots of field types (see https://www.mockaroo.com/)
   - [ ] Make sure renderers support field types
   - [x] How to extend type system and renderers
   - [ ] Manage external dependencies (captcha, gallery, etc.)
 - [ ] Provide integration with Bootstrap/Tailwind/Bulma/etc.
-  - [ ] Various layouts (inline, in-table, disabled vs. readonly)
-  - [x] Rendering validation results
-  - [x] Rendering `helpText`
-  - [ ] Tailwind, Chakra-UI, Material-UI
+  - [ ] Various layouts (inline, in-table)
+  - [ ] Tailwind UI
+  - [ ] Support react custom components
+      - [ ] For Chakra-UI, Material-UI
 - [ ] Find easier way to configure form. `formConfig.fieldsConfig.age.type` is too deep
-- [ ] Events: form-level and field-level
-  - Example:- Being able to run validation up on input blur or submission
 - [ ] Groups
-- [ ] Publish to npm
 - [ ] Explore on how to unify v-dom and Svelte
 
 ### Bugs
 
-- [ ] Datetime parser
 - [ ] Checkboxes in bootstrap 3
 - [ ] Help text in bulma
