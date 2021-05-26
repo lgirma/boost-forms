@@ -33,7 +33,8 @@ export const options = createFormConfig(forObj, {
         accountType: {
             type: 'select',
             placeholder: '-- Select Account Type --',
-            choices: ['Commercial', 'Personal']
+            choices: ['Commercial', 'Personal'],
+            onchange: e => {alert(' Changed to ' + (e.target as HTMLInputElement).value)}
         },
         gender: {
             type: 'radio', readonly: false,

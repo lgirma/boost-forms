@@ -246,6 +246,65 @@ export const Bulma : (o?: PluginOptions) => RenderFormOptions = pluginOptions =>
     }
 })
 
+/*export const MaterialUI : (o?: PluginOptions) => RenderFormOptions = pluginOptions => ({
+    layout: {
+        renderForm(forObject, form: WebForm, renderer: LayoutRenderer, validationResult?: FormValidationResult): DomElementChildrenFrom {
+            const result = renderer.form(form, {class: 'columns is-multiline'})
+            for (const [fieldId, field] of Object.entries(form.fieldsConfig)) {
+                result.children.push(this.renderFieldSet(field, forObject[fieldId], renderer, validationResult.fields[fieldId]))
+            }
+            return result;
+        },
+        renderFieldSet(field: FieldConfigBase, fieldValue: any, renderer: LayoutRenderer, validationResult?: ValidationResult): DomElementChildrenFrom {
+            const isCheckBox = field.type === 'checkbox' || field.type === 'radio'
+
+            let inputClass = 'input'
+            if (field.type === 'textarea')
+                inputClass = 'textarea'
+            else if (field.type == 'submit')
+                inputClass = 'button is-primary'
+            else if (field.type !== 'checkbox' && field.type !== 'radio' && field.scale != 1)
+                inputClass = `input${field.scale > 1 ? ' is-large' : ''}${(field.scale && field.scale < 1) ? ' is-small' : ''}`
+            else if (field.type === 'checkbox' || field.type === 'radio' || field.type === 'range')
+                inputClass = ''
+
+            if (validationResult && validationResult.hasError)
+                inputClass += ' is-danger'
+            let labelClass = ''
+            if (validationResult && validationResult.hasError && (field.type == 'radio' || field.type == 'checkbox'))
+                labelClass += ' has-text-danger'
+
+            const label = renderer.label(field, {class: `${labelClass} ${isCheckBox ? 'checkbox' : 'label'}`})
+            let input = renderer.input(fieldValue, field, {class: inputClass})
+            if (field.type === 'radio') {
+                input = vdom('div', {class: 'control'},
+                    Object.keys(field.choices as {})
+                        .map((k, i) => vdom('label', {class: 'radio'}, [
+                            input[i],
+                            ' ',
+                            field.choices[k]
+                        ]))
+                )
+            }
+            else if (field.type === 'select') {
+                input = vdom('div', {class: 'select is-fullwidth'}, input)
+            }
+            let validationMsg = validationResult && validationResult.hasError
+                ? vdom('div', {class: 'help is-danger'}, validationResult.message)
+                : null
+            let helpText = !isEmpty(field.helpText) ? vdom('div', {class: 'help'}, field.helpText) : null
+            let colClass = this.getColClass(pluginOptions.columns, field.colSpan)
+
+            return vdom('div', {class: `${colClass} field ${field.type === 'checkbox' ? 'form-check' : ''}`}, field.type === 'checkbox'
+                ? [...(input.constructor === Array ? input : [input]), ' ', label, ...[validationMsg], ...[helpText]]
+                : [label, ' ', ...(input.constructor === Array ? input : [input]), ...[validationMsg], ...[helpText]])
+        },
+        getColClass(columns: number, colSpan: number) {
+            return columns > 1 ? `column is-${12 * colSpan / columns}` : ''
+        }
+    }
+})*/
+
 /*
 export const MDB5 : RenderFormOptions = {
     submitAttrs: (forObj, options) => {

@@ -100,7 +100,6 @@ export function guessType(fieldId, fieldValue): FormFieldType {
         'quantity$|number$': 'number',
         '^amount|amount$|^price|price$': 'money',
         '^date|date$': 'date', '^year|year$': 'year', '^month|month$': 'month',
-        '^time|time$': 'datetime-local',
         '^phone|phone$': 'tel',
         '^captcha|captcha^': 'reCaptcha',
         '^language|language$': 'language'
@@ -163,7 +162,7 @@ export async function validateForm(forObject, formConfig?: WebForm) : Promise<Fo
         const config = fieldsConfig[id]
         result.fields[id] = {
             hasError: false,
-            errorMessage: null
+            message: null
         }
         if (config == null) continue
         let validate = config.validate
@@ -177,7 +176,7 @@ export async function validateForm(forObject, formConfig?: WebForm) : Promise<Fo
         else if (validate == null) continue
 
         let fieldValidationResult = await runValidator(validate, value);
-        result.fields[id].errorMessage = fieldValidationResult.message;
+        result.fields[id].message = fieldValidationResult.message;
         result.fields[id].hasError = fieldValidationResult.hasError;
     }
     const formLevelValidation = await runValidator(formConfig.validate, forObject);

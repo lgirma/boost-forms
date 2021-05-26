@@ -6,13 +6,13 @@ import {renderInput, renderLabel} from "./VanillaFormRenderer";
 import {AbstractDomElement, DomElementChildren, DomElementChildrenFrom} from "boost-web-core";
 
 export interface LayoutRenderer {
-    label: (field: FieldConfigBase, attrs?: any) => DomElementChildrenFrom,
-    input: (val: any, field: FieldConfigBase, attrs?: any) => DomElementChildrenFrom,
+    label: (field: FieldConfigBase, attrs?: any) => DomElementChildren,
+    input: (val: any, field: FieldConfigBase, attrs?: any) => DomElementChildren,
     form: (form: WebForm, attrs?: any, rootTag?: string) => AbstractDomElement
 }
 export interface FormLayout {
     //renderForm(renderer: LayoutRenderer, form?: WebForm, forObject?): DomElementChildrenFrom
-    renderForm(forObject, form: WebForm, renderer: LayoutRenderer, validationResult?: FormValidationResult): DomElementChildrenFrom
+    renderForm(forObject, form: WebForm, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement
 }
 
 export interface PluginOptions {
@@ -21,7 +21,7 @@ export interface PluginOptions {
     isHorizontal?: boolean
 }
 
-export interface RenderFormOptions extends WebFormEvents, WebFormFieldEvents {
+export interface RenderFormOptions {
     labelAttrs?: (fieldConfig: FieldConfigBase) => {}
     inputAttrs?: (fieldConfig: FieldConfigBase) => {}
     fieldSetAttrs?: (fieldConfig: FieldConfigBase) => {}
@@ -48,6 +48,7 @@ export function getHtmlAttrs(field: FieldConfigBase) {
         scale: null,
         readonly: null,
         validate: null,
+        onValidation: null
     }
     let result : any = {
         name: field.id
@@ -79,7 +80,8 @@ export function getHtmlFormAttrs(form: WebForm) {
         hideLabels: null,
         excludeSubmitButton: null,
         readonly: null,
-        validationResult: null
+        validationResult: null,
+        onValidation: null,
     }
     let result : any = {}
     for (const [key, val] of Object.entries(src)) {

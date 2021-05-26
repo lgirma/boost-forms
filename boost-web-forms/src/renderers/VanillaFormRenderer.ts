@@ -8,7 +8,7 @@ import {AbstractDomElement, vdom, DomElementChildrenFrom, humanize, toHtmlDom} f
 import {FormLayout, LayoutRenderer, getHtmlAttrs, RenderFormOptions, SimpleTextTypes, getHtmlFormAttrs} from "./Common";
 
 export const DefaultLayout: FormLayout = {
-    renderForm(forObject, form: WebForm, renderer: LayoutRenderer): DomElementChildrenFrom {
+    renderForm(forObject, form: WebForm, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement {
         const result = vdom('div', {})
         for (const [fieldId, field] of Object.entries(form.fieldsConfig)) {
             const label = renderer.label(field)
@@ -48,19 +48,13 @@ export function getAbstractForm(forObject, options?: WebForm, validationResult?:
     options = options || createFormConfig(forObject)
     const {
         labelAttrs = f => ({}), fieldSetAttrs = f => ({}),
-        inputAttrs = f => ({}),
-        layout = DefaultLayout
+        inputAttrs = f => ({}), layout = DefaultLayout
     } = renderOptions
 
 
     let rootElt = layout.renderForm(forObject, options, VanillaJSRenderer, validationResult)
 
-   /* for (const [fieldId, field] of Object.entries(options.fieldsConfig)) {
-        const fieldSet = layout.renderFieldSet(field, forObject[fieldId], VanillaJSRenderer, options, forObject)
-        rootElt.children.push(fieldSet)
-    }*/
-
-    rootElt.attrs.onsubmit = async (e: Event) => {
+    /*rootElt.attrs.onSubmit = async (e: Event) => {
         const validationResult = await validateForm(getFormState(options, rootElt), options)
         if (validationResult.hasError) {
             e.preventDefault()
@@ -70,9 +64,9 @@ export function getAbstractForm(forObject, options?: WebForm, validationResult?:
         if (renderOptions.onValidation)
             renderOptions.onValidation(e, validationResult)
 
-        /*if (options.onsubmit)
-            options.onsubmit(e)*/
-    }
+        if (options.onSubmit)
+            options.onsubmit(e)
+    }*/
 
     return rootElt
 }

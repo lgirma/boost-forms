@@ -54,6 +54,9 @@ export function toJsx<T>(reactCreateElement, root: AbstractDomElement, key?: any
         else if (k == 'for') attrs.htmlFor = v
         else if (k == 'value') attrs.defaultValue = v
         else if (k == 'checked') attrs.defaultChecked = v
+        else if (typeof(v) == 'function' && k.length > 3) {
+            attrs[`on${k[2].toUpperCase()}${k.slice(3)}`] = v
+        }
         else attrs[k] = v
     }
     if (root.children && root.children.length > 1)
@@ -79,6 +82,9 @@ export function toHtmlDom<T extends HTMLElement>(documentCreateElement, document
                 if (sv != null)
                     result.style.setProperty(sk, `${sv}`);
             }
+        }
+        else if (typeof(val) === 'function') {
+            result.addEventListener(k.substr(2, k.length - 2), val)
         }
         else
             result.setAttribute(k, val)

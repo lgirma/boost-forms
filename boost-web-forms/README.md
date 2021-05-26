@@ -272,8 +272,8 @@ validationResult = {
   - [ ] Manage external dependencies (captcha, gallery, etc.)
 - [ ] Provide integration with Bootstrap/Tailwind/Bulma/etc.
   - [ ] Various layouts (inline, in-table, disabled vs. readonly)
-  - [ ] Rendering validation results
-  - [ ] Rendering `helpText`
+  - [x] Rendering validation results
+  - [x] Rendering `helpText`
   - [ ] Tailwind, Chakra-UI, Material-UI
 - [ ] Find easier way to configure form. `formConfig.fieldsConfig.age.type` is too deep
 - [ ] Events: form-level and field-level

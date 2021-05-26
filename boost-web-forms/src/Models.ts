@@ -5,7 +5,7 @@ export type FieldsConfig = {
     [key: string]: FieldConfigBase;
 }
 
-export interface FieldConfigBase extends Partial<HTMLInputElement> {
+export interface FieldConfigBase extends Partial<HTMLInputElement>, WebFormFieldEvents {
     icon?: string
     type?: FormFieldType
     colSpan?: number
@@ -21,22 +21,13 @@ export interface FieldConfigBase extends Partial<HTMLInputElement> {
     scale?: number
     readonly?: boolean
     validate?: ValidateFunc | ValidateFunc[]
-
-    //disabled?: boolean
-    //hidden?: boolean
-    //step?: string
-    //pattern?: string
-    //min?: string
-    //max?: string
-    //required?: boolean
-    //placeholder?: string
 }
 
 type DeepPartial<T> = {
     [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
 };
 
-export interface WebForm extends DeepPartial<HTMLFormElement> {
+export interface WebForm extends DeepPartial<HTMLFormElement>, WebFormEvents {
     fieldsConfig?: FieldsConfig
     validate?: ValidateFunc | ValidateFunc[]
     scale?: number
@@ -69,15 +60,11 @@ export type ValidateFunc = AsyncValidateFunc | ((val, errorMessage?: string) => 
 export type FormValidateFunc = (formData: any) => Promise<string>
 
 export interface WebFormEvents {
-    onValidation?: (e, validationResult: ValidationResult) => void
+    onValidation?: (e: Event, validationResult: FormValidationResult) => void
 }
 
 export interface WebFormFieldEvents {
-    onInput?: (e) => void
-    onChange?: (e) => void
-    onFocus?: (e) => void
-    onBlur?: (e) => void
-    onValidation?: (e, validationResult: ValidationResult) => void
+    onValidation?: (e: Event, validationResult: ValidationResult) => void
 }
 
 export type HTMLInputType =
