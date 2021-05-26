@@ -1,4 +1,4 @@
-
+export type Nullable<T> = T|null
 export function humanize(str: string) {
     return str
         .replace(/^[\s_]+|[\s_]+$/g, '')
@@ -25,11 +25,11 @@ export function getFriendlyFileSize(bytes: number) {
  * Checks if the given string is empty or white space only.
  * @param str
  */
-export function isEmpty(str: string) {
+export function isEmpty(str: string|null) {
     return str == null || str.trim().length == 0;
 }
 
-export function isArray(a) {
+export function isArray(a: any) {
     return a != null && Array.isArray(a);
 }
 
@@ -59,7 +59,7 @@ export function isYear(str: string){
 
 export function uuid() {
     // UUID v4
-    return (([1e7] as any)+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+    return (([1e7] as any)+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, (c: any) =>
         (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
     )
 }
@@ -69,4 +69,12 @@ export function toArray<T>(src: T|T[]): T[] {
     if (Array.isArray(src))
         return src;
     else return [src]
+}
+
+export function toArrayWithoutNulls<T>(src: Nullable<T>|Nullable<T>[]): T[] {
+    if (src == null) return []
+    if (Array.isArray(src))
+        return src.filter(s => s != null) as T[];
+    else
+        return [src]
 }

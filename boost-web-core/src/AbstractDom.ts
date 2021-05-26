@@ -1,6 +1,6 @@
-export type AbstractDomNode = AbstractDomElement|string
+import {Nullable} from "./Utilities";
 
-export type Nullable<T> = T|null
+export type AbstractDomNode = AbstractDomElement|string
 
 export type DomElementChildren = AbstractDomNode[]
 
@@ -8,23 +8,30 @@ export type DomElementChildrenFrom = Nullable<AbstractDomNode>|Nullable<Abstract
 
 export interface AbstractDomElement {
     tag: string
-    attrs?: {[p: string]: any}
-    children?: DomElementChildren
+    attrs: {[p: string]: any}
+    children: DomElementChildren
 }
 
 /**
  * Creates an abstract dom elements tree.
  * Example:
+ *
+ * ```ts
  * vdom('p', {}, [
+ *      "Here is a",
  *      vdom("a", { href:"http://www.google.com/" }, "link"),
  *      "."
  * ]);
+ * ```
  *
  * Results:
- *  <p>Here is a <a href="http://www.google.com/">link</a>.</p>
+ *
+ * ```html
+ * <p>Here is a <a href="http://www.google.com/">link</a>.</p>
+ * ```
  */
 export function vdom(tag: string,
-                     attrs: {} = {},
+                     attrs:{[key: string]: any} = {},
                      children: DomElementChildrenFrom = null) : AbstractDomElement {
     const elt: AbstractDomElement = {tag, attrs: {}, children: []}
     attrs ??= {}
@@ -36,8 +43,10 @@ export function vdom(tag: string,
     if (children != null) {
         if (typeof children === 'string')
             elt.children.push(children)
-        else if (children.constructor === Array) {
-            elt.children.push(...children)
+        else if (Array.isArray(children)) {
+            children.forEach(c => {
+                if (c != null) elt.children.push(c)
+            })
         } else {
             elt.children.push(children as AbstractDomElement)
         }
@@ -45,7 +54,7 @@ export function vdom(tag: string,
     return elt
 }
 
-export function toJsx<T>(reactCreateElement, root: AbstractDomElement, key?: any): T {
+export function toJsx<T>(reactCreateElement: any, root: AbstractDomElement, key?: any): T {
     let attrs: any = {}
     if (key != null) attrs.key = key;
     for (const [k, v] of Object.entries({...root.attrs})) {
@@ -74,7 +83,7 @@ export function toJsx<T>(reactCreateElement, root: AbstractDomElement, key?: any
         return reactCreateElement(root.tag, attrs)
 }
 
-export function toHtmlDom<T extends HTMLElement>(documentCreateElement, document, root: AbstractDomElement): T {
+export function toHtmlDom<T extends HTMLElement>(documentCreateElement: any, document: HTMLDocument, root: AbstractDomElement): T {
     const result = documentCreateElement.call(document, root.tag) as HTMLElement
     for (const k in root.attrs) {
         const val = root.attrs[k]
