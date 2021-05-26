@@ -71,7 +71,7 @@ export function maxFileSize(val, errorMessage = 'Please, upload a file no bigger
 export async function parseApiValidationResult(apiResult) {
     let result : FormValidationResult = {
         hasError: false,
-        errorMessage: '',
+        message: '',
         fields: {}
     };
     if (apiResult && apiResult.code === 'ValidationError' && apiResult.details) {
@@ -83,7 +83,7 @@ export async function parseApiValidationResult(apiResult) {
                 fieldId = fieldId.slice(0, 1).toLowerCase() + fieldId.slice(1)
                 result.fields[fieldId] = {
                     hasError: true,
-                    errorMessage: 'Please, check this input'
+                    message: 'Please, check this input'
                 }
             }
         }

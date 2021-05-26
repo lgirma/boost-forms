@@ -4,68 +4,85 @@ import {
     validateForm,
 } from "../FormService";
 import {FormValidationResult, WebFormEvents, WebFormFieldEvents, FieldConfigBase, WebForm} from "../Models";
-import {createDomTree, humanize} from 'boost-web-core'
-import {getHtmlAttrs, RenderFormOptions, SimpleTextTypes} from "./Common";
+import {AbstractDomElement, vdom, DomElementChildrenFrom, humanize, toHtmlDom} from 'boost-web-core'
+import {FormLayout, LayoutRenderer, getHtmlAttrs, RenderFormOptions, SimpleTextTypes, getHtmlFormAttrs} from "./Common";
+
+export const DefaultLayout: FormLayout = {
+    renderForm(forObject, form: WebForm, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement {
+        const result = vdom('div', {})
+        for (const [fieldId, field] of Object.entries(form.fieldsConfig)) {
+            const label = renderer.label(field)
+            let input = renderer.input(forObject[fieldId], field)
+            if (field.type === 'radio') {
+                input = Object.keys(field.choices as {})
+                    .map((k, i) => vdom('label', {}, [
+                        input[i],
+                        ' ',
+                        field.choices[k]
+                    ]))
+            }
+            const fieldSet = vdom('div', {}, field.type == 'checkbox' && !field.readonly
+                ? [...(input.constructor === Array ? input : [input]), ' ', label]
+                : [label, ' ', ...(input.constructor === Array ? input : [input])])
+            result.children.push(fieldSet)
+        }
+        return result;
+    }
+}
 
 export function renderForm(forObject, options?: WebForm, validationResult?: FormValidationResult, renderOptions?: RenderFormOptions): HTMLElement {
-    validationResult ??= {errorMessage: '', hasError: false, fields: {}}
+    let rootElt = getAbstractForm(forObject, options, validationResult, renderOptions)
+    return toHtmlDom(document.createElement, document, rootElt)
+}
+
+const VanillaJSRenderer: LayoutRenderer = {
+    label: (field, attrs) => renderLabel(field, attrs),
+    input: (val, field, attrs) => renderInput(val, field, attrs),
+    form: (formConfig: WebForm, attrs?: any, rootTag = 'form') =>
+        vdom(rootTag, {...getHtmlFormAttrs(formConfig), ...attrs})
+}
+
+export function getAbstractForm(forObject, options?: WebForm, validationResult?: FormValidationResult, renderOptions?: RenderFormOptions) {
+    validationResult ??= {message: '', hasError: false, fields: {}}
     renderOptions = renderOptions || {} as any
     options = options || createFormConfig(forObject)
     const {
         labelAttrs = f => ({}), fieldSetAttrs = f => ({}),
-        inputAttrs = f => ({}), submitAttrs = (a,b) => ({}),
+        inputAttrs = f => ({}), layout = DefaultLayout
     } = renderOptions
-    let rootElt = createDomTree<HTMLFormElement>(renderOptions.excludeFormTag ? 'div' : 'form', {...getHtmlAttrs(options)})
 
-    let fields = getFieldConfigs(options)
-    for (const field of fields) {
-        const label = renderLabel(field, labelAttrs(field))
-        const input = renderField(forObject[field.id], field, inputAttrs(field))
-        let fieldSet = createDomTree('div', {...fieldSetAttrs(field)}, field.type == 'checkbox' && !field.readonly
-            ? [input, ' ', label]
-            : [label, ' ', input])
-        rootElt.append(fieldSet)
-    }
 
-    if (!renderOptions.excludeSubmitButton && !options.readonly)
-        rootElt.append(createDomTree('div', {},
-            createDomTree('input', {type: 'submit', value: 'Submit', ...submitAttrs(forObject, options)})))
+    let rootElt = layout.renderForm(forObject, options, VanillaJSRenderer, validationResult)
 
-    rootElt.addEventListener('submit',  async e => {
+    /*rootElt.attrs.onSubmit = async (e: Event) => {
         const validationResult = await validateForm(getFormState(options, rootElt), options)
         if (validationResult.hasError) {
             e.preventDefault()
-            alert(`Validation error: \n${validationResult.errorMessage} \n ${Object.keys(validationResult.fields).filter(k => validationResult.fields[k].hasError)
-                    .map(k => `${humanize(k)}: ${validationResult.fields[k].errorMessage}`).join('\n')}`)
+            alert(`Validation error: \n${validationResult.message} \n ${Object.keys(validationResult.fields).filter(k => validationResult.fields[k].hasError)
+                .map(k => `${humanize(k)}: ${validationResult.fields[k].message}`).join('\n')}`)
         }
         if (renderOptions.onValidation)
             renderOptions.onValidation(e, validationResult)
-    });
 
-    if (options.onsubmit)
-        rootElt.addEventListener('submit', options.onsubmit)
+        if (options.onSubmit)
+            options.onsubmit(e)
+    }*/
 
     return rootElt
 }
 
-export function renderField(val, field: FieldConfigBase, attrs = {}): string|HTMLElement {
+export function renderInput(val, field: FieldConfigBase, attrs = {}): string|AbstractDomElement|(AbstractDomElement|string)[] {
     if (field.readonly) {
         if (field.type == 'checkbox')
             return val ? 'Yes' : 'No'
         else if (field.type == 'html') {
-            const result = document.createElement('div')
-            result.innerHTML = val
-            return result
+            return vdom('div', {}, val)
         }
         else if (field.type == 'markdown') {
-            const result = createDomTree<HTMLDivElement>('div')
-            result.innerHTML = val
-            return result
+            return vdom('div', {}, val)
         }
         else if (field.type == 'select' || field.type == 'radio') {
-            const result = createDomTree<HTMLDivElement>('div')
-            result.innerHTML = field.choices[val]
-            return result
+            return vdom('div', {}, field.choices[val])
         }
         return `${val == null ? '' : val}`
     }
@@ -76,58 +93,57 @@ export function renderField(val, field: FieldConfigBase, attrs = {}): string|HTM
     }
 
     if (field.type == 'textarea') {
-        return createDomTree('textarea', {rows: 3, ...eltAttrs}, val||'')
+        return vdom('textarea', {rows: 3, ...eltAttrs}, val||'')
+    }
+    if (field.type == 'submit') {
+        return vdom('input', {type: 'submit', value: field.label ?? 'Submit', ...eltAttrs})
     }
     if (field.type == 'checkbox') {
-        let result = createDomTree<HTMLInputElement>('input', {type: 'checkbox', checked: !!val, ...eltAttrs})
-        result.checked = !!val;
-        return result;
+        return vdom('input', {type: 'checkbox', checked: !!val, ...eltAttrs})
     }
     if (field.type == 'toggle') {
-        return createDomTree('input', {type: 'checkbox', checked: val != null, value: field.choices[0], ...eltAttrs})
+        return vdom('input', {type: 'checkbox', checked: val != null, value: field.choices[0], ...eltAttrs})
     }
     if (field.type == 'select') {
-        return createDomTree('select', {...eltAttrs}, [
-            ...(field.required ? null : [createDomTree<HTMLOptionElement>('option', {value: ''}, field.placeholder ?? '')]),
+        return vdom('select', {...eltAttrs}, [
+            ...(field.required ? null : [vdom('option', {value: ''}, field.placeholder ?? '')]),
             ...Object.keys(field.choices as {})
-                .map(k => createDomTree<HTMLOptionElement>('option', {value: k, selected: k == `${val}` ? true : undefined}, field.choices[k]))
+                .map(k => vdom('option', {value: k, selected: k == `${val}` ? true : undefined}, field.choices[k]))
         ])
     }
     if (field.type == 'radio') {
-        return createDomTree('div', {}, Object.keys(field.choices as {})
-            .map(k => createDomTree('label', {},
-                [
-                    createDomTree('input', {
-                        ...eltAttrs,
-                        id: undefined,
-                        type: (field.multiple ? 'checkbox' : 'radio'),
-                        value: `${k}`,
-                        checked: (field.multiple ? (val as any[]).indexOf(k) > -1 : k == val) ? true : undefined}),
-                    ' ',
-                    field.choices[k]
-                ])))
+        return Object.keys(field.choices as {})
+            .map(k => vdom('input', {
+                    ...eltAttrs,
+                    id: undefined,
+                    type: (field.multiple ? 'checkbox' : 'radio'),
+                    value: `${k}`,
+                    checked: (field.multiple ? (val as any[]).indexOf(k) > -1 : k == val) ? true : undefined}))
 
     }
     if (field.type == 'files')
-        return createDomTree('input', {...eltAttrs, type: 'file', multiple: 'multiple', value: `${val == null ? '' : val}`})
+        return vdom('input', {...eltAttrs, type: 'file', multiple: 'multiple', value: `${val == null ? '' : val}`})
     if (field.type == 'number')
-        return createDomTree('input', {...eltAttrs, type: 'number', value: `${val == null ? '' : val}`})
+        return vdom('input', {...eltAttrs, type: 'number', value: `${val == null ? '' : val}`})
+    if (field.type == 'range')
+        return vdom('input', {...eltAttrs, type: 'range', value: `${val == null ? '' : val}`})
     if (field.type == 'money')
-        return createDomTree('input', {min: '0', step: '0.01', ...eltAttrs, type: 'number', value: `${val == null ? '' : val}`})
+        return vdom('input', {min: '0', step: '0.01', ...eltAttrs, type: 'number', value: `${val == null ? '' : val}`})
     if (SimpleTextTypes.indexOf(field.type) > -1)
-        return createDomTree('input', {...eltAttrs, type: field.type, value: `${val == null ? '' : val}`})
+        return vdom('input', {...eltAttrs, type: field.type, value: `${val == null ? '' : val}`})
     console.warn(`Unsupported field type: '${field.type}' for field '${field.id}'.`)
     return ''
 }
 
-export function renderLabel(field: FieldConfigBase, attrs = {}): string|HTMLLabelElement {
+export function renderLabel(field: FieldConfigBase, attrs = {}) {
     if (field.hideLabel)
         return ''
-    const label = createDomTree<HTMLLabelElement>('label', {...attrs, for: field.id})
+    const label = vdom('label', {...attrs, for: field.id})
     if (field.type == 'checkbox' || field.readonly)
-        label.style.display = 'inline-block'
-    label.append(field.label)
-    label.innerHTML += (field.required ? '<span style="color:red">*</span>' : '') + (field.readonly ? ': ' : '')
+        label.attrs.style = { display: 'inline-block' }
+    label.children.push(field.label)
+    label.children.push(field.required ? vdom('span', {style: {color: 'red'}}, '*') : '')
+    label.children.push(field.readonly ? ': ' : '')
     return label
 }
 

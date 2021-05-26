@@ -118,7 +118,6 @@ All available form configuration
 | --- | ----------- | ---------|
 | `readonly` | boolean | false |
 | `hideLabel` | boolean | false |
-| `columns` | number | 1 |
 
 ## Configuring Fields
 
@@ -265,21 +264,26 @@ validationResult = {
 
 ## Todo
 
-- [x] Remove compulsory dependency on `createFormConfig`
-- [ ] Clean up config fields (hideLabel vs hideLabels, etc.)
-  - [ ] Re-using existing html fields as possible
-- [x] Try making VanillaFormRenderer re-usable by react/svelte renderers
-  - [x] `renderers/Common.ts`
-- [ ] Improve guessType
 - [ ] Document each field type
 - [ ] Easily manage field types
   - [ ] Lots of field types (see https://www.mockaroo.com/)
   - [ ] Make sure renderers support field types
   - [x] How to extend type system and renderers
   - [ ] Manage external dependencies (captcha, gallery, etc.)
-- [ ] Provide easier integration with Bootstrap/Tailwind/Bulma/etc.
+- [ ] Provide integration with Bootstrap/Tailwind/Bulma/etc.
   - [ ] Various layouts (inline, in-table, disabled vs. readonly)
+  - [x] Rendering validation results
+  - [x] Rendering `helpText`
+  - [ ] Tailwind, Chakra-UI, Material-UI
 - [ ] Find easier way to configure form. `formConfig.fieldsConfig.age.type` is too deep
 - [ ] Events: form-level and field-level
   - Example:- Being able to run validation up on input blur or submission
-  
+- [ ] Groups
+- [ ] Publish to npm
+- [ ] Explore on how to unify v-dom and Svelte
+
+### Bugs
+
+- [ ] Datetime parser
+- [ ] Checkboxes in bootstrap 3
+- [ ] Help text in bulma

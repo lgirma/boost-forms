@@ -2,16 +2,32 @@ import {
     FormValidationResult, ValidateFunc, ValidationResult, WebFormEvents, WebFormFieldEvents, FormFieldType,
     FieldConfigBase, FieldsConfig, WebForm
 } from "../Models";
+import {renderInput, renderLabel} from "./VanillaFormRenderer";
+import {AbstractDomElement, DomElementChildren, DomElementChildrenFrom} from "boost-web-core";
 
-export interface RenderFormOptions extends WebFormEvents, WebFormFieldEvents {
+export interface LayoutRenderer {
+    label: (field: FieldConfigBase, attrs?: any) => DomElementChildren,
+    input: (val: any, field: FieldConfigBase, attrs?: any) => DomElementChildren,
+    form: (form: WebForm, attrs?: any, rootTag?: string) => AbstractDomElement
+}
+export interface FormLayout {
+    //renderForm(renderer: LayoutRenderer, form?: WebForm, forObject?): DomElementChildrenFrom
+    renderForm(forObject, form: WebForm, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement
+}
+
+export interface PluginOptions {
+    columns?: number
+    isInline?: boolean
+    isHorizontal?: boolean
+}
+
+export interface RenderFormOptions {
     labelAttrs?: (fieldConfig: FieldConfigBase) => {}
     inputAttrs?: (fieldConfig: FieldConfigBase) => {}
     fieldSetAttrs?: (fieldConfig: FieldConfigBase) => {}
-    submitAttrs?: (forObject, options: WebForm) => {}
 
     excludeFormTag?: boolean
-    excludeSubmitButton?: boolean
-    layout?: string
+    layout?: FormLayout
 }
 
 export function getHtmlAttrs(field: FieldConfigBase) {
@@ -32,6 +48,7 @@ export function getHtmlAttrs(field: FieldConfigBase) {
         scale: null,
         readonly: null,
         validate: null,
+        onValidation: null
     }
     let result : any = {
         name: field.id
@@ -57,13 +74,14 @@ export function getHtmlAttrs(field: FieldConfigBase) {
 export function getHtmlFormAttrs(form: WebForm) {
     const src: WebForm = {
         ...form,
-        columns: null,
         fieldsConfig: null,
         validate: null,
         scale: null,
         hideLabels: null,
+        excludeSubmitButton: null,
         readonly: null,
-        validationResult: null
+        validationResult: null,
+        onValidation: null,
     }
     let result : any = {}
     for (const [key, val] of Object.entries(src)) {

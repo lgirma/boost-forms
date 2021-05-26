@@ -5,9 +5,10 @@ export type FieldsConfig = {
     [key: string]: FieldConfigBase;
 }
 
-export interface FieldConfigBase extends Partial<HTMLInputElement> {
+export interface FieldConfigBase extends Partial<HTMLInputElement>, WebFormFieldEvents {
     icon?: string
     type?: FormFieldType
+    colSpan?: number
     helpText?: string
     label?: string
     validationResult?: ValidationResult
@@ -20,29 +21,24 @@ export interface FieldConfigBase extends Partial<HTMLInputElement> {
     scale?: number
     readonly?: boolean
     validate?: ValidateFunc | ValidateFunc[]
-
-    //disabled?: boolean
-    //hidden?: boolean
-    //step?: string
-    //pattern?: string
-    //min?: string
-    //max?: string
-    //required?: boolean
-    //placeholder?: string
 }
 
-export interface WebForm extends Partial<HTMLFormElement> {
-    columns?: number
+type DeepPartial<T> = {
+    [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};
+
+export interface WebForm extends DeepPartial<HTMLFormElement>, WebFormEvents {
     fieldsConfig?: FieldsConfig
-    validate?: ValidateFunc | ValidateFunc[],
+    validate?: ValidateFunc | ValidateFunc[]
     scale?: number
     hideLabels?: boolean
     readonly?: boolean
     validationResult?: FormValidationResult
+    excludeSubmitButton?: boolean
 }
 
 export interface ValidationResult {
-    errorMessage: string,
+    message?: string,
     hasError: boolean
 }
 
@@ -54,7 +50,7 @@ export interface FormValidationResult extends ValidationResult{
 
 export function getValidationResult(errorMessage?: string): ValidationResult {
     return {
-        errorMessage: errorMessage ?? '',
+        message: errorMessage ?? '',
         hasError: !isEmpty(errorMessage)
     }
 }
@@ -64,15 +60,11 @@ export type ValidateFunc = AsyncValidateFunc | ((val, errorMessage?: string) => 
 export type FormValidateFunc = (formData: any) => Promise<string>
 
 export interface WebFormEvents {
-    onValidation?: (e, validationResult: ValidationResult) => void
+    onValidation?: (e: Event, validationResult: FormValidationResult) => void
 }
 
 export interface WebFormFieldEvents {
-    onInput?: (e) => void
-    onChange?: (e) => void
-    onFocus?: (e) => void
-    onBlur?: (e) => void
-    onValidation?: (e, validationResult: ValidationResult) => void
+    onValidation?: (e: Event, validationResult: ValidationResult) => void
 }
 
 export type HTMLInputType =

@@ -42,9 +42,15 @@ export function createFormConfig(forObject, config: WebForm = {}): WebForm {
     config.scale ??= 1;
     config.readonly ??= false;
     config.hideLabels ??= false;
-    config.columns ??= 1;
-    if (config.columns < 1)
-        config.columns = 1;
+    config.excludeSubmitButton ??= false;
+
+    if (!config.excludeSubmitButton) {
+        config.fieldsConfig['$$submit'] = {
+            ...getDefaultFieldConfig('$$submit', 'submit', config),
+            hideLabel: true,
+            label: 'Submit'
+        }
+    }
 
     Object.keys(forObject).forEach(_ => {
         let fieldId = _;
@@ -53,19 +59,8 @@ export function createFormConfig(forObject, config: WebForm = {}): WebForm {
         let type = config.fieldsConfig[fieldId]?.type ?? guessType(fieldId, fieldValue)
 
         config.fieldsConfig[fieldId] = {
-            scale: config.scale,
-            readonly: config.readonly,
-            hideLabel: config.hideLabels,
-            icon: null,
-            helpText: '',
-            validationResult: {
-                errorMessage: '',
-                hasError: false
-            },
-            id: fieldId,
+            ...getDefaultFieldConfig(fieldId, type, config),
             label: humanize(fieldId),
-            multiple: false,
-            type: type,
             ...guessConfig(config.fieldsConfig[fieldId], fieldValue, type),
             ...config.fieldsConfig[fieldId],
         }
@@ -79,6 +74,24 @@ export function createFormConfig(forObject, config: WebForm = {}): WebForm {
     return config;
 }
 
+export function getDefaultFieldConfig(fieldId: string, type: FormFieldType, formConfig: WebForm): FieldConfigBase {
+    return {
+        scale: formConfig.scale,
+        readonly: formConfig.readonly,
+        hideLabel: formConfig.hideLabels,
+        colSpan: 1,
+        icon: null,
+        helpText: '',
+        validationResult: {
+            message: '',
+            hasError: false
+        },
+        id: fieldId,
+        multiple: false,
+        type: type,
+    }
+}
+
 export function guessType(fieldId, fieldValue): FormFieldType {
     let table : {[regex: string]: FormFieldType} = {
         'password$': 'password',
@@ -87,7 +100,6 @@ export function guessType(fieldId, fieldValue): FormFieldType {
         'quantity$|number$': 'number',
         '^amount|amount$|^price|price$': 'money',
         '^date|date$': 'date', '^year|year$': 'year', '^month|month$': 'month',
-        '^time|time$': 'datetime-local',
         '^phone|phone$': 'tel',
         '^captcha|captcha^': 'reCaptcha',
         '^language|language$': 'language'
@@ -141,7 +153,7 @@ export async function validateForm(forObject, formConfig?: WebForm) : Promise<Fo
     let fieldsConfig = formConfig.fieldsConfig;
     let result: FormValidationResult = {
         hasError: false,
-        errorMessage: '',
+        message: '',
         fields: {}
     };
     for (const id in forObject) {
@@ -150,7 +162,7 @@ export async function validateForm(forObject, formConfig?: WebForm) : Promise<Fo
         const config = fieldsConfig[id]
         result.fields[id] = {
             hasError: false,
-            errorMessage: null
+            message: null
         }
         if (config == null) continue
         let validate = config.validate
@@ -164,12 +176,12 @@ export async function validateForm(forObject, formConfig?: WebForm) : Promise<Fo
         else if (validate == null) continue
 
         let fieldValidationResult = await runValidator(validate, value);
-        result.fields[id].errorMessage = fieldValidationResult.errorMessage;
+        result.fields[id].message = fieldValidationResult.message;
         result.fields[id].hasError = fieldValidationResult.hasError;
     }
     const formLevelValidation = await runValidator(formConfig.validate, forObject);
     result.hasError = formLevelValidation.hasError || Object.keys(result.fields).reduce((p, k) => p || result.fields[k].hasError, false)
-    result.errorMessage = formLevelValidation.errorMessage
+    result.message = formLevelValidation.message
     return result
 }
 
