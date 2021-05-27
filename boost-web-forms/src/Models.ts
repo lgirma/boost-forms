@@ -1,35 +1,30 @@
-import {isEmpty} from "boost-web-core";
+import {DeepPartial, Dict, isEmpty, OneOrMany} from "boost-web-core";
 
 
-export type FieldsConfig = {
-    [key: string]: FieldConfigBase;
-}
+export type FieldsConfig =Dict<FieldConfig>
 
-export interface FieldConfigBase extends Partial<HTMLInputElement>, WebFormFieldEvents {
+export interface FieldConfig extends Partial<HTMLInputElement>, WebFormFieldEvents {
+    id: string
     icon?: string
-    type?: FormFieldType
-    colSpan?: number
+    type: FormFieldType
+    colSpan: number
     helpText?: string
-    label?: string
+    label: string
     validationResult?: ValidationResult
     customOptions?: any,
     maxlength?: string
     multiple?: boolean
-    choices?: string[] | {[k: string]: string}
+    choices: string[] | Dict<string>
     variation?: string
-    hideLabel?: boolean
-    scale?: number
-    readonly?: boolean
-    validate?: ValidateFunc | ValidateFunc[]
+    hideLabel: boolean
+    scale: number
+    readonly: boolean
+    validate?: OneOrMany<ValidateFunc>
 }
 
-type DeepPartial<T> = {
-    [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
-};
-
 export interface WebForm extends DeepPartial<HTMLFormElement>, WebFormEvents {
-    fieldsConfig?: FieldsConfig
-    validate?: ValidateFunc | ValidateFunc[]
+    fieldsConfig: FieldsConfig
+    validate?: OneOrMany<ValidateFunc>
     scale?: number
     hideLabels?: boolean
     readonly?: boolean
@@ -51,12 +46,12 @@ export interface FormValidationResult extends ValidationResult{
 export function getValidationResult(errorMessage?: string): ValidationResult {
     return {
         message: errorMessage ?? '',
-        hasError: !isEmpty(errorMessage)
+        hasError: !isEmpty(errorMessage ?? null)
     }
 }
 
-export type AsyncValidateFunc = (val, errorMessage?: string) => Promise<string>
-export type ValidateFunc = AsyncValidateFunc | ((val, errorMessage?: string) => string)
+export type AsyncValidateFunc = (val: any, errorMessage?: string) => Promise<string>
+export type ValidateFunc = AsyncValidateFunc | ((val: any, errorMessage?: string) => string)
 export type FormValidateFunc = (formData: any) => Promise<string>
 
 export interface WebFormEvents {
@@ -111,5 +106,5 @@ export type FormFieldType =  HTMLInputType | 'name' | 'files' | 'select' |
 export interface CustomFieldRenderer {
     forType: string|string[]
     id?: string
-    renderField(forObject: any, formConfig: WebForm, field: FieldConfigBase): string|HTMLElement
+    renderField(forObject: any, formConfig: WebForm, field: FieldConfig): string|HTMLElement
 }

@@ -3,34 +3,64 @@ import {
     getFieldConfigs,
     validateForm,
 } from "../FormService";
-import {FormValidationResult, WebFormEvents, WebFormFieldEvents, FieldConfigBase, WebForm} from "../Models";
-import {AbstractDomElement, vdom, DomElementChildrenFrom, humanize, toHtmlDom} from 'boost-web-core'
+import {FormValidationResult, WebFormEvents, WebFormFieldEvents, FieldConfig, WebForm} from "../Models";
+import {
+    AbstractDomElement,
+    vdom,
+    DomElementChildrenFrom,
+    humanize,
+    toHtmlDom,
+    DomElementChildren,
+    AbstractDomNode, Dict, OneOrMany, toArray, isArray
+} from 'boost-web-core'
 import {FormLayout, LayoutRenderer, getHtmlAttrs, RenderFormOptions, SimpleTextTypes, getHtmlFormAttrs} from "./Common";
 
 export const DefaultLayout: FormLayout = {
-    renderForm(forObject, form: WebForm, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement {
+    formLayout(forObject: any, form: WebForm, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement {
         const result = vdom('div', {})
         for (const [fieldId, field] of Object.entries(form.fieldsConfig)) {
             const label = renderer.label(field)
+            const fieldValidationResult = validationResult?.fields[fieldId] ?? {hasError: false}
             let input = renderer.input(forObject[fieldId], field)
+            if (fieldValidationResult.hasError && !field.readonly) {
+                toArray(input).forEach(i => {
+                    if (typeof(i) == 'string') return;
+                    i.attrs.style ??= {};
+                    i.attrs.style.border = '1px solid red'
+                })
+
+                toArray(label).forEach(l => {
+                    if (typeof(l) == 'string') return;
+                    if (field.type != 'radio' && field.type != 'checkbox') return;
+                    l.attrs.style ??= {};
+                    l.attrs.style.color = 'red'
+                })
+            }
             if (field.type === 'radio') {
                 input = Object.keys(field.choices as {})
                     .map((k, i) => vdom('label', {}, [
                         input[i],
                         ' ',
-                        field.choices[k]
+                        (field.choices as Dict<string>)[k]
                     ]))
             }
-            const fieldSet = vdom('div', {}, field.type == 'checkbox' && !field.readonly
-                ? [...(input.constructor === Array ? input : [input]), ' ', label]
-                : [label, ' ', ...(input.constructor === Array ? input : [input])])
+
+            const fieldSet = vdom('div', {})
+            if (field.type != 'checkbox' || field.readonly)
+                fieldSet.children.push(...toArray(label), ' ', ...toArray(input))
+            else
+                fieldSet.children.push(...toArray(input), ' ', ...toArray(label))
+
+            if (fieldValidationResult.hasError)
+                fieldSet.children.push(vdom('div', {style: {color: 'red'}},
+                    vdom('small', {}, fieldValidationResult.message)))
             result.children.push(fieldSet)
         }
         return result;
     }
 }
 
-export function renderForm(forObject, options?: WebForm, validationResult?: FormValidationResult, renderOptions?: RenderFormOptions): HTMLElement {
+export function renderForm(forObject: any, options?: WebForm, validationResult?: FormValidationResult, renderOptions?: RenderFormOptions): HTMLElement {
     let rootElt = getAbstractForm(forObject, options, renderOptions, validationResult)
     return toHtmlDom(document.createElement, document, rootElt)
 }
@@ -42,36 +72,19 @@ const VanillaJSRenderer: LayoutRenderer = {
         vdom(rootTag, {...getHtmlFormAttrs(formConfig), ...attrs})
 }
 
-export function getAbstractForm(forObject, options?: WebForm, renderOptions?: RenderFormOptions, validationResult?: FormValidationResult) {
+export function getAbstractForm(forObject: any, options?: WebForm, renderOptions?: RenderFormOptions, validationResult?: FormValidationResult) {
     validationResult ??= {message: '', hasError: false, fields: {}}
-    renderOptions = renderOptions || {} as any
-    options = createFormConfig(forObject, options)
+    let _renderOptions = renderOptions ?? {}
+    let _options = createFormConfig(forObject, options)
     const {
         labelAttrs = f => ({}), fieldSetAttrs = f => ({}),
         inputAttrs = f => ({}), layout = DefaultLayout
-    } = renderOptions
+    } = _renderOptions
 
-
-    let rootElt = layout.renderForm(forObject, options, VanillaJSRenderer, validationResult)
-
-    /*rootElt.attrs.onSubmit = async (e: Event) => {
-        const validationResult = await validateForm(getFormState(options, rootElt), options)
-        if (validationResult.hasError) {
-            e.preventDefault()
-            alert(`Validation error: \n${validationResult.message} \n ${Object.keys(validationResult.fields).filter(k => validationResult.fields[k].hasError)
-                .map(k => `${humanize(k)}: ${validationResult.fields[k].message}`).join('\n')}`)
-        }
-        if (renderOptions.onValidation)
-            renderOptions.onValidation(e, validationResult)
-
-        if (options.onSubmit)
-            options.onsubmit(e)
-    }*/
-
-    return rootElt
+    return layout.formLayout(forObject, _options, VanillaJSRenderer, validationResult)
 }
 
-export function renderInput(val, field: FieldConfigBase, attrs = {}): string|AbstractDomElement|(AbstractDomElement|string)[] {
+export function renderInput(val: any, field: FieldConfig, attrs = {}): OneOrMany<AbstractDomNode> {
     if (field.readonly) {
         if (field.type == 'checkbox')
             return val ? 'Yes' : 'No'
@@ -106,7 +119,7 @@ export function renderInput(val, field: FieldConfigBase, attrs = {}): string|Abs
     }
     if (field.type == 'select') {
         return vdom('select', {...eltAttrs}, [
-            ...(field.required ? null : [vdom('option', {value: ''}, field.placeholder ?? '')]),
+            ...(field.required ? [] : [vdom('option', {value: ''}, field.placeholder ?? '')]),
             ...Object.keys(field.choices as {})
                 .map(k => vdom('option', {value: k, selected: k == `${val}` ? true : undefined}, field.choices[k]))
         ])
@@ -135,7 +148,7 @@ export function renderInput(val, field: FieldConfigBase, attrs = {}): string|Abs
     return ''
 }
 
-export function renderLabel(field: FieldConfigBase, attrs = {}) {
+export function renderLabel(field: FieldConfig, attrs = {}): AbstractDomNode {
     if (field.hideLabel)
         return ''
     const label = vdom('label', {...attrs, for: field.id})
@@ -149,14 +162,13 @@ export function renderLabel(field: FieldConfigBase, attrs = {}) {
 
 export function getFormState(form: WebForm, formElt: HTMLElement) {
     let result = {}
-    for (const fieldId in form.fieldsConfig) {
-        const field = form.fieldsConfig[fieldId]
+    for (const [fieldId, field] of Object.entries(form.fieldsConfig)) {
         result[fieldId] = readFieldValue(field, formElt)
     }
     return result
 }
 
-export function readFieldValue(field: FieldConfigBase, formElt: HTMLElement) {
+export function readFieldValue(field: FieldConfig, formElt: HTMLElement) {
     let val: any = ''
     const elt = formElt.querySelector('#' + field.id) as any
     if (field.type == 'radio') {

@@ -15,13 +15,14 @@
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "types": ["vite/client"],
     "allowSyntheticDefaultImports": true,
-    /*"strict": true,*/
+    "strict": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "Node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "declaration": true,
+    "noImplicitAny": false
   },
   "include": ["src/**/*.d.ts", "src/**/*.d.tsx", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte"]
 }

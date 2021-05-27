@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type {FormValidationResult, FieldConfigBase, WebForm} from "../Models";
+    import type {FormValidationResult, FieldConfig, WebForm} from "../Models";
     import {createFormConfig, validateForm, findCustomRenderer} from "../FormService";
     import type {RenderFormOptions} from "./Common";
     import SvelteFieldLabel from "./SvelteFieldLabel.svelte";

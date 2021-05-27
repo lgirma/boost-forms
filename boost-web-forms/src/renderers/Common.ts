@@ -1,54 +1,60 @@
 import {
     FormValidationResult, ValidateFunc, ValidationResult, WebFormEvents, WebFormFieldEvents, FormFieldType,
-    FieldConfigBase, FieldsConfig, WebForm
+    FieldConfig, FieldsConfig, WebForm
 } from "../Models";
 import {renderInput, renderLabel} from "./VanillaFormRenderer";
-import {AbstractDomElement, DomElementChildren, DomElementChildrenFrom} from "boost-web-core";
+import {
+    AbstractDomElement,
+    AbstractDomNode,
+    DomElementChildren,
+    DomElementChildrenFrom,
+    OneOrMany
+} from "boost-web-core";
 
 export interface LayoutRenderer {
-    label: (field: FieldConfigBase, attrs?: any) => DomElementChildren,
-    input: (val: any, field: FieldConfigBase, attrs?: any) => DomElementChildren,
+    label: (field: FieldConfig, attrs?: any) => OneOrMany<AbstractDomNode>,
+    input: (val: any, field: FieldConfig, attrs?: any) => OneOrMany<AbstractDomNode>,
     form: (form: WebForm, attrs?: any, rootTag?: string) => AbstractDomElement
 }
 export interface FormLayout {
     //renderForm(renderer: LayoutRenderer, form?: WebForm, forObject?): DomElementChildrenFrom
-    renderForm(forObject, form: WebForm, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement
+    formLayout(forObject: any, form: WebForm, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement
 }
 
 export interface PluginOptions {
-    columns?: number
+    columns: number
     isInline?: boolean
     isHorizontal?: boolean
 }
 
 export interface RenderFormOptions {
-    labelAttrs?: (fieldConfig: FieldConfigBase) => {}
-    inputAttrs?: (fieldConfig: FieldConfigBase) => {}
-    fieldSetAttrs?: (fieldConfig: FieldConfigBase) => {}
+    labelAttrs?: (fieldConfig: FieldConfig) => {}
+    inputAttrs?: (fieldConfig: FieldConfig) => {}
+    fieldSetAttrs?: (fieldConfig: FieldConfig) => {}
 
     excludeFormTag?: boolean
     layout?: FormLayout
 }
 
-export function getHtmlAttrs(field: FieldConfigBase) {
-    const src: FieldConfigBase = {
+export function getHtmlAttrs(field: FieldConfig) {
+    const src: Partial<FieldConfig> = {
         name: field.id,
         ...field,
-        icon: null,
-        type: null,
-        helpText: null,
-        label: null,
-        validationResult: null,
-        customOptions: null,
-        maxlength: null,
-        multiple: null,
-        choices: null,
-        variation: null,
-        hideLabel: null,
-        scale: null,
-        readonly: null,
-        validate: null,
-        onValidation: null
+        icon: undefined,
+        type: undefined,
+        helpText: undefined,
+        label: undefined,
+        validationResult: undefined,
+        customOptions: undefined,
+        maxlength: undefined,
+        multiple: undefined,
+        choices: undefined,
+        variation: undefined,
+        hideLabel: undefined,
+        scale: undefined,
+        readonly: undefined,
+        validate: undefined,
+        onValidation: undefined
     }
     let result : any = {
         name: field.id
@@ -72,16 +78,16 @@ export function getHtmlAttrs(field: FieldConfigBase) {
 }
 
 export function getHtmlFormAttrs(form: WebForm) {
-    const src: WebForm = {
+    const src: Partial<WebForm> = {
         ...form,
-        fieldsConfig: null,
-        validate: null,
-        scale: null,
-        hideLabels: null,
-        excludeSubmitButton: null,
-        readonly: null,
-        validationResult: null,
-        onValidation: null,
+        fieldsConfig: undefined,
+        validate: undefined,
+        scale: undefined,
+        hideLabels: undefined,
+        excludeSubmitButton: undefined,
+        readonly: undefined,
+        validationResult: undefined,
+        onValidation: undefined,
     }
     let result : any = {}
     for (const [key, val] of Object.entries(src)) {

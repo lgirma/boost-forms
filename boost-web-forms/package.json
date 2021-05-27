@@ -1,7 +1,7 @@
 {
   "name": "boost-web-forms",
   "version": "1.0.0",
-  "description": "Web forms utilities",
+  "description": "An opinionated, small form generator library for javascript",
   "module": "dist/boost-web-forms.es.js",
   "main": "dist/boost-web-forms.umd.js",
   "types": "dist/index.d.ts",
@@ -12,6 +12,16 @@
     "serve": "vite preview",
     "test": "ts-mocha -p ./tsconfig.tests.json -r jsdom-global/register 'tests/**/*.ts'"
   },
+  "author": "Leone",
+  "repository": "https://github.com/lgirma/boost-web",
+  "homepage": "https://github.com/lgirma/boost-web/tree/master/boost-web-forms",
+  "license": "ISC",
+  "keywords": [
+    "form",
+    "javascript",
+    "react",
+    "svelte"
+  ],
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.10",
     "@types/chai": "^4.2.18",
@@ -33,6 +43,12 @@
     "vite": "^2.3.0"
   },
   "dependencies": {
-    "boost-web-core": "file:../boost-web-core"
-  }
+    "boost-web-core": "../boost-web-core"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ]
 }

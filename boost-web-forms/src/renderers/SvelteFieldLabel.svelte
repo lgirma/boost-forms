@@ -1,7 +1,7 @@
 <script lang="ts">
-    import type {FieldConfigBase} from "../Models";
+    import type {FieldConfig} from "../Models";
 
-    export let field: FieldConfigBase
+    export let field: FieldConfig
     export let attrs = {}
 </script>
 

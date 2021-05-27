@@ -1,4 +1,4 @@
-import {humanize, uuid, isDate, isDateTime, isYear, isTime} from 'boost-web-core';
+import {humanize, uuid, isDate, isDateTime, isYear, isTime, DeepPartial, isEmpty} from 'boost-web-core';
 import {
     FormValidationResult,
     ValidationResult,
@@ -7,7 +7,7 @@ import {
     AsyncValidateFunc,
     CustomFieldRenderer,
     FormFieldType,
-    FieldConfigBase, WebForm
+    FieldConfig, WebForm
 } from "./Models";
 import {notEmpty} from './Validation';
 
@@ -24,46 +24,50 @@ export function findCustomRenderer(forType: string): CustomFieldRenderer|null {
     return customFieldRenderers.find(cfr =>
         typeof(cfr.forType) === 'string'
             ? forType.toLowerCase() == cfr.forType.toLowerCase()
-            : cfr.forType.indexOf(forType) > -1)
+            : cfr.forType.indexOf(forType) > -1) ?? null
 }
 
-export function field(value: FieldConfigBase) {
+export function field(value: FieldConfig) {
     console.log('value:', value)
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
         console.log(target, propertyKey, descriptor)
     };
 }
 
-export function createFormConfig(forObject, config: WebForm = {}): WebForm {
-    config.fieldsConfig = {
-        ...Object.keys(forObject).reduce((a, b) => ({...a, [b]: null}), {}),
-        ...config.fieldsConfig
+export function createFormConfig(forObject: any, _config: DeepPartial<WebForm> = {}): WebForm {
+    let config: WebForm = {
+        scale: 1,
+        readonly: false,
+        hideLabels: false,
+        excludeSubmitButton: false,
+        ..._config,
+        fieldsConfig: {
+            ...Object.keys(forObject).reduce((a, fieldId) => ({...a, [fieldId]: null}), {}),
+            ..._config.fieldsConfig
+        },
     }
-    config.scale ??= 1;
-    config.readonly ??= false;
-    config.hideLabels ??= false;
-    config.excludeSubmitButton ??= false;
 
     if (!config.excludeSubmitButton) {
         config.fieldsConfig['$$submit'] = {
             ...getDefaultFieldConfig('$$submit', 'submit', config),
             hideLabel: true,
-            label: 'Submit'
+            label: 'Submit',
+            type: 'submit'
         }
     }
 
-    Object.keys(forObject).forEach(_ => {
-        let fieldId = _;
-        let fieldValue = forObject[fieldId];
+    Object.entries(forObject).forEach(_ => {
+        let [fieldId, fieldValue] = _;
 
         let type = config.fieldsConfig[fieldId]?.type ?? guessType(fieldId, fieldValue)
 
         config.fieldsConfig[fieldId] = {
             ...getDefaultFieldConfig(fieldId, type, config),
-            label: humanize(fieldId),
             ...guessConfig(config.fieldsConfig[fieldId], fieldValue, type),
             ...config.fieldsConfig[fieldId],
         }
+        if (isEmpty(config.fieldsConfig[fieldId].label))
+            config.fieldsConfig[fieldId].label = humanize(fieldId)
         config.fieldsConfig[fieldId].choices = (config.fieldsConfig[fieldId]?.choices == null
             ? {}
             : (config.fieldsConfig[fieldId].choices?.constructor === Array
@@ -74,13 +78,13 @@ export function createFormConfig(forObject, config: WebForm = {}): WebForm {
     return config;
 }
 
-export function getDefaultFieldConfig(fieldId: string, type: FormFieldType, formConfig: WebForm): FieldConfigBase {
+export function getDefaultFieldConfig(fieldId: string, type: FormFieldType, formConfig: Partial<WebForm>): FieldConfig {
     return {
-        scale: formConfig.scale,
-        readonly: formConfig.readonly,
-        hideLabel: formConfig.hideLabels,
+        scale: formConfig.scale ?? 1,
+        readonly: formConfig.readonly ?? false,
+        hideLabel: formConfig.hideLabels ?? false,
         colSpan: 1,
-        icon: null,
+        icon: '',
         helpText: '',
         validationResult: {
             message: '',
@@ -89,10 +93,12 @@ export function getDefaultFieldConfig(fieldId: string, type: FormFieldType, form
         id: fieldId,
         multiple: false,
         type: type,
+        label: '',
+        choices: []
     }
 }
 
-export function guessType(fieldId, fieldValue): FormFieldType {
+export function guessType(fieldId: string, fieldValue: any): FormFieldType {
     let table : {[regex: string]: FormFieldType} = {
         'password$': 'password',
         'email$': 'email',
@@ -136,8 +142,8 @@ export function guessType(fieldId, fieldValue): FormFieldType {
     return 'text';
 }
 
-export function guessConfig(fieldConfig: FieldConfigBase, val: any, fieldType: FormFieldType) : FieldConfigBase {
-    let result: FieldConfigBase = {}
+export function guessConfig(fieldConfig: Partial<FieldConfig>, val: any, fieldType: FormFieldType) : Partial<FieldConfig> {
+    let result: Partial<FieldConfig> = {}
     fieldConfig ??= {}
     if (val != null && val.constructor === Array && fieldType == 'radio') {
         result.choices = val.reduce((acc, el) => ({...acc, [el]: humanize(el)}), {})
@@ -148,8 +154,8 @@ export function guessConfig(fieldConfig: FieldConfigBase, val: any, fieldType: F
     return result
 }
 
-export async function validateForm(forObject, formConfig?: WebForm) : Promise<FormValidationResult> {
-    formConfig = createFormConfig(forObject, formConfig)
+export async function validateForm(forObject: any, _formConfig?: WebForm) : Promise<FormValidationResult> {
+    let formConfig = createFormConfig(forObject, _formConfig)
     let fieldsConfig = formConfig.fieldsConfig;
     let result: FormValidationResult = {
         hasError: false,
@@ -162,7 +168,7 @@ export async function validateForm(forObject, formConfig?: WebForm) : Promise<Fo
         const config = fieldsConfig[id]
         result.fields[id] = {
             hasError: false,
-            message: null
+            message: ''
         }
         if (config == null) continue
         let validate = config.validate
@@ -179,13 +185,16 @@ export async function validateForm(forObject, formConfig?: WebForm) : Promise<Fo
         result.fields[id].message = fieldValidationResult.message;
         result.fields[id].hasError = fieldValidationResult.hasError;
     }
-    const formLevelValidation = await runValidator(formConfig.validate, forObject);
-    result.hasError = formLevelValidation.hasError || Object.keys(result.fields).reduce((p, k) => p || result.fields[k].hasError, false)
+    const formLevelValidation = formConfig.validate
+        ? await runValidator(formConfig.validate, forObject)
+        : {message: '', hasError: false};
+    let fieldsValidationResult = Object.keys(result.fields).reduce((p, k) => p || result.fields[k].hasError, false)
+    result.hasError = formLevelValidation.hasError || fieldsValidationResult
     result.message = formLevelValidation.message
     return result
 }
 
-export async function runValidator(validator: ValidateFunc | ValidateFunc[], value): Promise<ValidationResult> {
+export async function runValidator(validator: ValidateFunc | ValidateFunc[], value: any): Promise<ValidationResult> {
     if (validator == null)
         return getValidationResult();
     try {
@@ -205,6 +214,6 @@ export async function runValidator(validator: ValidateFunc | ValidateFunc[], val
     return getValidationResult();
 }
 
-export function getFieldConfigs(form: WebForm): FieldConfigBase[] {
+export function getFieldConfigs(form: WebForm): FieldConfig[] {
     return Object.keys(form.fieldsConfig).map(k => form.fieldsConfig[k])
 }

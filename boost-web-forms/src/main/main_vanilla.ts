@@ -4,4 +4,4 @@ import {fileTypeValidator, imgTypeFile, MIME_PDF, notEmpty, validName} from "../
 import {forObj, options, renderOptions, formValidationResult} from "./main_common";
 
 console.log(options)
-document.querySelector('#app').appendChild(renderForm(forObj, options, formValidationResult, renderOptions))
+document.querySelector('#app')!.appendChild(renderForm(forObj, options, formValidationResult, renderOptions))
