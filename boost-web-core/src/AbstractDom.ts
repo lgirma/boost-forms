@@ -1,4 +1,4 @@
-import {Nullable} from "./Utilities";
+import {Nullable} from "./TypescriptUtils";
 
 export type AbstractDomNode = AbstractDomElement|string
 

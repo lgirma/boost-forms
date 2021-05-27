@@ -1,4 +1,5 @@
-export type Nullable<T> = T|null
+import {Nullable} from "./TypescriptUtils";
+
 export function humanize(str: string) {
     return str
         .replace(/^[\s_]+|[\s_]+$/g, '')
@@ -25,7 +26,7 @@ export function getFriendlyFileSize(bytes: number) {
  * Checks if the given string is empty or white space only.
  * @param str
  */
-export function isEmpty(str: string|null) {
+export function isEmpty(str: Nullable<string>) {
     return str == null || str.trim().length == 0;
 }
 
