@@ -17,7 +17,7 @@ import {FormLayout, LayoutRenderer, getHtmlAttrs, RenderFormOptions, SimpleTextT
 
 export const DefaultLayout: FormLayout = {
     formLayout(forObject: any, form: WebForm, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement {
-        const result = vdom('div', {})
+        const result = renderer.form(form, {})
         for (const [fieldId, field] of Object.entries(form.fieldsConfig)) {
             const label = renderer.label(field)
             const fieldValidationResult = validationResult?.fields[fieldId] ?? {hasError: false}
@@ -74,12 +74,11 @@ const VanillaJSRenderer: LayoutRenderer = {
 
 export function getAbstractForm(forObject: any, options?: DeepPartial<WebForm>, renderOptions?: RenderFormOptions, validationResult?: FormValidationResult) {
     validationResult ??= {message: '', hasError: false, fields: {}}
-    let _renderOptions = renderOptions ?? {}
     let _options = createFormConfig(forObject, options)
     const {
         labelAttrs = f => ({}), fieldSetAttrs = f => ({}),
         inputAttrs = f => ({}), layout = DefaultLayout
-    } = _renderOptions
+    } = renderOptions ?? {}
 
     return layout.formLayout(forObject, _options, VanillaJSRenderer, validationResult)
 }
