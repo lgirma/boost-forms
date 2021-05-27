@@ -154,7 +154,8 @@ document.body.append(
 )
 
 // React
-<Form forObject={forObj} options={options} />
+<Form forObject={forObj} method="POST" 
+    enctype="multipart/form-data" onsubmit={e => alert('Submitting...')} />
 
 // Svelte
 <Form forObject={forObj} options={options} />
@@ -181,6 +182,11 @@ const options = {
         password: {readonly: true}
     }
 }
+
+// React
+<Form forObject={forObj} fieldsConfig={{
+        password: {readonly: true}
+    }} />
 ```
 
 Note: All valid HTML input [attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input) can be used here.
@@ -224,6 +230,12 @@ const options = {
         comment: {type: 'textarea', label: 'Any Comments?'}
     }
 }
+
+// React
+<Form forObject={forObj} fieldsConfig={{
+    confirmPassword: {type: 'password'},
+    comment: {type: 'textarea', label: 'Any Comments?'}
+}} />
 ```
 
 Supported field types are:

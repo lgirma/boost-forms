@@ -1,19 +1,29 @@
 import {createFormConfig} from "../FormService";
-import {FieldConfig, FormValidationResult, WebForm} from '../Models'
+import {FieldConfig, FieldsConfig, FormValidationResult, WebForm} from '../Models'
 import {getAbstractForm, renderInput, renderLabel} from "./VanillaFormRenderer";
 import {RenderFormOptions} from "./Common";
-import {toJsx} from "boost-web-core";
+import {DeepPartial, toJsx} from "boost-web-core";
 
-export interface ReactFormProps {
+export interface ReactFormProps extends DeepPartial<WebForm> {
     forObject: any,
-    options?: WebForm,
     renderOptions?: RenderFormOptions
     validationResult?: FormValidationResult
 }
 
 export function GetReactForm(createElement: any) {
-    return ({forObject, options = undefined, renderOptions = undefined, validationResult = undefined}: ReactFormProps) => {
-        const abstractForm = getAbstractForm(forObject, options, renderOptions, validationResult)
+    return (props: ReactFormProps): any => {
+        let {
+            forObject,
+            renderOptions,
+            validationResult = {hasError: false, message: '', fields: {}}
+        } = props
+        let formConfig = {
+            ...props,
+            forObject: undefined,
+            validationResult: undefined,
+            renderOptions: undefined
+        }
+        const abstractForm = getAbstractForm(forObject, formConfig, renderOptions, validationResult)
         return toJsx(createElement, abstractForm)
     }
 }

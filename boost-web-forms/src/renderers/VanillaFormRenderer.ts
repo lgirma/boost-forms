@@ -11,7 +11,7 @@ import {
     humanize,
     toHtmlDom,
     DomElementChildren,
-    AbstractDomNode, Dict, OneOrMany, toArray, isArray
+    AbstractDomNode, Dict, OneOrMany, toArray, isArray, DeepPartial
 } from 'boost-web-core'
 import {FormLayout, LayoutRenderer, getHtmlAttrs, RenderFormOptions, SimpleTextTypes, getHtmlFormAttrs} from "./Common";
 
@@ -72,7 +72,7 @@ const VanillaJSRenderer: LayoutRenderer = {
         vdom(rootTag, {...getHtmlFormAttrs(formConfig), ...attrs})
 }
 
-export function getAbstractForm(forObject: any, options?: WebForm, renderOptions?: RenderFormOptions, validationResult?: FormValidationResult) {
+export function getAbstractForm(forObject: any, options?: DeepPartial<WebForm>, renderOptions?: RenderFormOptions, validationResult?: FormValidationResult) {
     validationResult ??= {message: '', hasError: false, fields: {}}
     let _renderOptions = renderOptions ?? {}
     let _options = createFormConfig(forObject, options)
