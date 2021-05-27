@@ -83,6 +83,12 @@ export function toJsx<T>(reactCreateElement: any, root: AbstractDomElement, key?
         return reactCreateElement(root.tag, attrs)
 }
 
+const BOOL_ATTRS = [
+    'allowfullscreen','allowpaymentrequest','async','autofocus','autoplay','checked','controls','default','disabled',
+    'formnovalidate','hidden','ismap','itemscope','loop','multiple','muted','nomodule','novalidate','open',
+    'playsinline','readonly','required','reversed','selected','truespeed'
+]
+
 export function toHtmlDom<T extends HTMLElement>(documentCreateElement: any, document: HTMLDocument, root: AbstractDomElement): T {
     const result = documentCreateElement.call(document, root.tag) as HTMLElement
     for (const k in root.attrs) {
@@ -95,6 +101,9 @@ export function toHtmlDom<T extends HTMLElement>(documentCreateElement: any, doc
         }
         else if (typeof(val) === 'function') {
             result.addEventListener(k.substr(2, k.length - 2), val)
+        }
+        else if (BOOL_ATTRS.indexOf(k) > -1) {
+            if (val) result.setAttribute(k, val)
         }
         else
             result.setAttribute(k, val)
