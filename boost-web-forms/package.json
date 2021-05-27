@@ -7,8 +7,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "declaration": "tsc --emitDeclarationOnly",
+    "build": "vite build && tsc --emitDeclarationOnly --project tsconfig.typedec.json",
+    "declaration": "tsc --emitDeclarationOnly --project tsconfig.typedec.json",
     "serve": "vite preview",
     "test": "ts-mocha -p ./tsconfig.tests.json -r jsdom-global/register 'tests/**/*.ts'"
   },

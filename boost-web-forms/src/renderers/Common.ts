@@ -1,13 +1,7 @@
-import {
-    FormValidationResult, ValidateFunc, ValidationResult, WebFormEvents, WebFormFieldEvents, FormFieldType,
-    FieldConfig, FieldsConfig, WebForm
-} from "../Models";
-import {renderInput, renderLabel} from "./VanillaFormRenderer";
+import { FormValidationResult, FormFieldType, FieldConfig, WebForm } from "../Models";
 import {
     AbstractDomElement,
     AbstractDomNode,
-    DomElementChildren,
-    DomElementChildrenFrom,
     OneOrMany
 } from "boost-web-core";
 
@@ -17,7 +11,6 @@ export interface LayoutRenderer {
     form: (form: WebForm, attrs?: any, rootTag?: string) => AbstractDomElement
 }
 export interface FormLayout {
-    //renderForm(renderer: LayoutRenderer, form?: WebForm, forObject?): DomElementChildrenFrom
     formLayout(forObject: any, form: WebForm, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement
 }
 

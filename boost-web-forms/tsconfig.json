@@ -22,6 +22,7 @@
     "isolatedModules": true,
     "experimentalDecorators": true,
     "declaration": true,
+    "declarationDir": "./dist",
     "noImplicitAny": false
   },
   "include": ["src/**/*.d.ts", "src/**/*.d.tsx", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte"]
