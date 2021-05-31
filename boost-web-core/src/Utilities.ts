@@ -71,7 +71,7 @@ export function uuid() {
     )
 }
 
-export function toArray<T>(src: T|T[]): T[] {
+export function toArray<T>(src: T|T[]|null): T[] {
     if (src == null) return []
     if (Array.isArray(src))
         return src;

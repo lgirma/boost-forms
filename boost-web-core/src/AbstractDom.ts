@@ -74,7 +74,7 @@ export function toJsx<T>(reactCreateElement: any, root: AbstractDomElement, key?
     }
     if (root.children && root.children.length > 1)
         return reactCreateElement(root.tag, attrs,
-            root.children.map((c, i) => (typeof (c) === 'string' || c == null) ? c : toJsx(reactCreateElement, c, i)))
+            ...root.children.map((c, i) => (typeof (c) === 'string' || c == null) ? c : toJsx(reactCreateElement, c)))
     else if (root.children && root.children.length == 1) {
         let c = root.children[0]
         if (root.tag === 'textarea')
