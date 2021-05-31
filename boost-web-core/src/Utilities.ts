@@ -39,7 +39,7 @@ export function isArray(a: any) {
  * @param str
  */
 const dateRegex = '[1-2][0-9][0-9][0-9](\-|\/)[0-3][0-9](\-|\/)[0-3][0-9]$'
-const timeRegex = '([01][0-9]|2[0-3]):([012345][0-9])((:([012345][0-9]))|(\\sAM)|(\\sam)|(\\sPM)|(\\spm))'
+const timeRegex = '([01][0-9]|2[0-3]):([012345][0-9])(:([012345][0-9]))'
 export function isDate(str: string){
     return new RegExp(dateRegex).test(str);
 }

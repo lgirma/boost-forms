@@ -7,10 +7,13 @@ export type DomElementChildren = AbstractDomNode[]
 export type DomElementChildrenFrom = Nullable<AbstractDomNode>|Nullable<AbstractDomNode>[]
 
 export interface AbstractDomElement {
-    tag: string
+    tag: PrimitiveComponent|CustomComponent
     attrs: {[p: string]: any}
     children: DomElementChildren
 }
+
+export type CustomComponent = any
+export type PrimitiveComponent = keyof HTMLElementTagNameMap
 
 /**
  * Creates an abstract dom elements tree.
@@ -30,7 +33,7 @@ export interface AbstractDomElement {
  * <p>Here is a <a href="http://www.google.com/">link</a>.</p>
  * ```
  */
-export function vdom(tag: string,
+export function vdom(tag: PrimitiveComponent|CustomComponent,
                      attrs:{[key: string]: any} = {},
                      children: DomElementChildrenFrom = null) : AbstractDomElement {
     const elt: AbstractDomElement = {tag, attrs: {}, children: []}
@@ -103,7 +106,7 @@ export function toHtmlDom<T extends HTMLElement>(documentCreateElement: any, doc
             result.addEventListener(k.substr(2, k.length - 2), val)
         }
         else if (BOOL_ATTRS.indexOf(k) > -1) {
-            if (val) result.setAttribute(k, val)
+            if (val) result.setAttribute(k, k)
         }
         else
             result.setAttribute(k, val)
@@ -130,6 +133,9 @@ export function toHtmlString(root: AbstractDomElement): string {
                 if (sv != null)
                     result += ` ${sk}="${sv}"`
             }
+        }
+        else if (BOOL_ATTRS.indexOf(k) > -1) {
+            if (val) result += ` ${k}`
         }
         result += ` ${k}="${val}"`
     }
