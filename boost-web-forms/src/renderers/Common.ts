@@ -80,5 +80,5 @@ export function getHtmlFormAttrs(form: FormConfig) {
 }
 
 export const SimpleTextTypes : FormFieldType[] = [
-    'text', 'name', 'password', 'date', 'datetime-local', 'email', 'search', 'url', 'time', 'month', 'week', 'tel'
+    'text', 'password', 'date', 'datetime-local', 'email', 'search', 'url', 'time', 'month', 'week', 'tel'
 ]

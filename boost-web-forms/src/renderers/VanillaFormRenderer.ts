@@ -1,17 +1,10 @@
-import {
-    createFormConfig,
-    getFieldConfigs,
-    validateForm,
-} from "../FormService";
+import {createFormConfig} from "../FormService";
 import {FormValidationResult, WebFormEvents, WebFormFieldEvents, FieldConfig, FormConfig} from "../Models";
 import {
     AbstractDomElement,
     vdom,
-    DomElementChildrenFrom,
-    humanize,
     toHtmlDom,
-    DomElementChildren,
-    AbstractDomNode, Dict, OneOrMany, toArray, isArray, DeepPartial, Nullable, isEmpty
+    AbstractDomNode, Dict, OneOrMany, toArray, DeepPartial, Nullable, isEmpty
 } from 'boost-web-core'
 import {FormLayout, LayoutRenderer, getHtmlAttrs, RenderFormOptions, SimpleTextTypes, getHtmlFormAttrs} from "./Common";
 
@@ -19,8 +12,8 @@ export const DefaultLayout: FormLayout = {
     formLayout(forObject: any, form: FormConfig, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement {
         const result = renderer.form(form, {})
         result.children.push(vdom('style', {}, 'label {display: table; margin-top: 10px; cursor: pointer}'))
-        if (validationResult?.hasError)
-            result.children.push(vdom('div', {style: {color: 'red'}}, validationResult.message))
+        /*if (validationResult?.hasError)
+            result.children.push(vdom('div', {style: {color: 'red'}}, validationResult.message))*/
         for (const [fieldId, field] of Object.entries(form.fieldsConfig)) {
             const label = renderer.label(field)
             const fieldValidationResult = validationResult?.fields[fieldId] ?? {hasError: false}
@@ -142,6 +135,8 @@ export function renderInput(val: any, field: FieldConfig, attrs = {}): OneOrMany
         return vdom('input', {...eltAttrs, type: 'file', files: val})
     if (field.type == 'number')
         return vdom('input', {...eltAttrs, type: 'number', value: `${val == null ? '' : val}`})
+    if (field.type == 'name')
+        return vdom('input', {...eltAttrs, type: 'text', value: `${val == null ? '' : val}`})
     if (field.type == 'range')
         return vdom('input', {...eltAttrs, type: 'range', value: `${val == null ? '' : val}`})
     if (field.type == 'money')
