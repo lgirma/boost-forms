@@ -14,7 +14,7 @@ const onSubmit = (e: Event) => {
     }
 }
 console.log('Generated Form Options', createFormConfig(options))
-let formValidationResult = VALID_FORM
+let formValidationResult = {...VALID_FORM}
 let config = createFormConfig(forObj, {...options, onsubmit: onSubmit})
 
 function reRenderForm(state) {

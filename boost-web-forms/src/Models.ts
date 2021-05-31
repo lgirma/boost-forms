@@ -1,4 +1,4 @@
-import {DeepPartial, Dict, isEmpty, OneOrMany} from "boost-web-core";
+import {DeepPartial, Dict, isEmpty, Nullable, OneOrMany} from "boost-web-core";
 
 
 export type FieldsConfig = Dict<FieldConfig>
@@ -53,8 +53,8 @@ export function getValidationResult(errorMessage?: string): ValidationResult {
 export const VALID_FORM: FormValidationResult = {message: '', hasError: false, fields: {}}
 
 export type AsyncValidateFunc = (val: any, errorMessage?: string) => Promise<string>
-export type ValidateFunc = AsyncValidateFunc | ((val: any, errorMessage?: string) => string)
-export type FormValidateFunc = (formData: any) => Promise<string>
+export type ValidateFunc = Nullable<(AsyncValidateFunc | ((val: any, errorMessage?: string) => string))>
+export type FormValidateFunc = Nullable<(((val: any, errorMessage?: string) => Promise<FormValidationResult>) | ((val: any, errorMessage?: string) => FormValidationResult))>
 
 export interface WebFormEvents {
     onValidation?: (e: Event, validationResult: FormValidationResult) => void

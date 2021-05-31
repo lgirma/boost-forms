@@ -8,7 +8,7 @@ import {
     DeepPartial,
     isEmpty,
     isArray,
-    isFunc
+    isFunc, toArray, Dict, toArrayWithoutNulls
 } from 'boost-web-core';
 import {
     FormValidationResult,
@@ -18,7 +18,7 @@ import {
     AsyncValidateFunc,
     CustomFieldRenderer,
     FormFieldType,
-    FieldConfig, FormConfig
+    FieldConfig, FormConfig, VALID_FORM
 } from "./Models";
 import {notEmpty} from './Validation';
 
@@ -165,124 +165,101 @@ export function guessConfig(fieldConfig: Partial<FieldConfig>, val: any, fieldTy
     return result
 }
 
-export async function validateFormAsync(forObject: any, _formConfig?: FormConfig) : Promise<FormValidationResult> {
-    let formConfig = createFormConfig(forObject, _formConfig)
-    let fieldsConfig = formConfig.fieldsConfig;
-    let result: FormValidationResult = {
-        hasError: false,
-        message: '',
-        fields: {}
-    };
-    for (const id in forObject) {
-        if (!forObject.hasOwnProperty(id))
-            continue;
-        const config = fieldsConfig[id]
-        result.fields[id] = {
-            hasError: false,
-            message: ''
-        }
-        if (config == null) continue
-        let validate = config.validate
-        const value = forObject[id]
-        if (config.required) {
-            if (validate == null) validate = notEmpty;
-            else if (validate.constructor === Array)
-                validate.push(notEmpty);
-            else validate = [validate as ValidateFunc, notEmpty]
-        }
-        else if (validate == null) continue
+interface FormValidationModel {
+    formValidationResult: ValidationResult|Promise<ValidationResult>|null
+    fields: Dict<ValidationResult|Promise<ValidationResult>>
+}
 
-        let fieldValidationResult = await runValidatorAsync(validate, value);
-        result.fields[id].message = fieldValidationResult.message;
-        result.fields[id].hasError = fieldValidationResult.hasError;
-    }
-    const formLevelValidation = formConfig.validate
-        ? await runValidatorAsync(formConfig.validate, forObject)
-        : {message: '', hasError: false};
-    let fieldsValidationResult = Object.keys(result.fields).reduce((p, k) => p || result.fields[k].hasError, false)
-    result.hasError = formLevelValidation.hasError || fieldsValidationResult
-    result.message = formLevelValidation.message
-    return result
+function mergeValidationResults(results: ValidationResult[]): ValidationResult {
+    return results.reduce(
+        (prev, curr) => ({hasError: curr.hasError || prev.hasError, message: !isEmpty(curr.message) ? curr.message : prev.message}),
+        getValidationResult())
 }
 
 export function validateForm(forObject: any, _formConfig?: FormConfig) : FormValidationResult {
-    let formConfig = createFormConfig(forObject, _formConfig)
-    let fieldsConfig = formConfig.fieldsConfig;
+    const m = validateFormInternal(forObject, _formConfig)
+    const formVR = m.formValidationResult as ValidationResult
     let result: FormValidationResult = {
-        hasError: false,
-        message: '',
-        fields: {}
-    };
-    for (const id in forObject) {
-        if (!forObject.hasOwnProperty(id))
-            continue;
-        const config = fieldsConfig[id]
-        result.fields[id] = {
-            hasError: false,
-            message: ''
-        }
-        if (config == null) continue
-        let validate = config.validate
-        const value = forObject[id]
-        if (config.required) {
-            if (validate == null) validate = notEmpty;
-            else if (validate.constructor === Array)
-                validate.push(notEmpty);
-            else validate = [validate as ValidateFunc, notEmpty]
-        }
-        else if (validate == null) continue
-
-        let fieldValidationResult = runValidator(validate, value);
-        result.fields[id].message = fieldValidationResult.message;
-        result.fields[id].hasError = fieldValidationResult.hasError;
+        message: formVR.message,
+        hasError: formVR.hasError,
+        fields: {...(m.fields as Dict<ValidationResult>)}
     }
-    const formLevelValidation = formConfig.validate
-        ? runValidator(formConfig.validate, forObject)
-        : {message: '', hasError: false};
-    let fieldsValidationResult = Object.keys(result.fields).reduce((p, k) => p || result.fields[k].hasError, false)
-    result.hasError = formLevelValidation.hasError || fieldsValidationResult
-    result.message = formLevelValidation.message
+
+    let anyOfFieldsHasError = Object.keys(result.fields).reduce((p, k) => p || result.fields[k].hasError, false)
+    result.hasError ||= anyOfFieldsHasError
+
     return result
 }
 
-export async function runValidatorAsync(validator: ValidateFunc | ValidateFunc[], value: any): Promise<ValidationResult> {
-    if (validator == null)
-        return getValidationResult();
-    try {
-        if (validator.constructor === Array) {
-            for (let i = 0; i < validator.length; i++) {
-                const v = validator[i];
-                let errorMsg = await v(value);
-                if (errorMsg) return getValidationResult(errorMsg)
-            }
-        }
-        else if (validator.constructor === Function || validator.constructor === Object.getPrototypeOf(async function() {}).constructor) {
-            return getValidationResult(await (validator as AsyncValidateFunc)(value));
-        }
-    } catch (ex) {
-        return getValidationResult('Failed to validate this entry.');
+export async function validateFormAsync(forObject: any, _formConfig?: FormConfig) : Promise<FormValidationResult> {
+    const m = validateFormInternal(forObject, _formConfig)
+    const formVR = await (m.formValidationResult as Promise<ValidationResult>)
+    let result: FormValidationResult = {
+        message: formVR.message,
+        hasError: formVR.hasError,
+        fields: {}
     }
-    return getValidationResult();
+
+    for (const [k, valPromise] of Object.entries(m.fields)) {
+        const vr = await (valPromise as Promise<ValidationResult>)
+        result.fields[k] = vr
+        result.hasError ||= vr.hasError
+    }
+
+    return result
 }
 
-export function runValidator(validator: ValidateFunc | ValidateFunc[], value: any): ValidationResult {
+function validateFormInternal(forObject: any, _formConfig?: FormConfig) : FormValidationModel {
+    let formConfig = createFormConfig(forObject, _formConfig)
+    let fieldsConfig = formConfig.fieldsConfig;
+    let result: FormValidationModel = {fields: {}, formValidationResult: null};
+    for (const [id, value] of Object.entries(forObject)) {
+        const config = fieldsConfig[id]
+        result.fields[id] = getValidationResult()
+        if (config == null) continue
+        let validators = toArray(config.validate)
+        if (config.required)
+            validators.push(notEmpty);
+        else if (validators.length == 0) continue
+        result.fields[id] = runValidator(validators, value);
+    }
+    result.formValidationResult = formConfig.validate
+        ? runValidator(formConfig.validate, forObject)
+        : getValidationResult();
+    return result
+}
+
+export function runValidator(validator: ValidateFunc | ValidateFunc[], value: any): ValidationResult|Promise<ValidationResult> {
     if (validator == null)
         return getValidationResult();
     try {
-        if (isArray(validator)) {
-            for (let i = 0; i < validator.length; i++) {
-                const v = validator[i];
-                let errorMsg = v(value) as string;
-                if (errorMsg) return getValidationResult(errorMsg)
+        const validators: ValidateFunc[] = toArray(validator)
+        let asyncVRs: Promise<ValidationResult>[] = []
+        for (let i = 0; i < validators.length; i++) {
+            const v: ValidateFunc = validators[i];
+            if (v == null) continue
+            let vResult = v(value)
+            if (vResult == null)
+                continue
+            if (typeof(vResult) === 'string') {
+                if (!isEmpty(vResult))
+                    return getValidationResult(vResult)
+                continue
             }
+            asyncVRs.push((vResult as Promise<string>)
+                .then(errMsg => getValidationResult(errMsg))
+                .catch(err => {
+                    console.warn('Error while attempting to validate', err)
+                    return getValidationResult('Failed to validate this entry.')
+                }))
         }
-        else if (isFunc(validator)) {
-            return getValidationResult((validator as ValidateFunc)(value) as string);
+        if (asyncVRs.length) {
+            return Promise.all(asyncVRs).then(vrs => mergeValidationResults(vrs))
         }
     } catch (ex) {
         return getValidationResult('Failed to validate this entry.');
     }
-    return getValidationResult();
+    return getValidationResult()
 }
 
 export function getFieldConfigs(form: FormConfig): FieldConfig[] {

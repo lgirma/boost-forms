@@ -48,7 +48,7 @@ export const options: DeepPartial<FormConfig> = {
         },
         volume: {type: "range", max: '1000', min: '0', step: '5'},
         age: {
-            validate: val => val < 18 ? 'You should be above 18' : ''
+            validate: val => val < 18 ? 'You should be at least 18' : ''
         },
         agreeToTerms: {
             validate: val => val ? '' : 'You have to agree to our terms & conditions.'

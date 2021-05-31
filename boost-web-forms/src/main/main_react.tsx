@@ -15,8 +15,7 @@ function MyForm() {
     const config = createFormConfig(forObj, options)
 
     function onSubmit(e) {
-        const formValue = getFormValue(config, e.target)
-        const vr = validateForm(formValue, config)
+        const vr = validateForm(formData, config)
         if (vr.hasError)
             e.preventDefault();
         setValidation(vr)
