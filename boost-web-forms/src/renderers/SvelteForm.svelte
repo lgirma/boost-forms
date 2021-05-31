@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type {FormValidationResult, FieldConfig, WebForm} from "../Models";
+    import type {FormValidationResult, FieldConfig, FormConfig} from "../Models";
     import {createFormConfig, validateForm, findCustomRenderer} from "../FormService";
     import type {RenderFormOptions} from "./Common";
     import SvelteFieldLabel from "./SvelteFieldLabel.svelte";
@@ -11,7 +11,7 @@
     const dispatch = createEventDispatcher();
 
     export let forObject
-    export let options: WebForm | null = null
+    export let options: FormConfig | null = null
     export let renderOptions: RenderFormOptions = {}
     export let validationResult: FormValidationResult | null = {message: '', fields: {}, hasError: false}
     let _safeOptions = options ?? createFormConfig(forObject)

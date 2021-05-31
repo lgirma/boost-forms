@@ -1,9 +1,9 @@
-import {FieldConfig, FormValidationResult, ValidationResult, WebForm} from "../../Models";
+import {FieldConfig, FormValidationResult, ValidationResult, FormConfig} from "../../Models";
 import {LayoutRenderer, PluginOptions} from "../Common";
 import {AbstractDomElement} from "boost-web-core";
 
 export const BootstrapCommonLayout = {
-    formLayout(forObject: any, form: WebForm, renderer: LayoutRenderer, validationResult?: FormValidationResult,
+    formLayout(forObject: any, form: FormConfig, renderer: LayoutRenderer, validationResult?: FormValidationResult,
                pluginOptions?: Partial<PluginOptions>): AbstractDomElement {
         validationResult ??= {hasError: false, message: '', fields: {}}
         const result = renderer.form(form, {class: 'row'})

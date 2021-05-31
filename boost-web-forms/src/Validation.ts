@@ -19,7 +19,7 @@ export function notEmpty(val, errorMessage = 'Please, fill out this field.') {
 }
 
 export function validName(val, errorMessage = 'Please, enter a valid name.') {
-    if (isEmpty(val) || /[<>/\\{}*#~`%]+$/.test(val)) return errorMessage;
+    if (/[<>/\\{}*#~`%]+$/.test(val)) return errorMessage;
     return '';
 }
 

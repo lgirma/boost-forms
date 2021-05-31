@@ -1,4 +1,4 @@
-import { FormValidationResult, FormFieldType, FieldConfig, WebForm } from "../Models";
+import { FormValidationResult, FormFieldType, FieldConfig, FormConfig } from "../Models";
 import {
     AbstractDomElement,
     AbstractDomNode,
@@ -8,10 +8,10 @@ import {
 export interface LayoutRenderer {
     label: (field: FieldConfig, attrs?: any) => OneOrMany<AbstractDomNode>,
     input: (val: any, field: FieldConfig, attrs?: any) => OneOrMany<AbstractDomNode>,
-    form: (form: WebForm, attrs?: any, rootTag?: string) => AbstractDomElement
+    form: (form: FormConfig, attrs?: any, rootTag?: string) => AbstractDomElement
 }
 export interface FormLayout {
-    formLayout(forObject: any, form: WebForm, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement
+    formLayout(forObject: any, form: FormConfig, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement
 }
 
 export interface PluginOptions {
@@ -53,25 +53,14 @@ export function getHtmlAttrs(field: FieldConfig) {
         name: field.id
     }
     for (const [k, val] of Object.entries(src)) {
-        if (val != null && val != '') {
-            if (k == 'disabled') {
-                if (val) result.disabled = true
-            }
-            else if (k == 'hidden') {
-                if (val) result.hidden = true
-            }
-            else if (k == 'required') {
-                if (val) result.required = true
-            }
-            else
-                result[k] = val
-        }
+        if (val != null && val != '')
+            result[k] = val
     }
     return result
 }
 
-export function getHtmlFormAttrs(form: WebForm) {
-    const src: Partial<WebForm> = {
+export function getHtmlFormAttrs(form: FormConfig) {
+    const src: Partial<FormConfig> = {
         ...form,
         fieldsConfig: undefined,
         validate: undefined,
@@ -84,16 +73,8 @@ export function getHtmlFormAttrs(form: WebForm) {
     }
     let result : any = {}
     for (const [key, val] of Object.entries(src)) {
-        if (val != null && val != '') {
-            if (key == 'disabled') {
-                if (val) result.disabled = true
-            }
-            else if (key == 'hidden') {
-                if (val) result.hidden = true
-            }
-            else
-                result[key] = val
-        }
+        if (val != null && val != '')
+            result[key] = val
     }
     return result
 }

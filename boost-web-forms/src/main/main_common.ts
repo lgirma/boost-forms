@@ -2,7 +2,8 @@ import {createFormConfig} from "../FormService";
 import {fileTypeValidator, MIME_PDF, notEmpty, validName} from "../Validation";
 import {RenderFormOptions} from "../renderers/Common";
 import {Bootstrap5, Bootstrap4, Bootstrap3/*, PropertyGrid, Bootstrap3, Bulma, MDB5*/} from "../renderers/plugins";
-import {FormValidationResult} from "../Models";
+import {FormValidationResult, FormConfig} from "../Models";
+import {DeepPartial} from "boost-web-core";
 
 export let forObj= {
     //@field({type: 'tel'})
@@ -13,18 +14,18 @@ export let forObj= {
     gender: '0',
     accountType: '',
     dateOfBirth: "2001-02-01",
-    receiveNewsletter: false,
+    agreeToTerms: false,
     packages: ['newsLetter', 'premiumSupport'],
     comment: '',
     requestDiscount: 5.5,
     passportDocument: null,
-    arrivalTime: '09:08 PM',
+    arrivalTime: '09:08:00',
     price: 50.99,
     volume: 50,
-    fiscalYear: 2005,
+    age: 17,
     invalidTyped: null
 };
-export const options = createFormConfig(forObj, {
+export const options: DeepPartial<FormConfig> = {
     readonly: false,
     style: { width: '50%', margin: '10px' },
     fieldsConfig: {
@@ -46,22 +47,17 @@ export const options = createFormConfig(forObj, {
             required: true
         },
         volume: {type: "range", max: '1000', min: '0', step: '5'},
+        age: {
+            validate: val => val < 18 ? 'You should be above 18' : ''
+        },
+        agreeToTerms: {
+            validate: val => val ? '' : 'You have to agree to our terms & conditions.'
+        },
         invalidTyped: {type: 'go'} as any
     },
     validate: val => (val.password !== val.confirmPassword ? 'Passwords do not match.' : '')
-})
-
-export const renderOptions: RenderFormOptions = {
-    ...Bootstrap4({columns: 2})
 }
 
-export const formValidationResult: FormValidationResult = {
-    hasError: true,
-    fields: {
-        volume: {hasError: true, message: 'Loud sound might hurt you.'},
-        price: {hasError: true, message: 'Price is too low.'},
-        receiveNewsletter: {hasError: true, message: 'Please receive it.'},
-        accountType: {hasError: true, message: 'Please select one that applies.'},
-        gender: {hasError: true, message: 'Please select one gender'}
-    }
+export const renderOptions: RenderFormOptions = {
+    //...Bootstrap4({columns: 2})
 }

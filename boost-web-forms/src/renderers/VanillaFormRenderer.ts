@@ -3,7 +3,7 @@ import {
     getFieldConfigs,
     validateForm,
 } from "../FormService";
-import {FormValidationResult, WebFormEvents, WebFormFieldEvents, FieldConfig, WebForm} from "../Models";
+import {FormValidationResult, WebFormEvents, WebFormFieldEvents, FieldConfig, FormConfig} from "../Models";
 import {
     AbstractDomElement,
     vdom,
@@ -11,13 +11,16 @@ import {
     humanize,
     toHtmlDom,
     DomElementChildren,
-    AbstractDomNode, Dict, OneOrMany, toArray, isArray, DeepPartial
+    AbstractDomNode, Dict, OneOrMany, toArray, isArray, DeepPartial, Nullable, isEmpty
 } from 'boost-web-core'
 import {FormLayout, LayoutRenderer, getHtmlAttrs, RenderFormOptions, SimpleTextTypes, getHtmlFormAttrs} from "./Common";
 
 export const DefaultLayout: FormLayout = {
-    formLayout(forObject: any, form: WebForm, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement {
+    formLayout(forObject: any, form: FormConfig, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement {
         const result = renderer.form(form, {})
+        result.children.push(vdom('style', {}, 'label {display: table; margin-top: 10px; cursor: pointer}'))
+        if (validationResult?.hasError)
+            result.children.push(vdom('div', {style: {color: 'red'}}, validationResult.message))
         for (const [fieldId, field] of Object.entries(form.fieldsConfig)) {
             const label = renderer.label(field)
             const fieldValidationResult = validationResult?.fields[fieldId] ?? {hasError: false}
@@ -60,7 +63,7 @@ export const DefaultLayout: FormLayout = {
     }
 }
 
-export function renderForm(forObject: any, options?: WebForm, validationResult?: FormValidationResult, renderOptions?: RenderFormOptions): HTMLElement {
+export function renderForm(forObject: any, options?: DeepPartial<FormConfig>, validationResult?: FormValidationResult, renderOptions?: RenderFormOptions): HTMLElement {
     let rootElt = getAbstractForm(forObject, options, renderOptions, validationResult)
     return toHtmlDom(document.createElement, document, rootElt)
 }
@@ -68,11 +71,11 @@ export function renderForm(forObject: any, options?: WebForm, validationResult?:
 const VanillaJSRenderer: LayoutRenderer = {
     label: (field, attrs) => renderLabel(field, attrs),
     input: (val, field, attrs) => renderInput(val, field, attrs),
-    form: (formConfig: WebForm, attrs?: any, rootTag = 'form') =>
+    form: (formConfig: FormConfig, attrs?: any, rootTag = 'form') =>
         vdom(rootTag, {...getHtmlFormAttrs(formConfig), ...attrs})
 }
 
-export function getAbstractForm(forObject: any, options?: DeepPartial<WebForm>, renderOptions?: RenderFormOptions, validationResult?: FormValidationResult) {
+export function getAbstractForm(forObject: any, options?: DeepPartial<FormConfig>, renderOptions?: RenderFormOptions, validationResult?: FormValidationResult) {
     validationResult ??= {message: '', hasError: false, fields: {}}
     let _options = createFormConfig(forObject, options)
     const {
@@ -134,7 +137,9 @@ export function renderInput(val: any, field: FieldConfig, attrs = {}): OneOrMany
 
     }
     if (field.type == 'files')
-        return vdom('input', {...eltAttrs, type: 'file', multiple: 'multiple', value: `${val == null ? '' : val}`})
+        return vdom('input', {...eltAttrs, type: 'file', multiple: 'multiple', files: val})
+    if (field.type == 'file')
+        return vdom('input', {...eltAttrs, type: 'file', files: val})
     if (field.type == 'number')
         return vdom('input', {...eltAttrs, type: 'number', value: `${val == null ? '' : val}`})
     if (field.type == 'range')
@@ -159,30 +164,57 @@ export function renderLabel(field: FieldConfig, attrs = {}): AbstractDomNode {
     return label
 }
 
-export function getFormState(form: WebForm, formElt: HTMLElement) {
-    let result = {}
-    for (const [fieldId, field] of Object.entries(form.fieldsConfig)) {
-        result[fieldId] = readFieldValue(field, formElt)
-    }
-    return result
+export function onFieldChangeReducer(form: FormConfig, event: Event): (previousFormData: any) => any {
+    const input = (event.target as HTMLInputElement)
+    if (isEmpty(input?.name))
+        return v => v
+    return prevVal => ({
+        ...prevVal,
+        [input.name]: getChangedFieldValue(form, event.target)
+    })
 }
 
-export function readFieldValue(field: FieldConfig, formElt: HTMLElement) {
+export function getFieldIdFromElement(elt: Node) {
+    return (elt as HTMLInputElement).name
+}
+
+export function getChangedFieldValue(form: FormConfig, target: Nullable<EventTarget>) {
+    if (target == null) return null
+    const fieldId = getFieldIdFromElement(target as Node)
+    const field = form.fieldsConfig[fieldId]
+    return getFieldValue(fieldId, field, [target])
+}
+
+export function getFieldValue(fieldId: string, field: FieldConfig, fieldElements?: any[]) {
+    if (field == null)
+        return null;
     let val: any = ''
-    const elt = formElt.querySelector('#' + field.id) as any
+    fieldElements ??= [...document.getElementsByName(fieldId)]
+    if (fieldElements.length == 0)
+        return null
+    let fieldElement = fieldElements[0] as Node
+    let input = fieldElement as HTMLInputElement
     if (field.type == 'radio') {
-        let radios = [...document.getElementsByName(field.id)] as HTMLInputElement[]
+        let radios = fieldElements as HTMLInputElement[]
         val = field.multiple
-            ? radios.find(r => r.checked)?.value ?? ''
-            : radios.filter(r => r.checked).map(r => r.value) ?? []
+            ? radios.filter(r => r.checked).map(r => r.value)
+            : input.checked ? input.value : ''
     }
     else if (field.type == 'checkbox')
-        val = elt.checked
-    else if (field.type == 'file')
-        val = elt.files
+        val = input.checked
+    else if (field.type == 'file' || field.type == 'files')
+        val = input.files
     else if (field.type == 'number')
-        val = parseFloat(elt.value)
+        val = parseFloat(input.value)
     else
-        val = elt.value
+        val = input.value
     return val
+}
+
+export function getFormValue(form: FormConfig, formElement: HTMLElement) {
+    let result = {}
+    for (const [fieldId, field] of Object.entries(form.fieldsConfig)) {
+        result[fieldId] = getFieldValue(fieldId, field)
+    }
+    return result
 }

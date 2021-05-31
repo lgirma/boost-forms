@@ -1,5 +1,5 @@
 import {LayoutRenderer, PluginOptions, RenderFormOptions, FormLayout} from "../Common";
-import {FieldConfig, FormValidationResult, ValidationResult, WebForm} from "../../Models";
+import {FieldConfig, FormValidationResult, ValidationResult, FormConfig} from "../../Models";
 import {vdom, DomElementChildrenFrom, isEmpty, AbstractDomElement, toArray, Dict} from "boost-web-core";
 import {BootstrapCommonLayout} from './BootstrapCommon'
 import {options} from "../../main/main_common";
@@ -61,7 +61,7 @@ const Bootstrap5Layout = {
 
 export const Bootstrap5 : (o?: Partial<PluginOptions>) => RenderFormOptions = pluginOptions => ({
     layout: {
-        formLayout(forObject: any, form: WebForm, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement {
+        formLayout(forObject: any, form: FormConfig, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement {
             return Bootstrap5Layout.formLayout(forObject, form, renderer, validationResult, pluginOptions)
         }
     }

@@ -1,7 +1,7 @@
 import {DeepPartial, Dict, isEmpty, OneOrMany} from "boost-web-core";
 
 
-export type FieldsConfig =Dict<FieldConfig>
+export type FieldsConfig = Dict<FieldConfig>
 
 export interface FieldConfig extends Partial<HTMLInputElement>, WebFormFieldEvents {
     id: string
@@ -22,7 +22,7 @@ export interface FieldConfig extends Partial<HTMLInputElement>, WebFormFieldEven
     validate?: OneOrMany<ValidateFunc>
 }
 
-export interface WebForm extends DeepPartial<HTMLFormElement>, WebFormEvents {
+export interface FormConfig extends DeepPartial<HTMLFormElement>, WebFormEvents {
     fieldsConfig: FieldsConfig
     validate?: OneOrMany<ValidateFunc>
     scale?: number
@@ -49,6 +49,8 @@ export function getValidationResult(errorMessage?: string): ValidationResult {
         hasError: !isEmpty(errorMessage ?? null)
     }
 }
+
+export const VALID_FORM: FormValidationResult = {message: '', hasError: false, fields: {}}
 
 export type AsyncValidateFunc = (val: any, errorMessage?: string) => Promise<string>
 export type ValidateFunc = AsyncValidateFunc | ((val: any, errorMessage?: string) => string)
@@ -106,5 +108,5 @@ export type FormFieldType =  HTMLInputType | 'name' | 'files' | 'select' |
 export interface CustomFieldRenderer {
     forType: string|string[]
     id?: string
-    renderField(forObject: any, formConfig: WebForm, field: FieldConfig): string|HTMLElement
+    renderField(forObject: any, formConfig: FormConfig, field: FieldConfig): string|HTMLElement
 }

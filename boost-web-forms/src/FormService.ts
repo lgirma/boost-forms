@@ -1,4 +1,15 @@
-import {humanize, uuid, isDate, isDateTime, isYear, isTime, DeepPartial, isEmpty} from 'boost-web-core';
+import {
+    humanize,
+    uuid,
+    isDate,
+    isDateTime,
+    isYear,
+    isTime,
+    DeepPartial,
+    isEmpty,
+    isArray,
+    isFunc
+} from 'boost-web-core';
 import {
     FormValidationResult,
     ValidationResult,
@@ -7,7 +18,7 @@ import {
     AsyncValidateFunc,
     CustomFieldRenderer,
     FormFieldType,
-    FieldConfig, WebForm
+    FieldConfig, FormConfig
 } from "./Models";
 import {notEmpty} from './Validation';
 
@@ -34,8 +45,8 @@ export function field(value: FieldConfig) {
     };
 }
 
-export function createFormConfig(forObject: any, _config: DeepPartial<WebForm> = {}): WebForm {
-    let config: WebForm = {
+export function createFormConfig(forObject: any, _config: DeepPartial<FormConfig> = {}): FormConfig {
+    let config: FormConfig = {
         scale: 1,
         readonly: false,
         hideLabels: false,
@@ -78,7 +89,7 @@ export function createFormConfig(forObject: any, _config: DeepPartial<WebForm> =
     return config;
 }
 
-export function getDefaultFieldConfig(fieldId: string, type: FormFieldType, formConfig: Partial<WebForm>): FieldConfig {
+export function getDefaultFieldConfig(fieldId: string, type: FormFieldType, formConfig: Partial<FormConfig>): FieldConfig {
     return {
         scale: formConfig.scale ?? 1,
         readonly: formConfig.readonly ?? false,
@@ -154,7 +165,7 @@ export function guessConfig(fieldConfig: Partial<FieldConfig>, val: any, fieldTy
     return result
 }
 
-export async function validateForm(forObject: any, _formConfig?: WebForm) : Promise<FormValidationResult> {
+export async function validateFormAsync(forObject: any, _formConfig?: FormConfig) : Promise<FormValidationResult> {
     let formConfig = createFormConfig(forObject, _formConfig)
     let fieldsConfig = formConfig.fieldsConfig;
     let result: FormValidationResult = {
@@ -181,12 +192,12 @@ export async function validateForm(forObject: any, _formConfig?: WebForm) : Prom
         }
         else if (validate == null) continue
 
-        let fieldValidationResult = await runValidator(validate, value);
+        let fieldValidationResult = await runValidatorAsync(validate, value);
         result.fields[id].message = fieldValidationResult.message;
         result.fields[id].hasError = fieldValidationResult.hasError;
     }
     const formLevelValidation = formConfig.validate
-        ? await runValidator(formConfig.validate, forObject)
+        ? await runValidatorAsync(formConfig.validate, forObject)
         : {message: '', hasError: false};
     let fieldsValidationResult = Object.keys(result.fields).reduce((p, k) => p || result.fields[k].hasError, false)
     result.hasError = formLevelValidation.hasError || fieldsValidationResult
@@ -194,7 +205,47 @@ export async function validateForm(forObject: any, _formConfig?: WebForm) : Prom
     return result
 }
 
-export async function runValidator(validator: ValidateFunc | ValidateFunc[], value: any): Promise<ValidationResult> {
+export function validateForm(forObject: any, _formConfig?: FormConfig) : FormValidationResult {
+    let formConfig = createFormConfig(forObject, _formConfig)
+    let fieldsConfig = formConfig.fieldsConfig;
+    let result: FormValidationResult = {
+        hasError: false,
+        message: '',
+        fields: {}
+    };
+    for (const id in forObject) {
+        if (!forObject.hasOwnProperty(id))
+            continue;
+        const config = fieldsConfig[id]
+        result.fields[id] = {
+            hasError: false,
+            message: ''
+        }
+        if (config == null) continue
+        let validate = config.validate
+        const value = forObject[id]
+        if (config.required) {
+            if (validate == null) validate = notEmpty;
+            else if (validate.constructor === Array)
+                validate.push(notEmpty);
+            else validate = [validate as ValidateFunc, notEmpty]
+        }
+        else if (validate == null) continue
+
+        let fieldValidationResult = runValidator(validate, value);
+        result.fields[id].message = fieldValidationResult.message;
+        result.fields[id].hasError = fieldValidationResult.hasError;
+    }
+    const formLevelValidation = formConfig.validate
+        ? runValidator(formConfig.validate, forObject)
+        : {message: '', hasError: false};
+    let fieldsValidationResult = Object.keys(result.fields).reduce((p, k) => p || result.fields[k].hasError, false)
+    result.hasError = formLevelValidation.hasError || fieldsValidationResult
+    result.message = formLevelValidation.message
+    return result
+}
+
+export async function runValidatorAsync(validator: ValidateFunc | ValidateFunc[], value: any): Promise<ValidationResult> {
     if (validator == null)
         return getValidationResult();
     try {
@@ -214,6 +265,26 @@ export async function runValidator(validator: ValidateFunc | ValidateFunc[], val
     return getValidationResult();
 }
 
-export function getFieldConfigs(form: WebForm): FieldConfig[] {
+export function runValidator(validator: ValidateFunc | ValidateFunc[], value: any): ValidationResult {
+    if (validator == null)
+        return getValidationResult();
+    try {
+        if (isArray(validator)) {
+            for (let i = 0; i < validator.length; i++) {
+                const v = validator[i];
+                let errorMsg = v(value) as string;
+                if (errorMsg) return getValidationResult(errorMsg)
+            }
+        }
+        else if (isFunc(validator)) {
+            return getValidationResult((validator as ValidateFunc)(value) as string);
+        }
+    } catch (ex) {
+        return getValidationResult('Failed to validate this entry.');
+    }
+    return getValidationResult();
+}
+
+export function getFieldConfigs(form: FormConfig): FieldConfig[] {
     return Object.keys(form.fieldsConfig).map(k => form.fieldsConfig[k])
 }

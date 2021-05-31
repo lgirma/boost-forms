@@ -1,10 +1,10 @@
 import {createFormConfig} from "../FormService";
-import {FieldConfig, FieldsConfig, FormValidationResult, WebForm} from '../Models'
+import {FieldConfig, FieldsConfig, FormValidationResult, FormConfig} from '../Models'
 import {getAbstractForm, renderInput, renderLabel} from "./VanillaFormRenderer";
 import {RenderFormOptions} from "./Common";
 import {DeepPartial, toJsx} from "boost-web-core";
 
-export interface ReactFormProps extends DeepPartial<WebForm> {
+export interface ReactFormProps extends DeepPartial<FormConfig> {
     forObject: any,
     renderOptions?: RenderFormOptions
     validationResult?: FormValidationResult
