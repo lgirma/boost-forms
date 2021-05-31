@@ -58,6 +58,12 @@ export function isYear(str: string){
     return _regExp.test(str);
 }
 
+export function isFunc(val: any) {
+    if (val == null)
+        return false
+    return val.constructor === Function || val.constructor === Object.getPrototypeOf(async function() {}).constructor
+}
+
 export function uuid() {
     // UUID v4
     return (([1e7] as any)+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, (c: any) =>
