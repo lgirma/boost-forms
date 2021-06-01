@@ -1,5 +1,5 @@
 import {FormValidationResult, ValidateFunc} from "./Models";
-import {getFriendlyFileSize, isEmpty} from "boost-web-core";
+import {getFriendlyFileSize, isArray, isEmpty} from "boost-web-core";
 
 
 const special_char_regex = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/
@@ -13,9 +13,14 @@ export const MIME_MS_WORD = ['application/msword', 'application/vnd.openxmlforma
 
 
 export function notEmpty(val, errorMessage = 'Please, fill out this field.') {
-    if (val?.constructor === FileList && val.length == 0)
-        return errorMessage;
-    return isEmpty(val) ? errorMessage : '';
+    if (val == null) return errorMessage
+    if (val?.constructor === FileList)
+        return val.length == 0 ? errorMessage : ''
+    if (isArray(val))
+        return val.length == 0 ? errorMessage : ''
+    if (typeof val === 'string')
+        return isEmpty(val) ? errorMessage : '';
+    return ''
 }
 
 export function validName(val, errorMessage = 'Please, enter a valid name.') {

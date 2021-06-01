@@ -4,13 +4,13 @@ import React, {ReactElement, useEffect, useState} from 'react'
 import ReactDOM from 'react-dom'
 import {forObj, options, renderOptions} from "./main_common";
 import {getFormValue, onFieldChangeReducer} from "../renderers/VanillaFormRenderer";
-import {FormValidationResult, VALID_FORM} from "../Models";
+import {FormValidationResult, getFormValidationResult} from "../Models";
 
 const Form = GetReactForm(React.createElement)
 
 function MyForm() {
     const [formData, setFormData] = useState(forObj)
-    const [validation, setValidation] = useState(VALID_FORM)
+    const [validation, setValidation] = useState(getFormValidationResult)
 
     const config = createFormConfig(forObj, options)
 

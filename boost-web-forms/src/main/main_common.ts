@@ -3,7 +3,8 @@ import {fileTypeValidator, MIME_PDF, notEmpty, validName} from "../Validation";
 import {RenderFormOptions} from "../renderers/Common";
 import {Bootstrap5, Bootstrap4, Bootstrap3/*, PropertyGrid, Bootstrap3, Bulma, MDB5*/} from "../renderers/plugins";
 import {FormValidationResult, FormConfig} from "../Models";
-import {DeepPartial} from "boost-web-core";
+import {DeepPartial, Dict} from "boost-web-core";
+import * as stream from "stream";
 
 export let forObj= {
     //@field({type: 'tel'})
@@ -55,7 +56,15 @@ export const options: DeepPartial<FormConfig> = {
         },
         invalidTyped: {type: 'go'} as any
     },
-    validate: val => (val.password !== val.confirmPassword ? 'Passwords do not match.' : '')
+    validate: val => {
+        if (val.password !== val.confirmPassword) {
+            return {
+                password: 'Does not match with confirm password.',
+                confirmPassword: 'Does not match with password'
+            }
+        }
+        return {}
+    }
 }
 
 export const renderOptions: RenderFormOptions = {

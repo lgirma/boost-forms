@@ -24,7 +24,7 @@ export interface FieldConfig extends Partial<HTMLInputElement>, WebFormFieldEven
 
 export interface FormConfig extends DeepPartial<HTMLFormElement>, WebFormEvents {
     fieldsConfig: FieldsConfig
-    validate?: OneOrMany<ValidateFunc>
+    validate?: OneOrMany<FormValidateFunc>
     scale?: number
     hideLabels?: boolean
     readonly?: boolean
@@ -50,11 +50,20 @@ export function getValidationResult(errorMessage?: string): ValidationResult {
     }
 }
 
-export const VALID_FORM: FormValidationResult = {message: '', hasError: false, fields: {}}
+export function getFormValidationResult(errorMessage?: Nullable<string>, fields?: Dict<ValidationResult>): FormValidationResult {
+    return {
+        message: errorMessage ?? '',
+        hasError: !isEmpty(errorMessage ?? null) ||
+            (fields != null && Object.keys(fields).find(k => fields[k].hasError) != null),
+        fields: {...fields}
+    }
+}
 
-export type AsyncValidateFunc = (val: any, errorMessage?: string) => Promise<string>
-export type ValidateFunc = Nullable<(AsyncValidateFunc | ((val: any, errorMessage?: string) => string))>
-export type FormValidateFunc = Nullable<(((val: any, errorMessage?: string) => Promise<FormValidationResult>) | ((val: any, errorMessage?: string) => FormValidationResult))>
+type ValidationFunc<T> = (val: any, errorMessage?: string) => T
+export type AsyncValidateFunc = ValidationFunc<Promise<string>>
+export type SyncValidateFunc = ValidationFunc<string>
+export type ValidateFunc = Nullable<SyncValidateFunc | AsyncValidateFunc>
+export type FormValidateFunc = Nullable<ValidationFunc<Promise<string> | string | Dict<string> | Promise<Dict<string>>>>
 
 export interface WebFormEvents {
     onValidation?: (e: Event, validationResult: FormValidationResult) => void
