@@ -12,7 +12,7 @@
     function onSubmit(e) {
         validationResult = validateForm(formData, formConfig)
         if (validationResult.hasError)
-            e.preventDefault()
+            e.detail.preventDefault()
     }
 
     $: console.log('Change', formData)

@@ -118,7 +118,6 @@ export function guessType(fieldId: string, fieldValue: any): FormFieldType {
         '^amount|amount$|^price|price$': 'money',
         '^date|date$': 'date', '^year|year$': 'year', '^month|month$': 'month',
         '^phone|phone$': 'tel',
-        '^captcha|captcha^': 'reCaptcha',
         '^language|language$': 'language'
     }
     const fieldIdLower = fieldId.toLowerCase()
@@ -149,6 +148,8 @@ export function guessType(fieldId: string, fieldValue: any): FormFieldType {
         return 'number';
     if (fieldValue.constructor === Array)
         return 'radio';
+    if (jsType === 'object' && fieldValue.constructor === Object)
+        return 'composite'
 
     return 'text';
 }

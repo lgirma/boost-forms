@@ -141,6 +141,10 @@ export function renderInput(val: any, field: FieldConfig, attrs = {}): OneOrMany
         return vdom('input', {...eltAttrs, type: 'range', value: `${val == null ? '' : val}`})
     if (field.type == 'money')
         return vdom('input', {min: '0', step: '0.01', ...eltAttrs, type: 'number', value: `${val == null ? '' : val}`})
+    if (field.type == 'composite') {
+        return vdom('div', {style: {margin: '5px', border: '1px solid gray', padding: '2px'}},
+            getAbstractForm(val, {excludeSubmitButton: true, ...field.customOptions}, {excludeFormTag: true}))
+    }
     if (SimpleTextTypes.indexOf(field.type) > -1)
         return vdom('input', {...eltAttrs, type: field.type, value: `${val == null ? '' : val}`})
     console.warn(`Unsupported field type: '${field.type}' for field '${field.id}'.`)
