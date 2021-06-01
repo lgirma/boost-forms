@@ -4,7 +4,6 @@ import {RenderFormOptions} from "../renderers/Common";
 import {Bootstrap5, Bootstrap4, Bootstrap3/*, PropertyGrid, Bootstrap3, Bulma, MDB5*/} from "../renderers/plugins";
 import {FormValidationResult, FormConfig} from "../Models";
 import {DeepPartial, Dict} from "boost-web-core";
-import * as stream from "stream";
 
 export let forObj= {
     //@field({type: 'tel'})

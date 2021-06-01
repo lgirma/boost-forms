@@ -1,71 +1,68 @@
 <script lang="ts">
-    import type {FormValidationResult, FieldConfig, FormConfig} from "../Models";
-    import {createFormConfig, validateForm, findCustomRenderer} from "../FormService";
+    import type {FormValidationResult, FormConfig} from "../Models";
+    import {getFormValidationResult} from '../Models'
+    import {createFormConfig} from "../FormService";
     import type {RenderFormOptions} from "./Common";
-    import SvelteFieldLabel from "./SvelteFieldLabel.svelte";
-    import SvelteReadOnlyValue from "./SvelteReadOnlyValue.svelte";
-    import SvelteFormField from "./SvelteFormField.svelte";
-    import { createEventDispatcher } from 'svelte';
-    import {getHtmlFormAttrs} from "./Common";
+    import { createEventDispatcher, onMount } from 'svelte';
+    import {onFieldChangeReducer, renderForm} from "./VanillaFormRenderer";
+    // @ts-ignore
+    import {DiffDOM} from "diff-dom";
 
     const dispatch = createEventDispatcher();
+    const dd = new DiffDOM({valueDiffing: false});
 
     export let forObject
     export let options: FormConfig | null = null
     export let renderOptions: RenderFormOptions = {}
-    export let validationResult: FormValidationResult | null = {message: '', fields: {}, hasError: false}
-    let _safeOptions = options ?? createFormConfig(forObject)
-    let _safeRenderOptions = {
-        inputAttrs: f => {},
-        fieldSetAttrs: f => {},
-        labelAttrs: f => {},
-        submitAttrs: (val, opts) => {},
-        ...renderOptions,
-    }
+    export let validationResult = getFormValidationResult()
+    let _safeOptions: FormConfig
 
     function initConfig(opts) {
-        _safeOptions = opts ?? createFormConfig(forObject)
+        let safeOptions = opts ?? createFormConfig(forObject)
+        safeOptions.onsubmit = (e: Event) => {
+            dispatch('submit', e)
+        }
+        safeOptions.onchange = (e: Event) => {
+            forObject = onFieldChangeReducer(safeOptions, e)(forObject)
+            dispatch('change', e)
+        }
+        safeOptions.oninput = (e: Event) => {
+            dispatch('input', e)
+        }
+        safeOptions.onblur = (e: Event) => {
+            dispatch('blur', e)
+        }
+        _safeOptions = safeOptions
     }
 
-    $: initConfig(options)
+    let container;
+    let mounted = false;
 
-    async function onSubmit(e) {
-        validationResult = await validateForm(forObject, _safeOptions)
-        dispatch('validate', {...e, validationResult})
-        if (validationResult.hasError) {
-            e.preventDefault()
-            dispatch('error', {...e, validationResult})
-        }
-        else {
-            dispatch('submit', {...e, forObject});
-            options.onsubmit(e)
+    onMount(() => {
+        mounted = true;
+    })
+
+    $: {
+        if (mounted) {
+            initConfig(options)
+            const newChild = renderForm(forObject, _safeOptions as any, validationResult, renderOptions)
+            if (container.children.length == 0)
+                container.appendChild(newChild)
+            else {
+                let diff = dd.diff(container.firstChild, newChild);
+                let success = dd.apply(container.firstChild, diff);
+                if (!success) {
+                    console.warn('Diff couldn\'t be applied');
+                    container.innerHTML = ''
+                    container.appendChild(newChild)
+                }
+            }
+
+            /*container.innerHTML = ''
+            container.appendChild(child);*/
         }
     }
-
-    // $: console.log('Config', config)
-    // $: console.log('Change', forObject)
 </script>
 
-<form on:submit={onSubmit} {...getHtmlFormAttrs(_safeOptions)}>
-    {#each Object.entries(_safeOptions.fieldsConfig) as [fieldId, field]}
-        <div {..._safeRenderOptions.fieldSetAttrs(field)}>
-            {#if field.type !== 'checkbox' || field.readonly}
-                <SvelteFieldLabel {field} attrs={_safeRenderOptions.labelAttrs(field)} />
-            {/if}
-            {#if options.readonly}
-                <SvelteReadOnlyValue value={forObject[fieldId]} {field} />
-            {:else}
-                <SvelteFormField bind:value={forObject[fieldId]} {field} attrs={_safeRenderOptions.inputAttrs(field)}
-                    renderer={findCustomRenderer(field.type) == null ? null : () => findCustomRenderer(field.type).renderField(forObject, _safeOptions, field)} />
-            {/if}
-            {#if field.type === 'checkbox' && !field.readonly}
-                <SvelteFieldLabel {field} attrs={_safeRenderOptions.labelAttrs(field)} />
-            {/if}
-        </div>
-    {/each}
-    {#if !renderOptions.excludeSubmitButton}
-        <div>
-            <input type="submit" value="Submit" {..._safeRenderOptions.submitAttrs(forObject, _safeOptions)} />
-        </div>
-    {/if}
-</form>
+<div bind:this={container}></div>
+
