@@ -2,8 +2,33 @@ import { describe } from 'mocha';
 // @ts-ignore
 const chai = require('chai');
 const expect = chai.expect;
+import {createServer, Server} from "http";
+import axios from 'axios'
 
-import {guessType, createFormConfig, validateForm} from '../src/FormService'
+import {guessType, createFormConfig, validateForm, validateFormAsync} from '../src/FormService'
+let server: Server
+
+function createValidationApi() {
+    server = createServer(function (req, res) {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Request-Method', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
+        res.setHeader('Access-Control-Allow-Headers', '*');
+        res.setHeader('Content-Type', 'application/json');
+        res.writeHead(200);
+        if ( req.method === 'OPTIONS' ) {
+            res.end();
+            return;
+        }
+        res.write(req.url.indexOf('1') > -1 ? '1' : '0'); //write a response to the client
+        res.end(); //end the response
+    });
+    server.listen(8484);
+}
+
+function stopValidationApi() {
+    server.close()
+}
 
 describe('Form service tests', () => {
 
@@ -39,17 +64,45 @@ describe('Form service tests', () => {
         expect(config.fieldsConfig['agreeToTerms'].hideLabel).to.equal(false);
     });
 
-    it('Validates forms correctly', async () => {
+    it('Validates form fields async correctly', async () => {
+        createValidationApi()
+        let forObject = {userName: '', password: '', age: 17, email: 'abe@example.com', city: ''};
+        let config = createFormConfig(forObject, {
+            hideLabels: true,
+            fieldsConfig: {
+                userName: {
+                    validate: async val => {
+                        const vr = (await axios.get('http://localhost:8484/0')).data
+                        return vr == 1 ? '' : 'USERNAME_TAKEN'
+                    }
+                },
+                email: {required: true},
+                age: {validate: async val => (val > 18 ? '' : 'AGE_18_OR_ABOVE')}
+            }
+        });
+        let validationResult = await validateFormAsync(forObject, config);
+        stopValidationApi();
+
+        expect(validationResult.hasError).to.be.true;
+        expect(validationResult.fields.userName.hasError).to.be.true;
+        expect(validationResult.fields.userName.message).to.equal('USERNAME_TAKEN');
+        expect(validationResult.fields.city.hasError).to.be.false;
+        expect(validationResult.fields.age.hasError).to.be.true;
+        expect(validationResult.fields.age.message).to.equal('AGE_18_OR_ABOVE');
+        expect(validationResult.fields.email.hasError).to.be.false;
+    });
+
+    it('Validates forms sync correctly', () => {
         let forObject = {userName: '', age: 17, email: 'abe@example.com', city: ''};
         let config = createFormConfig(forObject, {
             hideLabels: true,
             fieldsConfig: {
                 userName: {required: true},
                 email: {required: true},
-                age: {validate: async val => (val > 18 ? '' : 'AGE_18_OR_ABOVE')}
+                age: {validate: val => (val > 18 ? '' : 'AGE_18_OR_ABOVE')}
             }
         });
-        let validationResult = await validateForm(forObject, config);
+        let validationResult = validateForm(forObject, config);
 
         expect(validationResult.hasError).to.be.true;
         expect(validationResult.fields.city.hasError).to.be.false;
@@ -58,12 +111,36 @@ describe('Form service tests', () => {
         expect(validationResult.fields.email.hasError).to.be.false;
     });
 
-    it('Does form level validation', async () => {
+    it('Does form-level async validation', async () => {
+        createValidationApi()
         let registration = {userName: '', password: 'a', confirmPassword: 'b'};
         let formConfig = createFormConfig(registration, {
-            validate: form => (form.password != form.confirmPassword ? 'PASSWORDS_DONT_MATCH' : '')
+            validate: [
+                async form => (form.password != form.confirmPassword ? 'PASSWORDS_DONT_MATCH' : ''),
+                async form => (form.userName == form.password ? {password: 'USERNAME_USED_AS_PASSWORD'} as any : {}),
+                async form => {
+                    const vr = (await axios.get('http://localhost:8484/0')).data
+                    return vr == 1 ? {} : {userName: 'USERNAME_TAKEN'}
+                }
+            ]
         });
-        let validationResult = await validateForm(registration, formConfig);
+        let validationResult = await validateFormAsync(registration, formConfig);
+        stopValidationApi()
+        expect(validationResult.hasError).to.be.true;
+        expect(validationResult.message).to.equal('PASSWORDS_DONT_MATCH');
+        expect(validationResult.fields.userName.hasError).to.be.true;
+        expect(validationResult.fields.userName.message).to.equal('USERNAME_TAKEN');
+    });
+
+    it('Does form-level sync validation', () => {
+        let registration = {userName: '', password: 'a', confirmPassword: 'b'};
+        let formConfig = createFormConfig(registration, {
+            validate: [
+                form => (form.password != form.confirmPassword ? 'PASSWORDS_DONT_MATCH' : ''),
+                form => (form.userName == form.password ? {password: 'USERNAME_USED_AS_PASSWORD'} as any : {})
+            ]
+        });
+        let validationResult = validateForm(registration, formConfig);
         expect(validationResult.hasError).to.be.true;
         expect(validationResult.message).to.equal('PASSWORDS_DONT_MATCH');
     });

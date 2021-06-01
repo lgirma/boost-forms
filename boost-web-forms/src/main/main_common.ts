@@ -61,7 +61,7 @@ export const options: DeepPartial<FormConfig> = {
             return {
                 password: 'Does not match with confirm password.',
                 confirmPassword: 'Does not match with password'
-            }
+            } as any
         }
         return {}
     }
