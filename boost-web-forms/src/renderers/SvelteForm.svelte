@@ -4,7 +4,7 @@
     import {createFormConfig} from "../FormService";
     import type {RenderFormOptions} from "./Common";
     import { createEventDispatcher, onMount } from 'svelte';
-    import {onFieldChangeReducer, renderForm} from "./VanillaFormRenderer";
+    import {onFieldChangeReducer, renderForm, updateForm} from "./VanillaFormRenderer";
     // @ts-ignore
     import {DiffDOM} from "diff-dom";
 
@@ -46,7 +46,8 @@
         if (mounted) {
             initConfig(options)
             const newChild = renderForm(forObject, _safeOptions as any, validationResult, renderOptions)
-            if (container.children.length == 0)
+            updateForm((dest, src) => dd.apply(dest, dd.diff(dest, src)), container, newChild)
+            /*if (container.children.length == 0)
                 container.appendChild(newChild)
             else {
                 let diff = dd.diff(container.firstChild, newChild);
@@ -56,7 +57,7 @@
                     container.innerHTML = ''
                     container.appendChild(newChild)
                 }
-            }
+            }*/
 
             /*container.innerHTML = ''
             container.appendChild(child);*/

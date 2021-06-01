@@ -61,6 +61,19 @@ export function renderForm(forObject: any, options?: DeepPartial<FormConfig>, va
     return toHtmlDom(document.createElement, document, rootElt)
 }
 
+export function updateForm(patcher: (to: Node, from: Node) => boolean, container: Element, newForm: Node) {
+    if (container.children.length == 0)
+        container.appendChild(newForm)
+    else {
+        let success = patcher(container.firstChild!, newForm)
+        if (!success) {
+            console.warn('Diff couldn\'t be applied');
+            container.innerHTML = ''
+            container.appendChild(newForm)
+        }
+    }
+}
+
 const VanillaJSRenderer: LayoutRenderer = {
     label: (field, attrs) => renderLabel(field, attrs),
     input: (val, field, attrs) => renderInput(val, field, attrs),
