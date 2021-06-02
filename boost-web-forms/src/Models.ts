@@ -100,7 +100,7 @@ export type HTMLInputType =
 export type FormFieldType =  HTMLInputType | 'name' | 'files' | 'select' |
     'toggle' | 'number' | 'textarea' | 'markdown' | 'reCaptcha' | 'html' | 'year' |
     'multiselect-checkbox' | 'composite' | 'version' | 'avatar' | 'city' | 'country' | 'ipv4' | 'ipv6' | 'guid' |
-    'isbn' | 'location' | 'language' | 'money' | 'timezone' | 'title' |
+    'isbn' | 'location' | 'language' | 'money' | 'timezone' | 'title' | 'rating' |
     /**
      * Where use uploads one or more preview-able images
      */

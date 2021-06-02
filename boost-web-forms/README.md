@@ -19,11 +19,10 @@ without any configuration or schema, into this:
 
 ### Why boost-web-forms?
 
-* Zero dependencies
 * Works with vanilla JS
 * Built-in react and svelte support
 * No schema or configuration needed to generate forms (although supported)
-* Built-in plugins for popular UI kits (bootstrap, bulma, etc.)
+* Out-of-the-box support for popular UI kits (bootstrap, bulma, etc.)
 * API is as close to the DOM API as possible
 
 ## Installation

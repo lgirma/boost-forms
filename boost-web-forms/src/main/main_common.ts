@@ -23,6 +23,7 @@ export let forObj= {
     price: 50.99,
     volume: 50,
     age: 17,
+    rating: 0,
     invalidTyped: null
 };
 export const options: DeepPartial<FormConfig> = {
@@ -52,6 +53,10 @@ export const options: DeepPartial<FormConfig> = {
         },
         agreeToTerms: {
             validate: val => val ? '' : 'You have to agree to our terms & conditions.'
+        },
+        rating: {
+            type: 'rating',
+            validate: val => val < 2 ? 'Please, give a rating of at least 2' : ''
         },
         invalidTyped: {type: 'go'} as any
     },

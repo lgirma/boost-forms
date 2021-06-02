@@ -7,6 +7,7 @@ import {
     AbstractDomNode, Dict, OneOrMany, toArray, DeepPartial, Nullable, isEmpty
 } from 'boost-web-core'
 import {FormLayout, LayoutRenderer, getHtmlAttrs, RenderFormOptions, SimpleTextTypes, getHtmlFormAttrs} from "./Common";
+import {Rating} from "./components";
 
 export const DefaultLayout: FormLayout = {
     formLayout(forObject: any, form: FormConfig, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement {
@@ -154,6 +155,8 @@ export function renderInput(val: any, field: FieldConfig, attrs = {}): OneOrMany
         return vdom('input', {...eltAttrs, type: 'range', value: `${val == null ? '' : val}`})
     if (field.type == 'money')
         return vdom('input', {min: '0', step: '0.01', ...eltAttrs, type: 'number', value: `${val == null ? '' : val}`})
+    if (field.type == 'rating')
+        return Rating(val, eltAttrs)
     if (field.type == 'composite') {
         return vdom('div', {style: {margin: '5px', border: '1px solid gray', padding: '2px'}},
             getAbstractForm(val, {excludeSubmitButton: true, ...field.customOptions}, {excludeFormTag: true}))
