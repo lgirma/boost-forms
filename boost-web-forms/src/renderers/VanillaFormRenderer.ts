@@ -4,7 +4,7 @@ import {
     AbstractDomElement,
     vdom,
     toHtmlDom,
-    AbstractDomNode, Dict, OneOrMany, toArray, DeepPartial, Nullable, isEmpty
+    AbstractDomNode, Dict, OneOrMany, toArray, DeepPartial, Nullable, isEmpty, groupBy
 } from 'boost-web-core'
 import {FormLayout, LayoutRenderer, getHtmlAttrs, RenderFormOptions, SimpleTextTypes, getHtmlFormAttrs} from "./Common";
 import {MarkdownInput, Rating, SourceCodeInput} from "./components";
@@ -15,43 +15,53 @@ export const DefaultLayout: FormLayout = {
         result.children.push(vdom('style', {}, 'label {display: table; margin-top: 10px; cursor: pointer}'))
         /*if (validationResult?.hasError)
             result.children.push(vdom('div', {style: {color: 'red'}}, validationResult.message))*/
-        for (const [fieldId, field] of Object.entries(form.fieldsConfig)) {
-            const label = renderer.label(field)
-            const fieldValidationResult = validationResult?.fields[fieldId] ?? {hasError: false}
-            let input = renderer.input(forObject[fieldId], field)
-            if (fieldValidationResult.hasError && !field.readonly) {
-                toArray(input).forEach(i => {
-                    if (typeof(i) == 'string') return;
-                    i.attrs.style ??= {};
-                    i.attrs.style.border = '1px solid red'
-                })
-
-                toArray(label).forEach(l => {
-                    if (typeof(l) == 'string') return;
-                    if (field.type != 'radio' && field.type != 'checkbox') return;
-                    l.attrs.style ??= {};
-                    l.attrs.style.color = 'red'
-                })
+        let fieldGroups = groupBy(Object.entries(form.fieldsConfig).map(e => e[1]), f => f.group)
+        const showGroups = Object.keys(fieldGroups).length > 1
+        for (const [group, fields] of Object.entries(fieldGroups)) {
+            if (showGroups) {
+                result.children.push(...[
+                    vdom('h3', {}, group || 'Misc'),
+                    vdom('hr')
+                ])
             }
-            if (field.type === 'radio') {
-                input = Object.keys(field.choices as {})
-                    .map((k, i) => vdom('label', {}, [
-                        input[i],
-                        ' ',
-                        (field.choices as Dict<string>)[k]
-                    ]))
+            for (const field of fields) {
+                const label = renderer.label(field)
+                const fieldValidationResult = validationResult?.fields[field.id] ?? {hasError: false}
+                let input = renderer.input(forObject[field.id], field)
+                if (fieldValidationResult.hasError && !field.readonly) {
+                    toArray(input).forEach(i => {
+                        if (typeof(i) == 'string') return;
+                        i.attrs.style ??= {};
+                        i.attrs.style.border = '1px solid red'
+                    })
+
+                    toArray(label).forEach(l => {
+                        if (typeof(l) == 'string') return;
+                        if (field.type != 'radio' && field.type != 'checkbox') return;
+                        l.attrs.style ??= {};
+                        l.attrs.style.color = 'red'
+                    })
+                }
+                if (field.type === 'radio') {
+                    input = Object.keys(field.choices as {})
+                        .map((k, i) => vdom('label', {}, [
+                            input[i],
+                            ' ',
+                            (field.choices as Dict<string>)[k]
+                        ]))
+                }
+
+                const fieldSet = vdom('div', {})
+                if (field.type != 'checkbox' || field.readonly)
+                    fieldSet.children.push(...toArray(label), ' ', ...toArray(input))
+                else
+                    fieldSet.children.push(...toArray(input), ' ', ...toArray(label))
+
+                if (fieldValidationResult.hasError)
+                    fieldSet.children.push(vdom('div', {style: {color: 'red'}},
+                        vdom('small', {}, fieldValidationResult.message)))
+                result.children.push(fieldSet)
             }
-
-            const fieldSet = vdom('div', {})
-            if (field.type != 'checkbox' || field.readonly)
-                fieldSet.children.push(...toArray(label), ' ', ...toArray(input))
-            else
-                fieldSet.children.push(...toArray(input), ' ', ...toArray(label))
-
-            if (fieldValidationResult.hasError)
-                fieldSet.children.push(vdom('div', {style: {color: 'red'}},
-                    vdom('small', {}, fieldValidationResult.message)))
-            result.children.push(fieldSet)
         }
         return result;
     }
@@ -97,8 +107,8 @@ export function renderInput(val: any, field: FieldConfig, attrs = {}): OneOrMany
     if (field.readonly) {
         if (field.type == 'checkbox')
             return val ? 'Yes' : 'No'
-        else if (field.type == 'html') {
-            return vdom('div', {}, val)
+        else if (field.type == 'sourcecode') {
+            return vdom('pre', {}, val)
         }
         else if (field.type == 'markdown') {
             return vdom('div', {}, val)

@@ -20,6 +20,7 @@ export interface FieldConfig extends Partial<HTMLInputElement>, WebFormFieldEven
     scale: number
     readonly: boolean
     validate?: OneOrMany<ValidateFunc>
+    group?: string
 }
 
 export interface FormConfig extends DeepPartial<HTMLFormElement>, WebFormEvents {
@@ -98,7 +99,7 @@ export type HTMLInputType =
     'week';
 
 export type FormFieldType =  HTMLInputType | 'name' | 'files' | 'select' |
-    'toggle' | 'textarea' | 'markdown' | 'reCaptcha' | 'html' | 'year' |
+    'toggle' | 'textarea' | 'markdown' | 'reCaptcha' | 'year' |
     'multiselect-checkbox' | 'composite' | 'version' | 'avatar' | 'city' | 'country' | 'ipv4' | 'ipv6' | 'guid' |
     'isbn' | 'location' | 'language' | 'money' | 'timezone' | 'title' | 'rating' | 'sourcecode' |
     /**

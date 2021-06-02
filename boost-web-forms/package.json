@@ -45,7 +45,7 @@
     "vite": "^2.3.0"
   },
   "dependencies": {
-    "boost-web-core": "^1.6.0",
+    "boost-web-core": "^1.7.0",
     "diff-dom": "^4.2.2"
   },
   "files": [

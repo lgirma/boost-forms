@@ -41,6 +41,7 @@ export function getHtmlAttrs(field: FieldConfig) {
         customOptions: undefined,
         maxlength: undefined,
         multiple: undefined,
+        group: undefined,
         choices: undefined,
         variation: undefined,
         hideLabel: undefined,

@@ -32,8 +32,8 @@ export const options: DeepPartial<FormConfig> = {
     readonly: false,
     style: { width: '50%', margin: '10px' },
     fieldsConfig: {
-        name: {validate: [notEmpty, validName]},
-        email: {required: true, placeholder: 'mail@company.com', helpText: 'We will send you verification code through this'},
+        name: {validate: [notEmpty, validName], group: 'Personal Info'},
+        email: {required: true, placeholder: 'mail@company.com', helpText: 'We will send you verification code through this', group: 'Personal Info'},
         accountType: {
             type: 'select',
             placeholder: '-- Select Account Type --',
@@ -42,27 +42,27 @@ export const options: DeepPartial<FormConfig> = {
         },
         gender: {
             type: 'radio', readonly: false,
-            choices: {0: 'Male', 1: 'Female'}
+            choices: {0: 'Male', 1: 'Female'}, group: 'Personal Info'
         },
         comment: {type: 'textarea', colSpan: 2},
         passportDocument: {
             type: 'files', validate: [fileTypeValidator(MIME_PDF)],
-            required: true
+            required: true, group: 'Personal Info'
         },
-        volume: {type: "range", max: '1000', min: '0', step: '5'},
+        volume: {type: "range", max: '1000', min: '0', step: '5', group: 'Feedback'},
         age: {
-            validate: val => val < 18 ? 'You should be at least 18' : ''
+            validate: val => val < 18 ? 'You should be at least 18' : '', group: 'Personal Info'
         },
         agreeToTerms: {
             validate: val => val ? '' : 'You have to agree to our terms & conditions.'
         },
         rating: {
-            type: 'rating',
+            type: 'rating', group: 'Feedback',
             validate: val => val < 2 ? 'Please, give a rating of at least 2' : ''
         },
         invalidTyped: {type: 'go'} as any,
         answer: {
-            type: 'markdown'
+            type: 'markdown', group: 'Feedback'
         },
         jsonInput: {type: 'sourcecode'}
     },
