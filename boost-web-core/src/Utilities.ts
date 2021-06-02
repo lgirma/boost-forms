@@ -1,4 +1,4 @@
-import {Nullable} from "./TypescriptUtils";
+import {Dict, Nullable} from "./TypescriptUtils";
 
 export function humanize(str: string) {
     return str
@@ -84,4 +84,13 @@ export function toArrayWithoutNulls<T>(src: Nullable<T>|Nullable<T>[]): T[] {
         return src.filter(s => s != null) as T[];
     else
         return [src]
+}
+
+export function groupBy<T>(arr: T[], by: (item: T) => any): Dict<T[]> {
+    return arr.reduce((rv, x) => {
+        const key: any = by(x) ?? ''
+        rv[key] ??= []
+        rv[key].push(x);
+        return rv;
+    }, {} as Dict<T[]>);
 }
