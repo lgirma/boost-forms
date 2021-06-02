@@ -113,7 +113,8 @@ let forObj = {
     confirmPassword: '',
     birthDate: '',
     packages: ['newsLetter', 'premiumSupport'],
-    preferredTime: '00:00:00'
+    preferredTime: '00:00:00',
+    rating: 0
 }
 ```
 
@@ -144,12 +145,16 @@ const options = {
 }
 ```
 
-Then pass the configuration to any of the renderers:
+Then create a complete config and pass the configuration to any of the renderers:
 
 ```jsx
+import {createFormConfig} from 'boost-web-forms'
+
+const config = createFormConfig(forObj, options)
+
 // Vanilla
 document.body.append(
-    renderForm(forObj, options)
+    renderForm(forObj, config)
 )
 
 // React
@@ -157,7 +162,7 @@ document.body.append(
     enctype="multipart/form-data" onsubmit={e => alert('Submitting...')} />
 
 // Svelte
-<Form forObject={forObj} options={options} />
+<Form forObject={forObj} options={config} />
 ```
 
 All available form configuration options
@@ -181,11 +186,6 @@ const options = {
         password: {readonly: true}
     }
 }
-
-// React
-<Form forObject={forObj} fieldsConfig={{
-        password: {readonly: true}
-    }} />
 ```
 
 Note: All valid HTML input [attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input) can be used here.
@@ -229,12 +229,6 @@ const options = {
         comment: {type: 'textarea', label: 'Any Comments?'}
     }
 }
-
-// React
-<Form forObject={forObj} fieldsConfig={{
-    confirmPassword: {type: 'password'},
-    comment: {type: 'textarea', label: 'Any Comments?'}
-}} />
 ```
 
 Supported field types are:
@@ -394,6 +388,13 @@ let validationResult = validateForm(forObj)
 // Svelte
 let validationResult = validateForm(forObj)
 <Form forObject={forObj} validationResult={validationResult} />
+```
+
+**Note**: If your validator is an `async` method (includes api calls for example), 
+you should you `validateFormAsync()` instead.
+
+```typescript
+let validationResult = await validateFormAsync(forObj)
 ```
 
 Built-in validation methods:

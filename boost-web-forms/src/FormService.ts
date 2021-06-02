@@ -118,7 +118,8 @@ export function guessType(fieldId: string, fieldValue: any): FormFieldType {
         '^amount|amount$|^price|price$': 'money',
         '^date|date$': 'date', '^year|year$': 'year', '^month|month$': 'month',
         '^phone|phone$': 'tel',
-        '^language|language$': 'language'
+        '^language|language$': 'language',
+        '^rating|rating$': 'rating'
     }
     const fieldIdLower = fieldId.toLowerCase()
 
