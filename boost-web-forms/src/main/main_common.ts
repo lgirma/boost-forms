@@ -24,7 +24,9 @@ export let forObj= {
     volume: 50,
     age: 17,
     rating: 0,
-    invalidTyped: null
+    invalidTyped: null,
+    answer: '',
+    jsonInput: ''
 };
 export const options: DeepPartial<FormConfig> = {
     readonly: false,
@@ -58,7 +60,11 @@ export const options: DeepPartial<FormConfig> = {
             type: 'rating',
             validate: val => val < 2 ? 'Please, give a rating of at least 2' : ''
         },
-        invalidTyped: {type: 'go'} as any
+        invalidTyped: {type: 'go'} as any,
+        answer: {
+            type: 'markdown'
+        },
+        jsonInput: {type: 'sourcecode'}
     },
     validate: val => {
         if (val.password !== val.confirmPassword) {
