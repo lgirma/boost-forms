@@ -1,4 +1,4 @@
-import {AbstractDomNode, vdom} from "boost-web-core";
+import {AbstractDomNode, vd} from "boost-web-core";
 import {FieldConfig} from "../../Models";
 
 export interface RatingProps {
@@ -6,8 +6,8 @@ export interface RatingProps {
 }
 
 export function Rating(val: any, inputAttrs: any, {max = 5}: RatingProps = {max: 5}): AbstractDomNode {
-    return vdom('div', {style: {display: 'table'}}, [
-        vdom('style', {}, `
+    return vd('div', {style: {display: 'table'}}, [
+        vd('style', {}, `
             .boost_star:hover { color: darkorange }
             .boost_star {
                 margin: 0px 2px; 
@@ -16,9 +16,9 @@ export function Rating(val: any, inputAttrs: any, {max = 5}: RatingProps = {max:
                 font-size: 1.5em;
             }
         `),
-        vdom('input', {...inputAttrs, hidden: true, required: false, type: 'number', value: `${val == null ? '' : val}`}),
-        vdom('div', {}, new Array(max).fill(0).map((n, i) =>
-            vdom('span', {
+        vd('input', {...inputAttrs, hidden: true, required: false, type: 'number', value: `${val == null ? '' : val}`}),
+        vd('div', {}, new Array(max).fill(0).map((n, i) =>
+            vd('span', {
                 class: 'boost_star',
                 title: `${i+1} / ${max}`,
                 onclick: e => {

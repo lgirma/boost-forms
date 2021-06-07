@@ -1,6 +1,6 @@
 import {LayoutRenderer, PluginOptions, RenderFormOptions, FormLayout} from "../Common";
 import {FieldConfig, FormValidationResult, ValidationResult, FormConfig} from "../../Models";
-import {vdom, DomElementChildrenFrom, isEmpty, AbstractDomElement, toArray, Dict} from "boost-web-core";
+import {vd, DomElementChildrenFrom, isEmpty, AbstractDomElement, toArray, Dict} from "boost-web-core";
 import {BootstrapCommonLayout} from './BootstrapCommon'
 import {options} from "../../main/main_common";
 
@@ -32,8 +32,8 @@ const Bootstrap5Layout = {
         let input = renderer.input(fieldValue, field, {class: inputClass})
         if (field.type === 'radio') {
             input = Object.keys(field.choices)
-                .map((k, i) => vdom('div', {class: 'form-check'},
-                    vdom('label', {class: 'form-check-label'}, [
+                .map((k, i) => vd('div', {class: 'form-check'},
+                    vd('label', {class: 'form-check-label'}, [
                         input[i],
                         ' ',
                         (field.choices as Dict<string>)[k]
@@ -41,20 +41,20 @@ const Bootstrap5Layout = {
         }
 
         let colClass = BootstrapCommonLayout.getColClass(_pluginOptions.columns, field.colSpan)
-        let fieldSet = vdom('div', {class: `${field.type === 'checkbox' ? 'form-check' : ''}`})
+        let fieldSet = vd('div', {class: `${field.type === 'checkbox' ? 'form-check' : ''}`})
         if (field.type != 'checkbox' || field.readonly)
             fieldSet.children.push(...toArray(label), ...toArray(input))
         else
             fieldSet.children.push(...toArray(input), ...toArray(label))
 
         if (validationResult && validationResult.hasError)
-            fieldSet.children.push(vdom('div', {class: 'invalid-feedback'}, validationResult.message))
+            fieldSet.children.push(vd('div', {class: 'invalid-feedback'}, validationResult.message))
 
         if (!isEmpty(colClass))
-            fieldSet = vdom('div', {class: `mb-2 ${colClass}`}, fieldSet)
+            fieldSet = vd('div', {class: `mb-2 ${colClass}`}, fieldSet)
         else fieldSet.attrs.class += ' mb-2'
         if (!isEmpty(field.helpText))
-            fieldSet.children.push(vdom('div', {class: 'form-text'}, field.helpText))
+            fieldSet.children.push(vd('div', {class: 'form-text'}, field.helpText))
         return fieldSet
     }
 }

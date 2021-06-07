@@ -1,4 +1,4 @@
-import {AbstractDomNode, vdom} from "boost-web-core";
+import {AbstractDomNode, vd} from "boost-web-core";
 import {FieldConfig} from "../../Models";
 
 export interface MarkdownInputProps {
@@ -6,8 +6,8 @@ export interface MarkdownInputProps {
 }
 
 export function MarkdownInput(val: any, inputAttrs: any, {renderer}: MarkdownInputProps): AbstractDomNode {
-    return vdom('div', {style: {display: 'table'}}, [
-        vdom('style', {}, `
+    return vd('div', {style: {display: 'table'}}, [
+        vd('style', {}, `
             .boost_markdown_container {
                 border: 1px solid #EEE;
             }
@@ -35,9 +35,9 @@ export function MarkdownInput(val: any, inputAttrs: any, {renderer}: MarkdownInp
                 background: #DDD;
             }
         `),
-        vdom('textarea', {...inputAttrs, hidden: true, value: `${val == null ? '' : val}`}),
-        vdom('div', {class: 'boost_markdown_container'}, [
-            vdom('div', {
+        vd('textarea', {...inputAttrs, hidden: true, value: `${val == null ? '' : val}`}),
+        vd('div', {class: 'boost_markdown_container'}, [
+            vd('div', {
                 contenteditable: true,
                 class: 'boost_markdown_editor',
                 onkeydown: e => {
@@ -56,9 +56,9 @@ export function MarkdownInput(val: any, inputAttrs: any, {renderer}: MarkdownInp
                         input.value = e.target.innerText
                 }
             }, `${val == null ? '' : val}`),
-            vdom('div', { style: {background: '#EEE'} }, [
-                vdom('span', {class: 'boost_markdown_tab_item active'}, 'Markdown'),
-                vdom('span', {class: 'boost_markdown_tab_item'}, 'Preview')
+            vd('div', { style: {background: '#EEE'} }, [
+                vd('span', {class: 'boost_markdown_tab_item active'}, 'Markdown'),
+                vd('span', {class: 'boost_markdown_tab_item'}, 'Preview')
             ])
         ])
     ])

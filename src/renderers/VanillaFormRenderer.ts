@@ -1,27 +1,25 @@
 import {createFormConfig} from "../FormService";
 import {FormValidationResult, WebFormEvents, WebFormFieldEvents, FieldConfig, FormConfig} from "../Models";
 import {
-    AbstractDomElement,
-    vdom,
-    toHtmlDom,
-    AbstractDomNode, Dict, OneOrMany, toArray, DeepPartial, Nullable, isEmpty, groupBy
+    Dict, OneOrMany, toArray, DeepPartial, Nullable, isEmpty, groupBy
 } from 'boost-web-core'
 import {FormLayout, LayoutRenderer, getHtmlAttrs, RenderFormOptions, SimpleTextTypes, getHtmlFormAttrs} from "./Common";
 import {MarkdownInput, Rating, SourceCodeInput} from "./components";
+import {AbstractDomElement, vd} from "vdtree";
 
 export const DefaultLayout: FormLayout = {
     formLayout(forObject: any, form: FormConfig, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement {
         const result = renderer.form(form, {})
-        result.children.push(vdom('style', {}, 'label {display: table; margin-top: 10px; cursor: pointer}'))
+        result.children.push(vd('style', {}, 'label {display: table; margin-top: 10px; cursor: pointer}'))
         /*if (validationResult?.hasError)
-            result.children.push(vdom('div', {style: {color: 'red'}}, validationResult.message))*/
+            result.children.push(vd('div', {style: {color: 'red'}}, validationResult.message))*/
         let fieldGroups = groupBy(Object.entries(form.fieldsConfig).map(e => e[1]), f => f.group)
         const showGroups = Object.keys(fieldGroups).length > 1
         for (const [group, fields] of Object.entries(fieldGroups)) {
             if (showGroups) {
                 result.children.push(...[
-                    vdom('h3', {}, group || 'Misc'),
-                    vdom('hr')
+                    vd('h3', {}, group || 'Misc'),
+                    vd('hr')
                 ])
             }
             for (const field of fields) {
@@ -44,22 +42,22 @@ export const DefaultLayout: FormLayout = {
                 }
                 if (field.type === 'radio') {
                     input = Object.keys(field.choices as {})
-                        .map((k, i) => vdom('label', {}, [
+                        .map((k, i) => vd('label', {}, [
                             input[i],
                             ' ',
                             (field.choices as Dict<string>)[k]
                         ]))
                 }
 
-                const fieldSet = vdom('div', {})
+                const fieldSet = vd('div', {})
                 if (field.type != 'checkbox' || field.readonly)
                     fieldSet.children.push(...toArray(label), ' ', ...toArray(input))
                 else
                     fieldSet.children.push(...toArray(input), ' ', ...toArray(label))
 
                 if (fieldValidationResult.hasError)
-                    fieldSet.children.push(vdom('div', {style: {color: 'red'}},
-                        vdom('small', {}, fieldValidationResult.message)))
+                    fieldSet.children.push(vd('div', {style: {color: 'red'}},
+                        vd('small', {}, fieldValidationResult.message)))
                 result.children.push(fieldSet)
             }
         }
@@ -89,7 +87,7 @@ const VanillaJSRenderer: LayoutRenderer = {
     label: (field, attrs) => renderLabel(field, attrs),
     input: (val, field, attrs) => renderInput(val, field, attrs),
     form: (formConfig: FormConfig, attrs?: any, rootTag = 'form') =>
-        vdom(rootTag, {...getHtmlFormAttrs(formConfig), ...attrs})
+        vd(rootTag, {...getHtmlFormAttrs(formConfig), ...attrs})
 }
 
 export function getAbstractForm(forObject: any, options?: DeepPartial<FormConfig>, renderOptions?: RenderFormOptions, validationResult?: FormValidationResult) {
@@ -108,13 +106,13 @@ export function renderInput(val: any, field: FieldConfig, attrs = {}): OneOrMany
         if (field.type == 'checkbox')
             return val ? 'Yes' : 'No'
         else if (field.type == 'sourcecode') {
-            return vdom('pre', {}, val)
+            return vd('pre', {}, val)
         }
         else if (field.type == 'markdown') {
-            return vdom('div', {}, val)
+            return vd('div', {}, val)
         }
         else if (field.type == 'select' || field.type == 'radio') {
-            return vdom('div', {}, field.choices[val])
+            return vd('div', {}, field.choices[val])
         }
         return `${val == null ? '' : val}`
     }
@@ -125,27 +123,27 @@ export function renderInput(val: any, field: FieldConfig, attrs = {}): OneOrMany
     }
 
     if (field.type == 'textarea') {
-        return vdom('textarea', {rows: 3, ...eltAttrs}, val||'')
+        return vd('textarea', {rows: 3, ...eltAttrs}, val||'')
     }
     if (field.type == 'submit') {
-        return vdom('input', {type: 'submit', value: field.label ?? 'Submit', ...eltAttrs})
+        return vd('input', {type: 'submit', value: field.label ?? 'Submit', ...eltAttrs})
     }
     if (field.type == 'checkbox') {
-        return vdom('input', {type: 'checkbox', checked: !!val, ...eltAttrs})
+        return vd('input', {type: 'checkbox', checked: !!val, ...eltAttrs})
     }
     if (field.type == 'toggle') {
-        return vdom('input', {type: 'checkbox', checked: val != null, value: field.choices[0], ...eltAttrs})
+        return vd('input', {type: 'checkbox', checked: val != null, value: field.choices[0], ...eltAttrs})
     }
     if (field.type == 'select') {
-        return vdom('select', {...eltAttrs}, [
-            ...(field.required ? [] : [vdom('option', {value: ''}, field.placeholder ?? '')]),
+        return vd('select', {...eltAttrs}, [
+            ...(field.required ? [] : [vd('option', {value: ''}, field.placeholder ?? '')]),
             ...Object.keys(field.choices as {})
-                .map(k => vdom('option', {value: k, selected: k == `${val}` ? true : undefined}, field.choices[k]))
+                .map(k => vd('option', {value: k, selected: k == `${val}` ? true : undefined}, field.choices[k]))
         ])
     }
     if (field.type == 'radio') {
         return Object.keys(field.choices as {})
-            .map(k => vdom('input', {
+            .map(k => vd('input', {
                     ...eltAttrs,
                     id: undefined,
                     type: (field.multiple ? 'checkbox' : 'radio'),
@@ -154,17 +152,17 @@ export function renderInput(val: any, field: FieldConfig, attrs = {}): OneOrMany
 
     }
     if (field.type == 'files')
-        return vdom('input', {...eltAttrs, type: 'file', multiple: 'multiple', files: val})
+        return vd('input', {...eltAttrs, type: 'file', multiple: 'multiple', files: val})
     if (field.type == 'file')
-        return vdom('input', {...eltAttrs, type: 'file', files: val})
+        return vd('input', {...eltAttrs, type: 'file', files: val})
     if (field.type == 'number')
-        return vdom('input', {...eltAttrs, type: 'number', value: `${val == null ? '' : val}`})
+        return vd('input', {...eltAttrs, type: 'number', value: `${val == null ? '' : val}`})
     if (field.type == 'name')
-        return vdom('input', {...eltAttrs, type: 'text', value: `${val == null ? '' : val}`})
+        return vd('input', {...eltAttrs, type: 'text', value: `${val == null ? '' : val}`})
     if (field.type == 'range')
-        return vdom('input', {...eltAttrs, type: 'range', value: `${val == null ? '' : val}`})
+        return vd('input', {...eltAttrs, type: 'range', value: `${val == null ? '' : val}`})
     if (field.type == 'money')
-        return vdom('input', {min: '0', step: '0.01', ...eltAttrs, type: 'number', value: `${val == null ? '' : val}`})
+        return vd('input', {min: '0', step: '0.01', ...eltAttrs, type: 'number', value: `${val == null ? '' : val}`})
     if (field.type == 'rating')
         return Rating(val, eltAttrs)
     if (field.type == 'markdown')
@@ -172,11 +170,11 @@ export function renderInput(val: any, field: FieldConfig, attrs = {}): OneOrMany
     if (field.type == 'sourcecode')
         return SourceCodeInput(val, eltAttrs, {renderer: src => src})
     if (field.type == 'composite') {
-        return vdom('div', {style: {margin: '5px', border: '1px solid gray', padding: '2px'}},
+        return vd('div', {style: {margin: '5px', border: '1px solid gray', padding: '2px'}},
             getAbstractForm(val, {excludeSubmitButton: true, ...field.customOptions}, {excludeFormTag: true}))
     }
     if (SimpleTextTypes.indexOf(field.type) > -1)
-        return vdom('input', {...eltAttrs, type: field.type, value: `${val == null ? '' : val}`})
+        return vd('input', {...eltAttrs, type: field.type, value: `${val == null ? '' : val}`})
     console.warn(`Unsupported field type: '${field.type}' for field '${field.id}'.`)
     return ''
 }
@@ -184,11 +182,11 @@ export function renderInput(val: any, field: FieldConfig, attrs = {}): OneOrMany
 export function renderLabel(field: FieldConfig, attrs = {}): AbstractDomNode {
     if (field.hideLabel)
         return ''
-    const label = vdom('label', {...attrs, for: field.id})
+    const label = vd('label', {...attrs, for: field.id})
     if (field.type == 'checkbox' || field.readonly)
         label.attrs.style = { display: 'inline-block' }
     label.children.push(field.label)
-    label.children.push(field.required ? vdom('span', {style: {color: 'red'}}, '*') : '')
+    label.children.push(field.required ? vd('span', {style: {color: 'red'}}, '*') : '')
     label.children.push(field.readonly ? ': ' : '')
     return label
 }

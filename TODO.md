@@ -20,8 +20,8 @@
     - `FieldGroup { label: string, options: {variation: 'tab'|'normal'}, fields: FieldConfig[]}`
   - Add `groupOptions` in `FieldConfig`
   - 
-- [ ] Generalize layout system using `vdom`
-- [ ] Make `vdom` separate project and package? Or re-use hyperscript?
+- [ ] Generalize layout system using `vd`
+- [ ] Make `vd` separate project and package? Or re-use hyperscript?
 - [ ] Revamp documentation
 
 ### Bugs

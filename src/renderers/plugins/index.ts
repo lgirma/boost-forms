@@ -4,7 +4,7 @@ export * from './Bootstrap3'
 /*
 import {LayoutRenderer, PluginOptions, RenderFormOptions, FormLayout} from "../Common";
 import {FieldConfig, FormValidationResult, ValidationResult, WebForm} from "../../Models";
-import {vdom, DomElementChildrenFrom, isEmpty, AbstractDomElement} from "boost-web-core";
+import {vd, DomElementChildrenFrom, isEmpty, AbstractDomElement} from "boost-web-core";
 
 
 export const Bootstrap4 : (o?: PluginOptions) => RenderFormOptions = pluginOptions => ({
@@ -38,7 +38,7 @@ export const Bootstrap4 : (o?: PluginOptions) => RenderFormOptions = pluginOptio
             let input = renderer.input(fieldValue, field, {class: inputClass})
             if (field.type === 'radio') {
                 input = Object.keys(field.choices as {})
-                    .map((k, i) => vdom('div', {class: 'form-check'}, vdom('label', {}, [
+                    .map((k, i) => vd('div', {class: 'form-check'}, vd('label', {}, [
                         input[i],
                         ' ',
                         field.choices[k]
@@ -47,17 +47,17 @@ export const Bootstrap4 : (o?: PluginOptions) => RenderFormOptions = pluginOptio
 
             let colClass = BootstrapCommonLayout.getColClass(_pluginOptions.columns, field.colSpan)
             let validationMsg = validationResult && validationResult.hasError
-                ? vdom('div', {class: 'invalid-feedback'}, validationResult.message)
+                ? vd('div', {class: 'invalid-feedback'}, validationResult.message)
                 : null
-            let fieldSet = vdom('div', {class: `${field.type === 'checkbox' ? 'form-check' : ''}`}, field.type === 'checkbox'
+            let fieldSet = vd('div', {class: `${field.type === 'checkbox' ? 'form-check' : ''}`}, field.type === 'checkbox'
                 ? [...(input.constructor === Array ? input : [input]), label, ...[validationMsg]]
                 : [label, ...(input.constructor === Array ? input : [input]), ...[validationMsg]])
 
             if (!isEmpty(colClass))
-                fieldSet = vdom('div', {class: `mb-2 ${colClass}`}, fieldSet)
+                fieldSet = vd('div', {class: `mb-2 ${colClass}`}, fieldSet)
             else fieldSet.attrs.class += ' mb-2'
             if (!isEmpty(field.helpText))
-                fieldSet.children.push(vdom('small', {class: 'form-text text-muted'}, field.helpText))
+                fieldSet.children.push(vd('small', {class: 'form-text text-muted'}, field.helpText))
             return fieldSet
         }
     }
@@ -88,7 +88,7 @@ export const Bootstrap3 : (o?: PluginOptions) => RenderFormOptions = pluginOptio
             let input = renderer.input(fieldValue, field, {class: inputClass})
             if (field.type === 'radio') {
                 input = Object.keys(field.choices as {})
-                    .map((k, i) => vdom('div', {class: (field.multiple ? 'checkbox' : 'radio')}, vdom('label', {}, [
+                    .map((k, i) => vd('div', {class: (field.multiple ? 'checkbox' : 'radio')}, vd('label', {}, [
                         input[i],
                         ' ',
                         field.choices[k]
@@ -97,15 +97,15 @@ export const Bootstrap3 : (o?: PluginOptions) => RenderFormOptions = pluginOptio
 
             let colClass = BootstrapCommonLayout.getColClass(_pluginOptions.columns, field.colSpan, 'col-md-')
             let validationMsg = validationResult && validationResult.hasError
-                ? vdom('div', {class: 'help-block has-error'}, validationResult.message)
+                ? vd('div', {class: 'help-block has-error'}, validationResult.message)
                 : null
-            let fieldSet = vdom('div', {class: `${field.type === 'checkbox' ? 'checkbox' : `form-group ${validationResult && validationResult.hasError ? 'has-error' : ''}`}`}, field.type === 'checkbox'
+            let fieldSet = vd('div', {class: `${field.type === 'checkbox' ? 'checkbox' : `form-group ${validationResult && validationResult.hasError ? 'has-error' : ''}`}`}, field.type === 'checkbox'
                 ? [...(input.constructor === Array ? input : [input]), label, ...[validationMsg]]
                 : [label, ...(input.constructor === Array ? input : [input]), ...[validationMsg]])
             if (!isEmpty(field.helpText))
-                fieldSet.children.push(vdom('p', {class: 'help-block'}, field.helpText))
+                fieldSet.children.push(vd('p', {class: 'help-block'}, field.helpText))
             if (!isEmpty(colClass))
-                fieldSet = vdom('div', {class: colClass}, fieldSet)
+                fieldSet = vd('div', {class: colClass}, fieldSet)
             return fieldSet
         }
     }
@@ -115,23 +115,23 @@ export const PropertyGrid : (o?: PluginOptions) => RenderFormOptions = pluginOpt
     layout: {
         formLayout(forObject, form: WebForm, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement {
             const result = renderer.form(form)
-            const inside = vdom('table', {style: {borderCollapse: 'collapse', border: '1px solid lightgrey'}},
-                vdom('tbody', {},
+            const inside = vd('table', {style: {borderCollapse: 'collapse', border: '1px solid lightgrey'}},
+                vd('tbody', {},
                     Object.entries(form.fieldsConfig).map((kv) => {
                         const [fieldId, field] = kv
                         const label = renderer.label(field)
                         let input = renderer.input(forObject[fieldId], field)
                         if (field.type === 'radio') {
                             input = Object.keys(field.choices as {})
-                                .map((k, i) => vdom('label', {}, [
+                                .map((k, i) => vd('label', {}, [
                                     input[i],
                                     ' ',
                                     field.choices[k]
                                 ]))
                         }
-                        return  vdom('tr', {style: {border: '1px solid lightgrey'}}, [
-                            vdom('td', {style: {border: '1px solid lightgrey'}}, label),
-                            vdom('td', {style: {border: '1px solid lightgrey'}}, input),
+                        return  vd('tr', {style: {border: '1px solid lightgrey'}}, [
+                            vd('td', {style: {border: '1px solid lightgrey'}}, label),
+                            vd('td', {style: {border: '1px solid lightgrey'}}, input),
                         ])
                     })))
             result.children.push(inside)
@@ -172,9 +172,9 @@ export const Bulma : (o?: PluginOptions) => RenderFormOptions = pluginOptions =>
             const label = renderer.label(field, {class: `${labelClass} ${isCheckBox ? 'checkbox' : 'label'}`})
             let input = renderer.input(fieldValue, field, {class: inputClass})
             if (field.type === 'radio') {
-                input = vdom('div', {class: 'control'},
+                input = vd('div', {class: 'control'},
                     Object.keys(field.choices as {})
-                    .map((k, i) => vdom('label', {class: 'radio'}, [
+                    .map((k, i) => vd('label', {class: 'radio'}, [
                         input[i],
                         ' ',
                         field.choices[k]
@@ -182,15 +182,15 @@ export const Bulma : (o?: PluginOptions) => RenderFormOptions = pluginOptions =>
                 )
             }
             else if (field.type === 'select') {
-                input = vdom('div', {class: 'select is-fullwidth'}, input)
+                input = vd('div', {class: 'select is-fullwidth'}, input)
             }
             let validationMsg = validationResult && validationResult.hasError
-                ? vdom('div', {class: 'help is-danger'}, validationResult.message)
+                ? vd('div', {class: 'help is-danger'}, validationResult.message)
                 : null
-            let helpText = !isEmpty(field.helpText) ? vdom('div', {class: 'help'}, field.helpText) : null
+            let helpText = !isEmpty(field.helpText) ? vd('div', {class: 'help'}, field.helpText) : null
             let colClass = this.getColClass(pluginOptions.columns, field.colSpan)
 
-            return vdom('div', {class: `${colClass} field ${field.type === 'checkbox' ? 'form-check' : ''}`}, field.type === 'checkbox'
+            return vd('div', {class: `${colClass} field ${field.type === 'checkbox' ? 'form-check' : ''}`}, field.type === 'checkbox'
                 ? [...(input.constructor === Array ? input : [input]), ' ', label, ...[validationMsg], ...[helpText]]
                 : [label, ' ', ...(input.constructor === Array ? input : [input]), ...[validationMsg], ...[helpText]])
         },

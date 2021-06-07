@@ -1,12 +1,12 @@
-import {AbstractDomNode, vdom} from "boost-web-core";
+import {AbstractDomNode, vd} from "boost-web-core";
 
 export interface SourceCodeInputProps {
     renderer: (src: string) => string
 }
 
 export function SourceCodeInput(val: any, inputAttrs: any, {renderer}: SourceCodeInputProps): AbstractDomNode {
-    return vdom('div', {style: {display: 'table'}}, [
-        vdom('style', {}, `
+    return vd('div', {style: {display: 'table'}}, [
+        vd('style', {}, `
             .boost_sourcecode_container {
                 border: 1px solid #EEE;
             }
@@ -24,9 +24,9 @@ export function SourceCodeInput(val: any, inputAttrs: any, {renderer}: SourceCod
                 counter-reset: line;
             }
         `),
-        vdom('textarea', {...inputAttrs, hidden: true, value: `${val == null ? '' : val}`}),
-        vdom('div', {class: 'boost_sourcecode_container'}, [
-            vdom('pre', {
+        vd('textarea', {...inputAttrs, hidden: true, value: `${val == null ? '' : val}`}),
+        vd('div', {class: 'boost_sourcecode_container'}, [
+            vd('pre', {
                 contenteditable: true,
                 spellcheck: false,
                 class: 'boost_sourcecode_editor',

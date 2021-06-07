@@ -13,8 +13,8 @@
     "test": "ts-mocha -p ./tsconfig.tests.json -r jsdom-global/register 'tests/**/*.ts'"
   },
   "author": "Leone",
-  "repository": "https://github.com/lgirma/boost-web",
-  "homepage": "https://github.com/lgirma/boost-web/tree/master/boost-web-forms",
+  "repository": "https://github.com/lgirma/boost-web-forms",
+  "homepage": "https://github.com/lgirma/boost-web-forms",
   "license": "ISC",
   "keywords": [
     "form",
@@ -45,8 +45,8 @@
     "vite": "^2.3.0"
   },
   "dependencies": {
-    "boost-web-core": "^1.7.0",
-    "diff-dom": "^4.2.2"
+    "boost-web-core": "^1.8.0",
+    "vdtree": "^0.2.0"
   },
   "files": [
     "dist",
