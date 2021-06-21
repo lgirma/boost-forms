@@ -30,7 +30,14 @@ export interface FormConfig extends DeepPartial<HTMLFormElement>, WebFormEvents 
     hideLabels?: boolean
     readonly?: boolean
     validationResult?: FormValidationResult
+    /**
+     * Do not include a default submit button
+     */
     excludeSubmitButton?: boolean
+    /**
+     * If true, should render a <div> or similar panel instead of a <formConfig>
+     */
+    excludeFormTag?: boolean
 }
 
 export interface ValidationResult {

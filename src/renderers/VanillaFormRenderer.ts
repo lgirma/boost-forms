@@ -4,16 +4,16 @@ import {
     Dict, OneOrMany, toArray, DeepPartial, Nullable, isEmpty, groupBy
 } from 'boost-web-core'
 import {FormLayout, LayoutRenderer, getHtmlAttrs, RenderFormOptions, SimpleTextTypes, getHtmlFormAttrs} from "./Common";
-import {MarkdownInput, Rating, SourceCodeInput} from "./components";
-import {AbstractDomElement, vd} from "vdtree";
+import {AbstractRating} from "../components";
+import {AbstractDomElement, h} from "vdtree";
 
-export const DefaultLayout: FormLayout = {
-    formLayout(forObject: any, form: FormConfig, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement {
-        const result = renderer.form(form, {})
+/*export const DefaultLayout: FormLayout = {
+    formLayout(forObject: any, formConfig: FormConfig, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement {
+        const result = renderer.formConfig(formConfig, {})
         result.children.push(vd('style', {}, 'label {display: table; margin-top: 10px; cursor: pointer}'))
-        /*if (validationResult?.hasError)
-            result.children.push(vd('div', {style: {color: 'red'}}, validationResult.message))*/
-        let fieldGroups = groupBy(Object.entries(form.fieldsConfig).map(e => e[1]), f => f.group)
+        // if (validationResult?.hasError)
+        //     result.children.push(vd('div', {style: {color: 'red'}}, validationResult.message))
+        let fieldGroups = groupBy(Object.entries(formConfig.fieldsConfig).map(e => e[1]), f => f.group)
         const showGroups = Object.keys(fieldGroups).length > 1
         for (const [group, fields] of Object.entries(fieldGroups)) {
             if (showGroups) {
@@ -86,7 +86,7 @@ export function updateForm(patcher: (to: Node, from: Node) => boolean, container
 const VanillaJSRenderer: LayoutRenderer = {
     label: (field, attrs) => renderLabel(field, attrs),
     input: (val, field, attrs) => renderInput(val, field, attrs),
-    form: (formConfig: FormConfig, attrs?: any, rootTag = 'form') =>
+    formConfig: (formConfig: FormConfig, attrs?: any, rootTag = 'formConfig') =>
         vd(rootTag, {...getHtmlFormAttrs(formConfig), ...attrs})
 }
 
@@ -101,7 +101,7 @@ export function getAbstractForm(forObject: any, options?: DeepPartial<FormConfig
     return layout.formLayout(forObject, _options, VanillaJSRenderer, validationResult)
 }
 
-export function renderInput(val: any, field: FieldConfig, attrs = {}): OneOrMany<AbstractDomNode> {
+export function renderInput(val: any, field: FieldConfig, htmlAttrs = {}): OneOrMany<AbstractDomNode> {
     if (field.readonly) {
         if (field.type == 'checkbox')
             return val ? 'Yes' : 'No'
@@ -119,7 +119,7 @@ export function renderInput(val: any, field: FieldConfig, attrs = {}): OneOrMany
 
     const eltAttrs = {
         ...getHtmlAttrs(field),
-        ...attrs
+        ...htmlAttrs
     }
 
     if (field.type == 'textarea') {
@@ -164,7 +164,7 @@ export function renderInput(val: any, field: FieldConfig, attrs = {}): OneOrMany
     if (field.type == 'money')
         return vd('input', {min: '0', step: '0.01', ...eltAttrs, type: 'number', value: `${val == null ? '' : val}`})
     if (field.type == 'rating')
-        return Rating(val, eltAttrs)
+        return AbstractRating(val, eltAttrs)
     if (field.type == 'markdown')
         return MarkdownInput(val, eltAttrs, {renderer: src => src})
     if (field.type == 'sourcecode')
@@ -179,17 +179,17 @@ export function renderInput(val: any, field: FieldConfig, attrs = {}): OneOrMany
     return ''
 }
 
-export function renderLabel(field: FieldConfig, attrs = {}): AbstractDomNode {
+export function renderLabel(field: FieldConfig, htmlAttrs = {}) {
     if (field.hideLabel)
         return ''
-    const label = vd('label', {...attrs, for: field.id})
+    const label = vd('label', {...htmlAttrs, for: field.id})
     if (field.type == 'checkbox' || field.readonly)
-        label.attrs.style = { display: 'inline-block' }
+        label.htmlAttrs.style = { display: 'inline-block' }
     label.children.push(field.label)
     label.children.push(field.required ? vd('span', {style: {color: 'red'}}, '*') : '')
     label.children.push(field.readonly ? ': ' : '')
     return label
-}
+}*/
 
 export function onFieldChangeReducer(form: FormConfig, event: Event): (previousFormData: any) => any {
     const input = (event.target as HTMLInputElement)

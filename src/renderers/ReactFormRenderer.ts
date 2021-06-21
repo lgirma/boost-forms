@@ -1,20 +1,19 @@
-import {createFormConfig} from "../FormService";
+import {h, toReactComponent} from "vdtree";
 import {FieldConfig, FieldsConfig, FormValidationResult, FormConfig} from '../Models'
-import {getAbstractForm, renderInput, renderLabel} from "./VanillaFormRenderer";
 import {RenderFormOptions} from "./Common";
-import {DeepPartial, toJsx} from "boost-web-core";
+import {DeepPartial} from "boost-web-core";
+import {AbstractForm} from "../components/AbstractForm";
+import {createFormConfig} from "../FormService";
 
 export interface ReactFormProps extends DeepPartial<FormConfig> {
     forObject: any,
-    renderOptions?: RenderFormOptions
     validationResult?: FormValidationResult
 }
 
-export function GetReactForm(createElement: any) {
+export function GetReactForm(React: any) {
     return (props: ReactFormProps): any => {
         let {
             forObject,
-            renderOptions,
             validationResult = {hasError: false, message: '', fields: {}}
         } = props
         let formConfig = {
@@ -23,7 +22,7 @@ export function GetReactForm(createElement: any) {
             validationResult: undefined,
             renderOptions: undefined
         }
-        const abstractForm = getAbstractForm(forObject, formConfig, renderOptions, validationResult)
-        return toJsx(createElement, abstractForm)
+        const abstractForm = AbstractForm({forObject, formConfig: createFormConfig(formConfig), validationResult})
+        return toReactComponent(abstractForm, React)
     }
 }

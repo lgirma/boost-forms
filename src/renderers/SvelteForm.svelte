@@ -4,12 +4,10 @@
     import {createFormConfig} from "../FormService";
     import type {RenderFormOptions} from "./Common";
     import { createEventDispatcher, onMount } from 'svelte';
-    import {onFieldChangeReducer, renderForm, updateForm} from "./VanillaFormRenderer";
-    // @ts-ignore
-    import {DiffDOM} from "diff-dom";
+    import {onFieldChangeReducer} from "./VanillaFormRenderer";
+    import {SvelteWrapper} from "vdtree";
 
     const dispatch = createEventDispatcher();
-    const dd = new DiffDOM({valueDiffing: false});
 
     export let forObject
     export let options: FormConfig | null = null
@@ -35,35 +33,7 @@
         _safeOptions = safeOptions
     }
 
-    let container;
-    let mounted = false;
-
-    onMount(() => {
-        mounted = true;
-    })
-
-    $: {
-        if (mounted) {
-            initConfig(options)
-            const newChild = renderForm(forObject, _safeOptions as any, validationResult, renderOptions)
-            updateForm((dest, src) => dd.apply(dest, dd.diff(dest, src)), container, newChild)
-            /*if (container.children.length == 0)
-                container.appendChild(newChild)
-            else {
-                let diff = dd.diff(container.firstChild, newChild);
-                let success = dd.apply(container.firstChild, diff);
-                if (!success) {
-                    console.warn('Diff couldn\'t be applied');
-                    container.innerHTML = ''
-                    container.appendChild(newChild)
-                }
-            }*/
-
-            /*container.innerHTML = ''
-            container.appendChild(child);*/
-        }
-    }
 </script>
 
-<div bind:this={container}></div>
+<SvelteWrapper dom={} />
 

@@ -1,3 +1,5 @@
+export const placeholder = 5
+/*
 import {LayoutRenderer, PluginOptions, RenderFormOptions, FormLayout} from "../Common";
 import {FieldConfig, FormValidationResult, ValidationResult, FormConfig} from "../../Models";
 import {vd, DomElementChildrenFrom, isEmpty, AbstractDomElement, toArray, Dict} from "boost-web-core";
@@ -18,7 +20,7 @@ const Bootstrap3Layout = {
         let classTable = {
             submit: 'btn btn-primary', file: ' ', files: ' ', checkbox: ' ', radio: ' ', range: ' '
         } as any
-        let inputClass = classTable[field.type] || 'form-control'
+        let inputClass = classTable[field.type] || 'formConfig-control'
         if (field.scale != 1)
             inputClass += ` input-${field.scale > 1 ? 'lg' : 'sm'}`
 
@@ -34,7 +36,7 @@ const Bootstrap3Layout = {
         }
 
         let colClass = BootstrapCommonLayout.getColClass(_pluginOptions.columns, field.colSpan, 'col-md-')
-        let fieldSet = vd('div', {class: `${field.type === 'checkbox' ? 'checkbox' : `form-group ${validationResult && validationResult.hasError ? 'has-error' : ''}`}`})
+        let fieldSet = vd('div', {class: `${field.type === 'checkbox' ? 'checkbox' : `formConfig-group ${validationResult && validationResult.hasError ? 'has-error' : ''}`}`})
         if (field.type != 'checkbox' || field.readonly)
             fieldSet.children.push(...toArray(label), ...toArray(input))
         else {
@@ -60,8 +62,8 @@ const Bootstrap3Layout = {
 
 export const Bootstrap3 : (o?: Partial<PluginOptions>) => RenderFormOptions = pluginOptions => ({
     layout: {
-        formLayout(forObject: any, form: FormConfig, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement {
-            return Bootstrap3Layout.formLayout(forObject, form, renderer, validationResult, pluginOptions)
+        formLayout(forObject: any, formConfig: FormConfig, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement {
+            return Bootstrap3Layout.formLayout(forObject, formConfig, renderer, validationResult, pluginOptions)
         }
     }
-})
+})*/

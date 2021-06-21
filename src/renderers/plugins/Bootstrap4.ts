@@ -1,3 +1,5 @@
+export const placeholder = 5
+/*
 import {LayoutRenderer, PluginOptions, RenderFormOptions, FormLayout} from "../Common";
 import {FieldConfig, FormValidationResult, ValidationResult, FormConfig} from "../../Models";
 import {vd, DomElementChildrenFrom, isEmpty, AbstractDomElement, toArray, Dict} from "boost-web-core";
@@ -16,23 +18,23 @@ const Bootstrap4Layout = {
         const isCheckBox = field.type === 'checkbox' || field.type === 'radio'
 
         let classTable = {
-            checkbox: 'form-check-input', radio: 'form-check-input',
-            file: 'form-control-file', files: 'form-control-file',
-            range: 'form-control-range', submit: 'btn btn-primary',
+            checkbox: 'formConfig-check-input', radio: 'formConfig-check-input',
+            file: 'formConfig-control-file', files: 'formConfig-control-file',
+            range: 'formConfig-control-range', submit: 'btn btn-primary',
             select: 'custom-select'
         } as any
-        let inputClass = classTable[field.type] || 'form-control'
+        let inputClass = classTable[field.type] || 'formConfig-control'
 
         if (validationResult && validationResult.hasError)
             inputClass += ' is-invalid'
         if (field.scale != 1)
-            inputClass += ` form-control-${field.scale > 1 ? 'lg' : 'sm'}`
+            inputClass += ` formConfig-control-${field.scale > 1 ? 'lg' : 'sm'}`
 
-        const label = renderer.label(field, {class: (isCheckBox ? 'form-check-label' : '')})
+        const label = renderer.label(field, {class: (isCheckBox ? 'formConfig-check-label' : '')})
         let input = renderer.input(fieldValue, field, {class: inputClass})
         if (field.type === 'radio') {
             input = Object.keys(field.choices as {})
-                .map((k, i) => vd('div', {class: 'form-check'}, vd('label', {}, [
+                .map((k, i) => vd('div', {class: 'formConfig-check'}, vd('label', {}, [
                     input[i],
                     ' ',
                     field.choices[k]
@@ -40,7 +42,7 @@ const Bootstrap4Layout = {
         }
 
         let colClass = BootstrapCommonLayout.getColClass(_pluginOptions.columns, field.colSpan)
-        let fieldSet = vd('div', {class: `${field.type === 'checkbox' ? 'form-check' : ''}`})
+        let fieldSet = vd('div', {class: `${field.type === 'checkbox' ? 'formConfig-check' : ''}`})
         if (field.type != 'checkbox' || field.readonly)
             fieldSet.children.push(...toArray(label), ...toArray(input))
         else
@@ -51,17 +53,17 @@ const Bootstrap4Layout = {
 
         if (!isEmpty(colClass))
             fieldSet = vd('div', {class: `mb-2 ${colClass}`}, fieldSet)
-        else fieldSet.attrs.class += ' mb-2'
+        else fieldSet.htmlAttrs.class += ' mb-2'
         if (!isEmpty(field.helpText))
-            fieldSet.children.push(vd('small', {class: 'form-text text-muted'}, field.helpText))
+            fieldSet.children.push(vd('small', {class: 'formConfig-text text-muted'}, field.helpText))
         return fieldSet
     }
 }
 
 export const Bootstrap4 : (o?: Partial<PluginOptions>) => RenderFormOptions = pluginOptions => ({
     layout: {
-        formLayout(forObject: any, form: FormConfig, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement {
-            return Bootstrap4Layout.formLayout(forObject, form, renderer, validationResult, pluginOptions)
+        formLayout(forObject: any, formConfig: FormConfig, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement {
+            return Bootstrap4Layout.formLayout(forObject, formConfig, renderer, validationResult, pluginOptions)
         }
     }
-})
+})*/

@@ -1,6 +1,6 @@
 import {
     humanize,
-    uuid,
+    randomHash,
     isDate,
     isDateTime,
     isYear,
@@ -26,7 +26,7 @@ import {notEmpty} from './Validation';
 let customFieldRenderers : CustomFieldRenderer[] = []
 
 export function addCustomFieldRenderer(renderer: CustomFieldRenderer): string {
-    const id = uuid().substr(0, 8)
+    const id = randomHash()
     customFieldRenderers.push({...renderer, id})
     return id
 }
@@ -36,13 +36,6 @@ export function findCustomRenderer(forType: string): CustomFieldRenderer|null {
         typeof(cfr.forType) === 'string'
             ? forType.toLowerCase() == cfr.forType.toLowerCase()
             : cfr.forType.indexOf(forType) > -1) ?? null
-}
-
-export function field(value: FieldConfig) {
-    console.log('value:', value)
-    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-        console.log(target, propertyKey, descriptor)
-    };
 }
 
 export function createFormConfig(forObject: any, _config: DeepPartial<FormConfig> = {}): FormConfig {
@@ -67,14 +60,14 @@ export function createFormConfig(forObject: any, _config: DeepPartial<FormConfig
         }
     }
 
-    Object.entries(forObject).forEach(_ => {
+    /*Object.entries(forObject).forEach(_ => {
         let [fieldId, fieldValue] = _;
 
         let type = config.fieldsConfig[fieldId]?.type ?? guessType(fieldId, fieldValue)
 
         config.fieldsConfig[fieldId] = {
             ...getDefaultFieldConfig(fieldId, type, config),
-            ...guessConfig(config.fieldsConfig[fieldId], fieldValue, type),
+            ...guessConfig(fieldValue, type, config.fieldsConfig[fieldId]),
             ...config.fieldsConfig[fieldId],
         }
         if (isEmpty(config.fieldsConfig[fieldId].label))
@@ -84,16 +77,42 @@ export function createFormConfig(forObject: any, _config: DeepPartial<FormConfig
             : (config.fieldsConfig[fieldId].choices?.constructor === Array
                 ? (config.fieldsConfig[fieldId].choices as string[]).reduce((acc, b)=> ({...acc, [b]: b}), {})
                 : config.fieldsConfig[fieldId].choices))
-    });
+    });*/
+
+    for (const fieldId in forObject) {
+        if (!forObject.hasOwnProperty(fieldId))
+            continue
+        config.fieldsConfig[fieldId] = createFieldConfig(fieldId, forObject[fieldId], config.fieldsConfig[fieldId], config)
+    }
 
     return config;
 }
 
-export function getDefaultFieldConfig(fieldId: string, type: FormFieldType, formConfig: Partial<FormConfig>): FieldConfig {
+export function createFieldConfig(fieldId: string, fieldValue: any,
+                                  fieldConfig?: DeepPartial<FieldConfig>, formConfig?: DeepPartial<FormConfig>): FieldConfig {
+    let type = fieldConfig?.type ?? guessType(fieldId, fieldValue)
+
+    let result = {
+        ...getDefaultFieldConfig(fieldId, type, formConfig),
+        ...guessConfig(fieldValue, type, fieldConfig),
+        ...fieldConfig,
+    } as FieldConfig
+    if (isEmpty(result.label))
+        result.label = humanize(fieldId)
+    result.choices = (result?.choices == null
+        ? {}
+        : (result.choices?.constructor === Array
+            ? (result.choices as string[]).reduce((acc, b)=> ({...acc, [b]: b}), {})
+            : result.choices))
+    
+    return result
+}
+
+export function getDefaultFieldConfig(fieldId: string, type: FormFieldType, formConfig?: DeepPartial<FormConfig>): FieldConfig {
     return {
-        scale: formConfig.scale ?? 1,
-        readonly: formConfig.readonly ?? false,
-        hideLabel: formConfig.hideLabels ?? false,
+        scale: formConfig?.scale ?? 1,
+        readonly: formConfig?.readonly ?? false,
+        hideLabel: formConfig?.hideLabels ?? false,
         colSpan: 1,
         icon: '',
         helpText: '',
@@ -155,9 +174,8 @@ export function guessType(fieldId: string, fieldValue: any): FormFieldType {
     return 'text';
 }
 
-export function guessConfig(fieldConfig: Partial<FieldConfig>, val: any, fieldType: FormFieldType) : Partial<FieldConfig> {
+export function guessConfig(val: any, fieldType: FormFieldType, fieldConfig?: DeepPartial<FieldConfig>) : Partial<FieldConfig> {
     let result: Partial<FieldConfig> = {}
-    fieldConfig ??= {}
     if (val != null && val.constructor === Array && fieldType == 'radio') {
         result.choices = val.reduce((acc, el) => ({...acc, [el]: humanize(el)}), {})
         result.multiple = true
@@ -210,7 +228,7 @@ function mergeFormValidationResults(vrs: FormValidationResult[]) : FormValidatio
 export function validateForm(forObject: any, _formConfig?: FormConfig) : FormValidationResult {
     const m = validateFormInternal(forObject, _formConfig)
     if (m.isAsync)
-        console.error('Trying to synchronously validate form with async validators')
+        console.error('Trying to synchronously validate formConfig with async validators')
     const formVR = m.form as FormValidationResult
     let result: FormValidationResult = {
         message: formVR.message,
@@ -317,7 +335,7 @@ export function runFormValidator(validator: OneOrMany<FormValidateFunc>, form: a
             asyncVRs.push((vResult as Promise<any>)
                 .then(res => getFormVRFromValidation(res) ?? getFormValidationResult())
                 .catch(err => {
-                    console.warn('Error while attempting to validate form', err)
+                    console.warn('Error while attempting to validate formConfig', err)
                     return getFormValidationResult('Failed to validate this entry.')
                 }))
         }
@@ -328,7 +346,7 @@ export function runFormValidator(validator: OneOrMany<FormValidateFunc>, form: a
         }
         return syncVRs
     } catch (err) {
-        return getFormValidationResult('Failed to validate the form.');
+        return getFormValidationResult('Failed to validate the formConfig.');
     }
 }
 

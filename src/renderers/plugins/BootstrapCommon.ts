@@ -1,6 +1,6 @@
 import {FieldConfig, FormValidationResult, ValidationResult, FormConfig} from "../../Models";
 import {LayoutRenderer, PluginOptions} from "../Common";
-import {AbstractDomElement} from "boost-web-core";
+import {AbstractDomElement} from "vdtree";
 
 export const BootstrapCommonLayout = {
     formLayout(forObject: any, form: FormConfig, renderer: LayoutRenderer, validationResult?: FormValidationResult,

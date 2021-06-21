@@ -2,6 +2,7 @@ import { describe } from 'mocha';
 // @ts-ignore
 const chai = require('chai');
 const expect = chai.expect;
+// @ts-ignore
 import {createServer, Server} from "http";
 import axios from 'axios'
 
@@ -41,7 +42,7 @@ describe('Form service tests', () => {
         expect(guessType('email', '')).to.equal('email');
     });
 
-    it('Sets up form config properly', () => {
+    it('Sets up formConfig config properly', () => {
         let forObject = {userName: '', password: '', rememberMe: false, agreeToTerms: false};
         let config = createFormConfig(forObject, {
             hideLabels: true,
@@ -64,7 +65,7 @@ describe('Form service tests', () => {
         expect(config.fieldsConfig['agreeToTerms'].hideLabel).to.equal(false);
     });
 
-    it('Validates form fields async correctly', async () => {
+    it('Validates formConfig fields async correctly', async () => {
         createValidationApi()
         let forObject = {userName: '', password: '', age: 17, email: 'abe@example.com', city: ''};
         let config = createFormConfig(forObject, {
@@ -111,7 +112,7 @@ describe('Form service tests', () => {
         expect(validationResult.fields.email.hasError).to.be.false;
     });
 
-    it('Does form-level async validation', async () => {
+    it('Does formConfig-level async validation', async () => {
         createValidationApi()
         let registration = {userName: '', password: 'a', confirmPassword: 'b'};
         let formConfig = createFormConfig(registration, {
@@ -132,7 +133,7 @@ describe('Form service tests', () => {
         expect(validationResult.fields.userName.message).to.equal('USERNAME_TAKEN');
     });
 
-    it('Does form-level sync validation', () => {
+    it('Does formConfig-level sync validation', () => {
         let registration = {userName: '', password: 'a', confirmPassword: 'b'};
         let formConfig = createFormConfig(registration, {
             validate: [

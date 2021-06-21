@@ -1,9 +1,6 @@
 import { FormValidationResult, FormFieldType, FieldConfig, FormConfig } from "../Models";
-import {
-    AbstractDomElement,
-    AbstractDomNode,
-    OneOrMany
-} from "boost-web-core";
+import { OneOrMany } from "boost-web-core";
+import {AbstractDomElement, AbstractDomNode} from "vdtree";
 
 export interface LayoutRenderer {
     label: (field: FieldConfig, attrs?: any) => OneOrMany<AbstractDomNode>,
@@ -71,6 +68,7 @@ export function getHtmlFormAttrs(form: FormConfig) {
         readonly: undefined,
         validationResult: undefined,
         onValidation: undefined,
+        excludeFormTag: undefined
     }
     let result : any = {}
     for (const [key, val] of Object.entries(src)) {
