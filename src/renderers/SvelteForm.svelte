@@ -6,6 +6,7 @@
     import { createEventDispatcher, onMount } from 'svelte';
     import {onFieldChangeReducer} from "./VanillaFormRenderer";
     import {SvelteWrapper} from "vdtree";
+    import {AbstractForm} from "../components/AbstractForm";
 
     const dispatch = createEventDispatcher();
 
@@ -35,5 +36,5 @@
 
 </script>
 
-<SvelteWrapper dom={} />
+<SvelteWrapper dom={AbstractForm({forObject, formConfig: _safeOptions, validationResult, htmlAttrs: {}})} />
 

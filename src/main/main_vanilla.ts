@@ -1,5 +1,5 @@
 import {createFormConfig, validateForm} from "../FormService";
-import {getFormValue} from "../renderers/VanillaFormRenderer";
+import {getFormValue, renderForm} from "../renderers/VanillaFormRenderer";
 import {fileTypeValidator, imgTypeFile, MIME_PDF, notEmpty, validName} from "../Validation";
 import {forObj, options, renderOptions} from "./main_common";
 import {getFormValidationResult} from "../Models";
@@ -15,14 +15,8 @@ const onSubmit = (e: Event) => {
         //reRenderForm(state)
     }
 }
-console.log('Generated Form Options', createFormConfig(options))
+console.log('Generated Form Options', createFormConfig(forObj, options))
 let formValidationResult = getFormValidationResult()
 let config = createFormConfig(forObj, {...options, onsubmit: onSubmit})
 
-//const MyForm = withState()
-renderToDom(AbstractForm({
-    forObject: forObj,
-    formConfig: config,
-    validationResult: formValidationResult,
-    htmlAttrs: {}
-}), root)
+renderForm(forObj, root, config)

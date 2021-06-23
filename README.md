@@ -58,15 +58,14 @@ let forObj = {
 ```javascript
 import {renderForm} from 'boost-web-forms'
 
-const formHtmlElt = renderForm(forObj)
-document.body.append(formHtmlElt)
+renderForm(forObj, document.body)
 ```
 
 **For React**:
 ```jsx
 import {GetReactForm} from 'boost-web-forms'
 
-const Form = GetReactForm(React.createElement)
+const Form = GetReactForm(React)
 <Form forObject={forObj} />
 ```
 
@@ -153,16 +152,14 @@ import {createFormConfig} from 'boost-web-forms'
 const config = createFormConfig(forObj, options)
 
 // Vanilla
-document.body.append(
-    renderForm(forObj, config)
-)
+renderForm(forObj, document.body config)
 
 // React
 <Form forObject={forObj} method="POST" 
     enctype="multipart/form-data" onsubmit={e => alert('Submitting...')} />
 
 // Svelte
-<Form forObject={forObj} options={config} />
+<SvelteForm forObject={forObj} options={config} />
 ```
 
 All available form configuration options
@@ -377,9 +374,7 @@ import {validateForm} from 'boost-web-forms'
 
 // Vanilla JS
 let validationResult = validateForm(forObj)
-document.body.append(
-    renderForm(forObj, null, null, validationResult)
-)
+renderForm(forObj, document.body, null, validationResult)
 
 // React
 let validationResult = validateForm(forObj)
@@ -387,7 +382,7 @@ let validationResult = validateForm(forObj)
 
 // Svelte
 let validationResult = validateForm(forObj)
-<Form forObject={forObj} validationResult={validationResult} />
+<SvelteForm forObject={forObj} validationResult={validationResult} />
 ```
 
 **Note**: If your validator is an `async` method (includes api calls for example), 

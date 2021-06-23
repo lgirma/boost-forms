@@ -1,11 +1,19 @@
 import {createFormConfig} from "../FormService";
-import {FormValidationResult, WebFormEvents, WebFormFieldEvents, FieldConfig, FormConfig} from "../Models";
+import {
+    FormValidationResult,
+    WebFormEvents,
+    WebFormFieldEvents,
+    FieldConfig,
+    FormConfig,
+    getValidationResult, getFormValidationResult
+} from "../Models";
 import {
     Dict, OneOrMany, toArray, DeepPartial, Nullable, isEmpty, groupBy
 } from 'boost-web-core'
 import {FormLayout, LayoutRenderer, getHtmlAttrs, RenderFormOptions, SimpleTextTypes, getHtmlFormAttrs} from "./Common";
 import {AbstractRating} from "../components";
-import {AbstractDomElement, h} from "vdtree";
+import {AbstractDomElement, h, renderToDom, withState} from "vdtree";
+import {AbstractForm} from "../components/AbstractForm";
 
 /*export const DefaultLayout: FormLayout = {
     formLayout(forObject: any, formConfig: FormConfig, renderer: LayoutRenderer, validationResult?: FormValidationResult): AbstractDomElement {
@@ -190,6 +198,12 @@ export function renderLabel(field: FieldConfig, htmlAttrs = {}) {
     label.children.push(field.readonly ? ': ' : '')
     return label
 }*/
+
+export function renderForm(forObject: any, target: HTMLElement, formConfig?: FormConfig, validationResult?: FormValidationResult) {
+    validationResult = validationResult ?? getFormValidationResult()
+    let FormComponent = AbstractForm({forObject, formConfig, validationResult})
+    renderToDom(FormComponent as any, target)
+}
 
 export function onFieldChangeReducer(form: FormConfig, event: Event): (previousFormData: any) => any {
     const input = (event.target as HTMLInputElement)

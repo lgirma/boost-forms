@@ -4,21 +4,23 @@ import {getHtmlFormAttrs} from "../renderers/Common";
 import {AbstractInput} from "./AbstractInput";
 import {AbstractLabel} from "./AbstractLabel";
 import {Dict, toArray} from "boost-web-core";
+import {createFormConfig} from "../FormService";
 
 export interface AbstractFormProps {
     forObject: any,
-    formConfig: FormConfig,
+    formConfig?: FormConfig,
     validationResult?: FormValidationResult
     htmlAttrs?: any
 }
 
 export function AbstractForm({forObject, formConfig, validationResult, htmlAttrs = {}}: AbstractFormProps): AbstractDomElement {
-    let result = h(formConfig.excludeSubmitButton ? 'div' : 'form',
-        {...getHtmlFormAttrs(formConfig), ...htmlAttrs})
-    for (const fieldId in formConfig.fieldsConfig) {
-        if (!formConfig.fieldsConfig.hasOwnProperty(fieldId))
+    let _formConfig = formConfig ?? createFormConfig(forObject)
+    let result = h(_formConfig.excludeSubmitButton ? 'div' : 'form',
+        {...getHtmlFormAttrs(_formConfig), ...htmlAttrs})
+    for (const fieldId in _formConfig.fieldsConfig) {
+        if (!_formConfig.fieldsConfig.hasOwnProperty(fieldId))
             continue
-        let field = formConfig.fieldsConfig[fieldId]
+        let field = _formConfig.fieldsConfig[fieldId]
         let fieldSet = h('div', {})
         const fieldValidationResult = validationResult?.fields[fieldId] ?? {hasError: false}
         let input = AbstractInput({field, value: forObject[fieldId]})
@@ -26,11 +28,11 @@ export function AbstractForm({forObject, formConfig, validationResult, htmlAttrs
 
         if (field.type === 'radio') {
             input = Object.keys(field.choices as {})
-                .map((k, i) => h('label', {}, [
+                .map((k, i) => h('label', {},
                     input[i],
                     ' ',
                     (field.choices as Dict<string>)[k]
-                ]))
+                ))
         }
 
         if (field.type != 'checkbox' || field.readonly)
