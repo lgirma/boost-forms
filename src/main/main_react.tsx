@@ -10,18 +10,16 @@ const Form = GetReactForm(React)
 
 function MyForm() {
     const [formData, setFormData] = useState(forObj)
-    const [validation, setValidation] = useState(getFormValidationResult)
-
     const config = createFormConfig(forObj, options)
 
     function onSubmit(e) {
-        alert('Submitted')
+        alert('Submitting ' + JSON.stringify(formData))
+        e.preventDefault()
     }
 
     useEffect(() => console.log('Change', formData), [formData])
 
     return <Form forObject={formData}
-                validationResult={validation}
                 onSubmit={onSubmit}
                 onChange={e => {setFormData(onFieldChangeReducer(config, e))}}
                 {...config}

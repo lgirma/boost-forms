@@ -11,12 +11,12 @@
     let validationResult = getFormValidationResult()
 
     function onSubmit(e) {
-        alert('Submitted')
+        alert('Submitting ' + JSON.stringify(formData))
+        e.preventDefault()
     }
 
     $: console.log('Change', formData)
 
 </script>
 
-<!--<SvelteForm bind:forObject={formData} options={formConfig} {validationResult} on:submit={onSubmit} />-->
-<SvelteWrapper dom={h('div', {}, 'Hello')} />
+<SvelteForm bind:forObject={formData} options={formConfig} {validationResult} on:submit={onSubmit} />

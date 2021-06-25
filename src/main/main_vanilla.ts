@@ -7,12 +7,11 @@ import {AbstractForm} from "../components/AbstractForm";
 import {renderToDom, h, withState} from "vdtree";
 
 const root = document.getElementById('app')!
-const onSubmit = (e: Event) => {
+
+const formConfig = createFormConfig(forObj, {...options, onsubmit: onSubmit})
+function onSubmit(e: Event) {
     e.preventDefault()
-    alert('Submitted')
+    alert('Submitting ' + JSON.stringify(getFormValue(formConfig)))
 }
-console.log('Generated Form Options', createFormConfig(forObj, options))
-
-let config = {...options, onsubmit: e => alert('Submitted.')}
-
-renderForm(forObj, root, config)
+console.log('Generated Form Options', formConfig)
+renderForm(forObj, root, formConfig)

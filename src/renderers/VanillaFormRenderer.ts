@@ -26,6 +26,7 @@ export function renderForm(forObject: any, target: HTMLElement, formConfig?: Dee
                 rendered.newProps(a =>({...a, forObject: state, validationResult: vr}))
             }
             else {
+                rendered.newProps(a =>({...a, forObject: state, validationResult: vr}))
                 if (onSubmit) (onSubmit as any)(e)
             }
         })
@@ -83,7 +84,7 @@ export function getFieldValue(fieldId: string, field: FieldConfig, fieldElements
     return val
 }
 
-export function getFormValue(form: FormConfig, formElement: HTMLElement) {
+export function getFormValue(form: FormConfig, formElement?: HTMLElement) {
     let result = {}
     for (const [fieldId, field] of Object.entries(form.fieldsConfig)) {
         result[fieldId] = getFieldValue(fieldId, field)
