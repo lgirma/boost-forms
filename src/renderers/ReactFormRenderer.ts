@@ -1,5 +1,5 @@
-import {h, toReactComponent} from "vdtree";
-import {FieldConfig, FieldsConfig, FormValidationResult, FormConfig} from '../Models'
+import {h, toReactComponent, toReactElement} from "vdtree";
+import {FieldConfig, FieldsConfig, FormValidationResult, FormConfig, getFormValidationResult} from '../Models'
 import {RenderFormOptions} from "./Common";
 import {DeepPartial} from "boost-web-core";
 import {AbstractForm} from "../components/AbstractForm";
@@ -16,13 +16,13 @@ export function GetReactForm(React: any) {
             forObject,
             validationResult = {hasError: false, message: '', fields: {}}
         } = props
-        let formConfig = {
-            ...props,
-            forObject: undefined,
-            validationResult: undefined,
-            renderOptions: undefined
+        let formConfig = props.$$isComplete
+            ? {...props, forObject: undefined, validationResult: undefined} as FormConfig
+            : createFormConfig(forObject, {...props, forObject: undefined, validationResult: undefined})
+        if (formConfig.autoValidate) {
+            const [vr, setVr] = React.useState(getFormValidationResult()) as [FormValidationResult, () => void]
+            return toReactElement(AbstractForm({forObject, formConfig, validationResult: vr}), React)
         }
-        const abstractForm = AbstractForm({forObject, formConfig: createFormConfig(formConfig), validationResult})
-        return toReactComponent(abstractForm, React)
+        return toReactElement(AbstractForm({forObject, formConfig, validationResult}), React)
     }
 }

@@ -1,8 +1,9 @@
 <script>
     import SvelteForm from '../renderers/SvelteForm.svelte'
-    import {forObj, options, renderOptions} from "./main_common";
+    import {forObj, options} from "./main_common";
     import {createFormConfig, validateForm} from "../FormService";
     import {getFormValidationResult} from "../Models";
+    import {h, SvelteWrapper} from 'vdtree'
 
 
     let formData = {...forObj}
@@ -10,16 +11,12 @@
     let validationResult = getFormValidationResult()
 
     function onSubmit(e) {
-        validationResult = validateForm(formData, formConfig)
-        if (validationResult.hasError)
-            e.detail.preventDefault()
+        alert('Submitted')
     }
 
     $: console.log('Change', formData)
 
 </script>
 
-<SvelteForm bind:forObject={formData} options={formConfig}
-            renderOptions={renderOptions}
-            {validationResult}
-            on:submit={onSubmit} />
+<!--<SvelteForm bind:forObject={formData} options={formConfig} {validationResult} on:submit={onSubmit} />-->
+<SvelteWrapper dom={h('div', {}, 'Hello')} />

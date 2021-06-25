@@ -12,16 +12,21 @@ export function renderForm(forObject: any, target: HTMLElement, formConfig?: Dee
     validationResult = validationResult ?? getFormValidationResult()
     let _formConfig = formConfig != null && formConfig?.$$isComplete
         ? formConfig as FormConfig
-        : createFormConfig(formConfig)
+        : createFormConfig(forObject, formConfig)
     let FormComponent = h(AbstractForm,{forObject, formConfig: _formConfig, validationResult})
     if (_formConfig.autoValidate && !_formConfig.excludeFormTag) {
+        let onSubmit = _formConfig.onsubmit
+        _formConfig.onsubmit = undefined
         let rendered = renderToDom(FormComponent, target)
         rendered.$$domElement.addEventListener('submit', e => {
             let state = getFormValue(_formConfig, e.target as HTMLElement)
             let vr = validateForm(state, _formConfig)
             if (vr.hasError) {
                 e.preventDefault()
-                rendered.newAttrs(a =>({...a, forObject: state, validationResult: vr}))
+                rendered.newProps(a =>({...a, forObject: state, validationResult: vr}))
+            }
+            else {
+                if (onSubmit) (onSubmit as any)(e)
             }
         })
     }

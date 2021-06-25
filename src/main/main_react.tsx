@@ -6,7 +6,7 @@ import {forObj, options, renderOptions} from "./main_common";
 import {getFormValue, onFieldChangeReducer} from "../renderers/VanillaFormRenderer";
 import {FormValidationResult, getFormValidationResult} from "../Models";
 
-const Form = GetReactForm(React.createElement)
+const Form = GetReactForm(React)
 
 function MyForm() {
     const [formData, setFormData] = useState(forObj)
@@ -15,10 +15,7 @@ function MyForm() {
     const config = createFormConfig(forObj, options)
 
     function onSubmit(e) {
-        const vr = validateForm(formData, config)
-        if (vr.hasError)
-            e.preventDefault();
-        setValidation(vr)
+        alert('Submitted')
     }
 
     useEffect(() => console.log('Change', formData), [formData])

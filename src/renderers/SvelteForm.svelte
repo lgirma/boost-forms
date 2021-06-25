@@ -5,7 +5,7 @@
     import type {DeepPartial} from "boost-web-core";
     import { createEventDispatcher, onMount } from 'svelte';
     import {onFieldChangeReducer} from "./VanillaFormRenderer";
-    import {SvelteWrapper} from "vdtree";
+    import {SvelteWrapper, h} from "vdtree";
     import {AbstractForm} from "../components/AbstractForm";
 
     const dispatch = createEventDispatcher();
@@ -35,7 +35,12 @@
         _safeOptions = safeOptions
     }
 
+    $: initConfig(options)
+    $: console.log('Safe Options', _safeOptions)
+
 </script>
 
-<SvelteWrapper dom={AbstractForm({forObject, formConfig: _safeOptions, validationResult, htmlAttrs: {}})} />
+{#if _safeOptions != null}
+    <SvelteWrapper dom={AbstractForm} props={{forObject, formConfig: _safeOptions, validationResult, htmlAttrs: {}}} />
+{/if}
 
