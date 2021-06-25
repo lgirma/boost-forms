@@ -8,15 +8,11 @@ import {renderToDom, h, withState} from "vdtree";
 
 const root = document.getElementById('app')!
 const onSubmit = (e: Event) => {
-    let state = getFormValue(config, e.target as HTMLElement)
-    formValidationResult = validateForm(state, config)
-    if (formValidationResult.hasError) {
-        e.preventDefault()
-        //reRenderForm(state)
-    }
+    e.preventDefault()
+    alert('Submitted')
 }
 console.log('Generated Form Options', createFormConfig(forObj, options))
-let formValidationResult = getFormValidationResult()
-let config = createFormConfig(forObj, {...options, onsubmit: onSubmit})
+
+let config = createFormConfig(forObj, {...options, onsubmit: e => alert('Submitted.')})
 
 renderForm(forObj, root, config)

@@ -1,5 +1,5 @@
 import {AbstractDomNode, h, withState} from "vdtree";
-import {FieldConfig} from "../Models";
+import {FieldConfig, getValidationResult, ValidationResult} from "../Models";
 import {getHtmlAttrs, SimpleTextTypes} from "../renderers/Common";
 import {AbstractRating} from "./AbstractRating";
 import {AbstractForm} from "../components/AbstractForm";
@@ -10,9 +10,11 @@ export interface AbstractInputProps {
     field: FieldConfig
     value: any
     htmlAttrs?: any
+    validationResult?: ValidationResult
 }
 
-export function AbstractInput({field, htmlAttrs, value}: AbstractInputProps): OneOrMany<AbstractDomNode> {
+export function AbstractInput({field, htmlAttrs, value, validationResult}: AbstractInputProps): OneOrMany<AbstractDomNode> {
+    validationResult ??= getValidationResult()
     if (field.readonly) {
         if (field.type == 'checkbox')
             return value ? 'Yes' : 'No'
@@ -31,6 +33,11 @@ export function AbstractInput({field, htmlAttrs, value}: AbstractInputProps): On
     const eltAttrs = {
         ...getHtmlAttrs(field),
         ...htmlAttrs
+    }
+
+    if (validationResult.hasError) {
+        eltAttrs.style ??= {}
+        eltAttrs.style.border = '1px solid red'
     }
 
     if (field.type == 'textarea') {

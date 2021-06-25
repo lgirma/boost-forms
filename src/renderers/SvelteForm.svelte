@@ -2,7 +2,7 @@
     import type {FormValidationResult, FormConfig} from "../Models";
     import {getFormValidationResult} from '../Models'
     import {createFormConfig} from "../FormService";
-    import type {RenderFormOptions} from "./Common";
+    import type {DeepPartial} from "boost-web-core";
     import { createEventDispatcher, onMount } from 'svelte';
     import {onFieldChangeReducer} from "./VanillaFormRenderer";
     import {SvelteWrapper} from "vdtree";
@@ -11,13 +11,14 @@
     const dispatch = createEventDispatcher();
 
     export let forObject
-    export let options: FormConfig | null = null
-    export let renderOptions: RenderFormOptions = {}
+    export let options: DeepPartial<FormConfig> | null = null
     export let validationResult = getFormValidationResult()
     let _safeOptions: FormConfig
 
     function initConfig(opts) {
-        let safeOptions = opts ?? createFormConfig(forObject)
+        let safeOptions = opts != null && opts.$$isComplete
+            ? opts
+            : createFormConfig(forObject, opts)
         safeOptions.onsubmit = (e: Event) => {
             dispatch('submit', e)
         }

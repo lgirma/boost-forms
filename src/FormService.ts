@@ -31,7 +31,7 @@ export function addCustomFieldRenderer(renderer: CustomFieldRenderer): string {
     return id
 }
 
-export function findCustomRenderer(forType: string): CustomFieldRenderer|null {
+export function findCustomRenderer(forType: string): Nullable<CustomFieldRenderer> {
     return customFieldRenderers.find(cfr =>
         typeof(cfr.forType) === 'string'
             ? forType.toLowerCase() == cfr.forType.toLowerCase()
@@ -49,6 +49,8 @@ export function createFormConfig(forObject: any, _config: DeepPartial<FormConfig
             ...Object.keys(forObject).reduce((a, fieldId) => ({...a, [fieldId]: null}), {}),
             ..._config.fieldsConfig
         },
+        $$isComplete: true,
+        autoValidate: true
     }
 
     if (!config.excludeSubmitButton) {
@@ -59,25 +61,6 @@ export function createFormConfig(forObject: any, _config: DeepPartial<FormConfig
             type: 'submit'
         }
     }
-
-    /*Object.entries(forObject).forEach(_ => {
-        let [fieldId, fieldValue] = _;
-
-        let type = config.fieldsConfig[fieldId]?.type ?? guessType(fieldId, fieldValue)
-
-        config.fieldsConfig[fieldId] = {
-            ...getDefaultFieldConfig(fieldId, type, config),
-            ...guessConfig(fieldValue, type, config.fieldsConfig[fieldId]),
-            ...config.fieldsConfig[fieldId],
-        }
-        if (isEmpty(config.fieldsConfig[fieldId].label))
-            config.fieldsConfig[fieldId].label = humanize(fieldId)
-        config.fieldsConfig[fieldId].choices = (config.fieldsConfig[fieldId]?.choices == null
-            ? {}
-            : (config.fieldsConfig[fieldId].choices?.constructor === Array
-                ? (config.fieldsConfig[fieldId].choices as string[]).reduce((acc, b)=> ({...acc, [b]: b}), {})
-                : config.fieldsConfig[fieldId].choices))
-    });*/
 
     for (const fieldId in forObject) {
         if (!forObject.hasOwnProperty(fieldId))

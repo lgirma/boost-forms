@@ -23,8 +23,8 @@ export function AbstractForm({forObject, formConfig, validationResult, htmlAttrs
         let field = _formConfig.fieldsConfig[fieldId]
         let fieldSet = h('div', {})
         const fieldValidationResult = validationResult?.fields[fieldId] ?? {hasError: false}
-        let input = AbstractInput({field, value: forObject[fieldId]})
-        let label = AbstractLabel({field})
+        let input = AbstractInput({field, value: forObject[fieldId], validationResult: validationResult?.fields[fieldId]})
+        let label = AbstractLabel({field, validationResult: validationResult?.fields[fieldId]})
 
         if (field.type === 'radio') {
             input = Object.keys(field.choices as {})

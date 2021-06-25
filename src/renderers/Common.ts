@@ -68,7 +68,10 @@ export function getHtmlFormAttrs(form: FormConfig) {
         readonly: undefined,
         validationResult: undefined,
         onValidation: undefined,
-        excludeFormTag: undefined
+        excludeFormTag: undefined,
+        $$isComplete: undefined,
+        syncValues: undefined,
+        autoValidate: undefined
     }
     let result : any = {}
     for (const [key, val] of Object.entries(src)) {

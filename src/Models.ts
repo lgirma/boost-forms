@@ -1,4 +1,5 @@
 import {DeepPartial, Dict, isEmpty, Nullable, OneOrMany} from "boost-web-core";
+import {AbstractDomNode} from "vdtree";
 
 
 export type FieldsConfig = Dict<FieldConfig>
@@ -38,6 +39,18 @@ export interface FormConfig extends DeepPartial<HTMLFormElement>, WebFormEvents 
      * If true, should render a <div> or similar panel instead of a <formConfig>
      */
     excludeFormTag?: boolean
+    /**
+     * Whether the config is created from createFormConfig() call.
+     */
+    $$isComplete?: boolean
+    /**
+     * Whether values in forObject are updated up on user input.
+     */
+    syncValues?: boolean
+    /**
+     * Whether to validate the form automatically up on submission.
+     */
+    autoValidate?: boolean
 }
 
 export interface ValidationResult {
@@ -123,7 +136,9 @@ export type FormFieldType =  HTMLInputType | 'name' | 'files' | 'select' |
     'autocomplete';
 
 export interface CustomFieldRenderer {
-    forType: string|string[]
+    forType: OneOrMany<string>
     id?: string
-    renderField(forObject: any, formConfig: FormConfig, field: FieldConfig): string|HTMLElement
+    renderInput(field: FieldConfig, value: any, htmlAttrs?: any, validationResult?: ValidationResult): OneOrMany<AbstractDomNode>
+    renderLabel(field: FieldConfig, htmlAttrs?: any, validationResult?: ValidationResult): Nullable<AbstractDomNode>
+    getFieldValue(fieldId: string, field: FieldConfig, fieldElements?: any[]): any
 }
