@@ -20,7 +20,7 @@ without any configuration or schema, into this:
 ### Why boost-web-forms?
 
 * Works with vanilla JS
-* Built-in react and svelte support
+* React and svelte support
 * No schema or configuration needed to generate forms (although supported)
 * Out-of-the-box support for popular UI kits (bootstrap, bulma, etc.)
 * API is as close to the DOM API as possible
@@ -70,11 +70,8 @@ const Form = GetReactForm(React)
 ```
 
 **For Svelte**:
-```jsx
-import {SvelteForm as Form} from 'boost-web-forms'
 
-<Form forObject={forObj} />
-```
+Look at [boost-web-forms-svelte](https://github.com/lgirma/boost-web-forms-svelte)
 
 This will automatically render the following HTML:
 
