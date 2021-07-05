@@ -1,3 +1,4 @@
+![Login Form](resources/logo.svg)
 # Boost-Web Forms
 
 ### What is it?

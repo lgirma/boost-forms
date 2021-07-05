@@ -1,3 +1,5 @@
+export const x = 5
+/*
 import {createFormConfig} from "../FormService";
 import {GetReactForm} from "../renderers/ReactFormRenderer";
 import React, {useEffect, useState} from 'react'
@@ -30,4 +32,4 @@ function MyForm() {
 ReactDOM.render(
     <MyForm />,
     document.getElementById('app')
-);
+);*/

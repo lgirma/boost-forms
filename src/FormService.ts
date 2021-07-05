@@ -393,7 +393,8 @@ export function getFieldHtmlAttrs(field: FieldConfig) {
         scale: undefined,
         readonly: undefined,
         validate: undefined,
-        onValidation: undefined
+        onValidation: undefined,
+        colSpan: undefined
     }
     let result : any = {
         name: field.id
