@@ -1,6 +1,5 @@
 import {AbstractDomNode, h, withState} from "vdtree";
-import {FieldConfig, getValidationResult, ValidationResult} from "../Models";
-import {SimpleTextTypes} from "../renderers/Common";
+import {FieldConfig, getValidationResult, ValidationResult, SimpleTextTypes} from "../Models";
 import {AbstractRating} from "./AbstractRating";
 import {DefaultFormLayout} from "./DefaultFormLayout";
 import {OneOrMany} from "boost-web-core";

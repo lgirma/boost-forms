@@ -2,17 +2,17 @@ import {
     FormValidationResult,
     FieldConfig,
     FormConfig, getFormValidationResult
-} from "../Models";
+} from "./Models";
 import {Nullable, isEmpty, DeepPartial} from 'boost-web-core'
 import {toDomElement, h, renderToDom} from "vdtree";
-import {createFormConfig, validateForm} from "../FormService";
+import {createFormConfig, validateForm} from "./FormService";
 
 export function renderForm(forObject: any, target: HTMLElement, formConfig?: DeepPartial<FormConfig>, validationResult?: FormValidationResult) {
     validationResult = validationResult ?? getFormValidationResult()
     let _formConfig = formConfig != null && formConfig?.$$isComplete
         ? formConfig as FormConfig
         : createFormConfig(forObject, formConfig)
-    let FormComponent = h(formConfig?.layout,{forObject, formConfig: _formConfig, validationResult})
+    let FormComponent = h(_formConfig.layout,{forObject, formConfig: _formConfig, validationResult})
     if (_formConfig.autoValidate && !_formConfig.excludeFormTag) {
         let onSubmit = _formConfig.onsubmit
         _formConfig.onsubmit = undefined

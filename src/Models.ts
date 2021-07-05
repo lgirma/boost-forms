@@ -148,3 +148,7 @@ export interface CustomFieldRenderer {
     renderLabel(field: FieldConfig, htmlAttrs?: any, validationResult?: ValidationResult): Nullable<AbstractDomNode>
     getFieldValue(fieldId: string, field: FieldConfig, fieldElements?: any[]): any
 }
+
+export const SimpleTextTypes : FormFieldType[] = [
+    'text', 'password', 'date', 'datetime-local', 'email', 'search', 'url', 'time', 'month', 'week', 'tel'
+]

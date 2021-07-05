@@ -1,6 +1,5 @@
 export * from './Models'
 export * from './Validation'
 export * from './FormService'
-export * from './renderers/VanillaFormRenderer'
-export * from './renderers/ReactFormRenderer'
+export * from './FormRenderer'
 export * from './components'
