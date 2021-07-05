@@ -1,22 +1,21 @@
 import {AbstractDomElement, h} from 'vdtree'
 import {FormConfig, FormValidationResult} from "../Models";
-import {getHtmlFormAttrs} from "../renderers/Common";
 import {AbstractInput} from "./AbstractInput";
 import {AbstractLabel} from "./AbstractLabel";
 import {Dict, toArray} from "boost-web-core";
-import {createFormConfig} from "../FormService";
+import {createFormConfig, getFormHtmlAttrs} from "../FormService";
 
-export interface AbstractFormProps {
+export interface FormLayoutProps {
     forObject: any,
     formConfig?: FormConfig,
     validationResult?: FormValidationResult
     htmlAttrs?: any
 }
 
-export function AbstractForm({forObject, formConfig, validationResult, htmlAttrs = {}}: AbstractFormProps): AbstractDomElement {
+export function DefaultFormLayout({forObject, formConfig, validationResult, htmlAttrs = {}}: FormLayoutProps): AbstractDomElement {
     let _formConfig = formConfig ?? createFormConfig(forObject)
     let result = h(_formConfig.excludeSubmitButton ? 'div' : 'form',
-        {...getHtmlFormAttrs(_formConfig), ...htmlAttrs})
+        {...getFormHtmlAttrs(_formConfig), ...htmlAttrs})
     for (const fieldId in _formConfig.fieldsConfig) {
         if (!_formConfig.fieldsConfig.hasOwnProperty(fieldId))
             continue

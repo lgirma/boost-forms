@@ -1,8 +1,7 @@
 import {h, toReactComponent, toReactElement} from "vdtree";
 import {FieldConfig, FieldsConfig, FormValidationResult, FormConfig, getFormValidationResult} from '../Models'
-import {RenderFormOptions} from "./Common";
 import {DeepPartial} from "boost-web-core";
-import {AbstractForm} from "../components/AbstractForm";
+import {DefaultFormLayout} from "../components/DefaultFormLayout";
 import {createFormConfig, validateForm} from "../FormService";
 import {getFormValue} from "./VanillaFormRenderer";
 
@@ -34,8 +33,8 @@ export function GetReactForm(React: any) {
                 }
                 setVr(vRes)
             }
-            return toReactElement(AbstractForm({forObject, formConfig, validationResult: vr}), React)
+            return toReactElement((formConfig.layout!)({forObject, formConfig, validationResult: vr}), React)
         }
-        return toReactElement(AbstractForm({forObject, formConfig, validationResult}), React)
+        return toReactElement((formConfig.layout!)({forObject, formConfig, validationResult}), React)
     }
 }

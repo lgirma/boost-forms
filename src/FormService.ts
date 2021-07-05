@@ -21,6 +21,7 @@ import {
     FieldConfig, FormConfig, getFormValidationResult, FormValidateFunc
 } from "./Models";
 import {notEmpty} from './Validation';
+import {DefaultFormLayout} from "./components";
 
 
 let customFieldRenderers : CustomFieldRenderer[] = []
@@ -39,18 +40,20 @@ export function findCustomRenderer(forType: string): Nullable<CustomFieldRendere
 }
 
 export function createFormConfig(forObject: any, _config: DeepPartial<FormConfig> = {}): FormConfig {
+    _config ??= {}
     let config: FormConfig = {
         scale: 1,
         readonly: false,
         hideLabels: false,
         excludeSubmitButton: false,
+        autoValidate: true,
+        layout: DefaultFormLayout,
         ..._config,
         fieldsConfig: {
             ...Object.keys(forObject).reduce((a, fieldId) => ({...a, [fieldId]: null}), {}),
             ..._config.fieldsConfig
         },
-        $$isComplete: true,
-        autoValidate: true
+        $$isComplete: true
     }
 
     if (!config.excludeSubmitButton) {
@@ -368,4 +371,60 @@ export function runValidator(validator: ValidateFunc | ValidateFunc[], value: an
 
 export function getFieldConfigs(form: FormConfig): FieldConfig[] {
     return Object.keys(form.fieldsConfig).map(k => form.fieldsConfig[k])
+}
+
+export function getFieldHtmlAttrs(field: FieldConfig) {
+    const src: Partial<FieldConfig> = {
+        name: field.id,
+        ...field,
+        icon: undefined,
+        type: undefined,
+        helpText: undefined,
+        label: undefined,
+        validationResult: undefined,
+        customOptions: undefined,
+        maxlength: undefined,
+        multiple: undefined,
+        group: undefined,
+        choices: undefined,
+        variation: undefined,
+        hideLabel: undefined,
+        scale: undefined,
+        readonly: undefined,
+        validate: undefined,
+        onValidation: undefined
+    }
+    let result : any = {
+        name: field.id
+    }
+    for (const [k, val] of Object.entries(src)) {
+        if (val != null && val != '')
+            result[k] = val
+    }
+    return result
+}
+
+export function getFormHtmlAttrs(form: FormConfig) {
+    const src: Partial<FormConfig> = {
+        ...form,
+        fieldsConfig: undefined,
+        validate: undefined,
+        scale: undefined,
+        hideLabels: undefined,
+        excludeSubmitButton: undefined,
+        readonly: undefined,
+        validationResult: undefined,
+        onValidation: undefined,
+        excludeFormTag: undefined,
+        $$isComplete: undefined,
+        syncValues: undefined,
+        autoValidate: undefined,
+        layout: undefined
+    }
+    let result : any = {}
+    for (const [key, val] of Object.entries(src)) {
+        if (val != null && val != '')
+            result[key] = val
+    }
+    return result
 }

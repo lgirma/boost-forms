@@ -1,8 +1,5 @@
-import {createFormConfig} from "../FormService";
 import {fileTypeValidator, MIME_PDF, notEmpty, validName} from "../Validation";
-import {RenderFormOptions} from "../renderers/Common";
-import {/*Bootstrap5, Bootstrap4, Bootstrap3, PropertyGrid, Bootstrap3, Bulma, MDB5*/} from "../renderers/plugins";
-import {FormValidationResult, FormConfig} from "../Models";
+import {FormConfig} from "../Models";
 import {DeepPartial, Dict} from "boost-web-core";
 
 export let forObj= {
@@ -30,6 +27,7 @@ export let forObj= {
 };
 export const options: DeepPartial<FormConfig> = {
     readonly: false,
+    noValidate: true,
     style: { width: '50%', margin: '10px' },
     fieldsConfig: {
         name: {validate: [notEmpty, validName], group: 'Personal Info'},
@@ -75,8 +73,4 @@ export const options: DeepPartial<FormConfig> = {
         }
         return {}
     }
-}
-
-export const renderOptions: RenderFormOptions = {
-    //...Bootstrap4({columns: 2})
 }

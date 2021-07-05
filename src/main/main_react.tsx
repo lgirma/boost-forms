@@ -1,10 +1,9 @@
-import {createFormConfig, validateForm} from "../FormService";
+import {createFormConfig} from "../FormService";
 import {GetReactForm} from "../renderers/ReactFormRenderer";
-import React, {ReactElement, useEffect, useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import ReactDOM from 'react-dom'
-import {forObj, options, renderOptions} from "./main_common";
+import {forObj, options} from "./main_common";
 import {getFormValue, onFieldChangeReducer} from "../renderers/VanillaFormRenderer";
-import {FormValidationResult, getFormValidationResult} from "../Models";
 
 const Form = GetReactForm(React)
 

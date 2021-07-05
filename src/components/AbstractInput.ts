@@ -1,10 +1,10 @@
 import {AbstractDomNode, h, withState} from "vdtree";
 import {FieldConfig, getValidationResult, ValidationResult} from "../Models";
-import {getHtmlAttrs, SimpleTextTypes} from "../renderers/Common";
+import {SimpleTextTypes} from "../renderers/Common";
 import {AbstractRating} from "./AbstractRating";
-import {AbstractForm} from "../components/AbstractForm";
+import {DefaultFormLayout} from "./DefaultFormLayout";
 import {OneOrMany} from "boost-web-core";
-import {createFormConfig} from "../FormService";
+import {createFormConfig, getFieldHtmlAttrs} from "../FormService";
 
 export interface AbstractInputProps {
     field: FieldConfig
@@ -31,7 +31,7 @@ export function AbstractInput({field, htmlAttrs, value, validationResult}: Abstr
     }
 
     const eltAttrs = {
-        ...getHtmlAttrs(field),
+        ...getFieldHtmlAttrs(field),
         ...htmlAttrs
     }
 
@@ -89,7 +89,7 @@ export function AbstractInput({field, htmlAttrs, value, validationResult}: Abstr
         return SourceCodeInput(value, eltAttrs, {renderer: src => src})*/
     if (field.type == 'composite') {
         return h('div', {style: {margin: '5px', border: '1px solid gray', padding: '2px'}},
-            AbstractForm({
+            DefaultFormLayout({
                 forObject: value,
                 formConfig: createFormConfig(value, {excludeSubmitButton: true, excludeFormTag: true, ...field.customOptions})
             }))
