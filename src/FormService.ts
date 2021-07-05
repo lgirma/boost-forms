@@ -48,6 +48,7 @@ export function createFormConfig(forObject: any, _config: DeepPartial<FormConfig
         excludeSubmitButton: false,
         autoValidate: true,
         layout: DefaultFormLayout,
+        noValidate: true,
         ..._config,
         fieldsConfig: {
             ...Object.keys(forObject).reduce((a, fieldId) => ({...a, [fieldId]: null}), {}),

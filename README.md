@@ -22,7 +22,7 @@ without any configuration or schema, into this:
 * Works with vanilla JS
 * React and svelte support
 * No schema or configuration needed to generate forms (although supported)
-* Out-of-the-box support for popular UI kits (bootstrap, bulma, etc.)
+* Plugins for popular UI kits (bootstrap, bulma, etc.)
 * API is as close to the DOM API as possible
 
 ## Installation
@@ -36,6 +36,13 @@ or
 ```shell
 yarn add boost-web-forms
 ```
+
+You may want to include plugins
+
+* `boost-web-forms-react` for react
+* `boost-web-forms-svelte` for svelte
+
+Visit [boost-web-forms-plugins](https://github.com/lgirma/boost-web-forms-plugins) for all plugins.
 
 ## Quick Start
 
@@ -62,16 +69,24 @@ renderForm(forObj, document.body)
 ```
 
 **For React**:
-```jsx
-import {GetReactForm} from 'boost-web-forms'
 
-const Form = GetReactForm(React)
-<Form forObject={forObj} />
+```jsx
+import {ReactForm} from 'boost-web-forms-react'
+
+<ReactForm forObject={forObj} />
 ```
+
+Look at [boost-web-forms-react](https://github.com/lgirma/boost-web-plugins/tree/master/react)
 
 **For Svelte**:
 
-Look at [boost-web-forms-svelte](https://github.com/lgirma/boost-web-forms-svelte)
+```jsx
+import SvelteForm from 'boost-web-forms-svelte'
+
+<SvelteForm forObject={forObj} />
+```
+
+Look at [boost-web-forms-svelte](https://github.com/lgirma/boost-web-forms-plugins/tree/master/svelte)
 
 This will automatically render the following HTML:
 
@@ -94,8 +109,6 @@ This will automatically render the following HTML:
   </div>
 </form>
 ```
-
-For popular UI kits [see](#plugins).
 
 ## Quick Start 2
 
@@ -133,7 +146,7 @@ All valid HTML `<form>` tag [attributes](https://developer.mozilla.org/en-US/doc
 For example:
 
 ```javascript
-const options = {
+const formConfig = {
     method: 'POST',
     enctype: 'multipart/form-data',
     class: 'form columns',
@@ -141,22 +154,10 @@ const options = {
 }
 ```
 
-Then create a complete config and pass the configuration to any of the renderers:
+Then create a complete config and pass the configuration to `renderForm`:
 
 ```jsx
-import {createFormConfig} from 'boost-web-forms'
-
-const config = createFormConfig(forObj, options)
-
-// Vanilla
-renderForm(forObj, document.body config)
-
-// React
-<Form forObject={forObj} method="POST" 
-    enctype="multipart/form-data" onsubmit={e => alert('Submitting...')} />
-
-// Svelte
-<SvelteForm forObject={forObj} options={config} />
+renderForm(forObj, document.body, formConfig)
 ```
 
 All available form configuration options
@@ -217,7 +218,7 @@ const forObj = {
     comment: ''
 }
 
-const options = {
+const formConfig = {
     fieldsConfig: {
         confirmPassword: {type: 'password'},
         comment: {type: 'textarea', label: 'Any Comments?'}
@@ -369,17 +370,8 @@ Then this validation result can be rendered:
 ```jsx
 import {validateForm} from 'boost-web-forms'
 
-// Vanilla JS
 let validationResult = validateForm(forObj)
-renderForm(forObj, document.body, null, validationResult)
-
-// React
-let validationResult = validateForm(forObj)
-<Form forObject={forObj} validationResult={validationResult} />
-
-// Svelte
-let validationResult = validateForm(forObj)
-<SvelteForm forObject={forObj} validationResult={validationResult} />
+renderForm(forObj, document.body, formConfig, validationResult)
 ```
 
 **Note**: If your validator is an `async` method (includes api calls for example), 
@@ -416,7 +408,7 @@ Validations can also be done on the form level as:
 
 ```javascript
 const options = {
-    validate: val => (val.password != val.confirmPassword ? 'Passwords do not match.' : '')
+    validate: form => (form.password != form.confirmPassword ? 'Passwords do not match.' : '')
 }
 ```
 
@@ -441,52 +433,3 @@ validationResult = {
     }
 }
 ```
-
-## Plugins
-
-Plugins for popular UI kits are already included.
-You may have to include the required CSS/JS assets in your project first.
-Included plugins are:
-
-* Bootstrap (versions 3, 4 and 5) (visit [https://getbootstrap.com](https://getbootstrap.com))
-* Bulma (visit [https://bulma.io](https://bulma.io))
-
-To use a specific plugin, pass it over in the `renderOptions` parameter
-
-```jsx
-import {Bootstrap5} from 'boost-web-forms'
-
-// Vanilla JS
-renderForm(forObj, options, formValidationResult, Bootstrap5({columns: 2}))
-
-// React
-<Form forObject={forObj} renderOptions={Bootstrap5({columns: 2})} />
-
-// Svelte
-<Form forObject={forObj} renderOptions={Bootstrap5({columns: 2})} />
-```
-
-Will render something like:
-
-![Bootstrap5 Form](resources/bootstrap5.JPG)
-
-All available plugins:
-
-| Plugin | Description | Import |
-| --- | ----------- | ---------| 
-| `Bootstrap5` | Bootstrap v5 | `import {Bootstrap5} from 'boost-web-forms'` |
-| `Bootstrap4` | Bootstrap v4 | `import {Bootstrap4} from 'boost-web-forms'` |
-| `Bootstrap3` | Bootstrap v3 | `import {Bootstrap3} from 'boost-web-forms'` |
-| `Bulma` | Bulma | `import {Bulma} from 'boost-web-forms'` |
-
-Available plugin options:
-
-| Option | Description | Type | Default Value |
-| --- | ----------- | ---------| ---- |
-| `columns` | Number of columns to layout the form into | number | 1 |
-| `isInline` | Whether all fields are laid out horizontally | boolean | false |
-| `isHorizontal` | Whether to arrange label and input pairs side-by-side | boolean | false |
-
-## Custom Plugins and Renderers
-
-TBD
