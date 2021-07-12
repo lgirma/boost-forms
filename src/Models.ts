@@ -52,11 +52,6 @@ export interface FormConfig extends DeepPartial<HTMLFormElement>, WebFormEvents 
      * Whether to validate the form automatically up on submission.
      */
     autoValidate?: boolean
-    /**
-     * Layout abstract component
-     * @param formProps
-     */
-    layout?: (formProps: FormLayoutProps) => AbstractDomNode
 }
 
 export interface ValidationResult {

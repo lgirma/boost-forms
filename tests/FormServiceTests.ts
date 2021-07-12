@@ -6,7 +6,8 @@ const expect = chai.expect;
 import {createServer, Server} from "http";
 import axios from 'axios'
 
-import {guessType, createFormConfig, validateForm, validateFormAsync} from '../src/FormService'
+import {guessType, createFormConfig, validateForm, validateFormAsync, FormConfig} from '../src'
+import {DeepPartial} from "boost-web-core";
 let server: Server
 
 function createValidationApi() {
@@ -154,7 +155,7 @@ describe('Form service tests', () => {
                 userName: {label: 'User ID', placeholder: 'Your unique name', readonly: false}
             }
         });
-        let formConfig2 = createFormConfig(registration, formConfig);
+        let formConfig2 = createFormConfig(registration, formConfig as any);
 
         expect(JSON.stringify(formConfig)).to.equal(JSON.stringify(formConfig2));
     })

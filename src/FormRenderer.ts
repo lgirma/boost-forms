@@ -7,6 +7,8 @@ import {Nullable, isEmpty, DeepPartial} from 'boost-web-core'
 import {toDomElement, h, renderToDom} from "vdtree";
 import {createFormConfig, validateForm} from "./FormService";
 
+
+
 export function renderForm(forObject: any, target: HTMLElement, formConfig?: DeepPartial<FormConfig>, validationResult?: FormValidationResult) {
     validationResult = validationResult ?? getFormValidationResult()
     let _formConfig = formConfig != null && formConfig?.$$isComplete

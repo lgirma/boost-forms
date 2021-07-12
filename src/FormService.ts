@@ -20,8 +20,15 @@ import {
     FieldConfig, FormConfig, getFormValidationResult, FormValidateFunc
 } from "./Models";
 import {notEmpty} from './Validation';
-import {DefaultFormLayout} from "./components";
+import {FormPluginCollection, FormPlugin} from "./Plugins";
 
+const globalPlugins = new FormPluginCollection()
+
+export function registerPlugin(p: OneOrMany<FormPlugin>) {
+    let plugins = toArray(p)
+    for (const pl of plugins)
+        globalPlugins.register(pl)
+}
 
 let customFieldRenderers : CustomFieldRenderer[] = []
 
@@ -46,7 +53,6 @@ export function createFormConfig(forObject: any, _config: DeepPartial<FormConfig
         hideLabels: false,
         excludeSubmitButton: false,
         autoValidate: true,
-        layout: DefaultFormLayout,
         noValidate: true,
         ..._config,
         fieldsConfig: {
@@ -71,6 +77,8 @@ export function createFormConfig(forObject: any, _config: DeepPartial<FormConfig
         config.fieldsConfig[fieldId] = createFieldConfig(fieldId, forObject[fieldId], config.fieldsConfig[fieldId], config)
     }
 
+    globalPlugins.runForAll(p => p?.hooks?.onCreateFormConfig?.(config))
+
     return config;
 }
 
@@ -88,9 +96,10 @@ export function createFieldConfig(fieldId: string, fieldValue: any,
     result.choices = (result?.choices == null
         ? {}
         : (result.choices?.constructor === Array
-            ? (result.choices as string[]).reduce((acc, b)=> ({...acc, [b]: b}), {})
+            ? (result.choices as string[]).reduce((acc, b) => ({...acc, [b]: b}), {})
             : result.choices))
-    
+
+    globalPlugins.runForAll(p => p?.hooks?.onCreateFieldConfig?.(result, formConfig))
     return result
 }
 
@@ -115,6 +124,10 @@ export function getDefaultFieldConfig(fieldId: string, type: FormFieldType, form
 }
 
 export function guessType(fieldId: string, fieldValue: any): FormFieldType {
+    let guessFromPlugins = globalPlugins.queryFirst(p => p.hooks?.onTypeGuess?.(fieldId, fieldValue))
+    if (guessFromPlugins != null)
+        return guessFromPlugins
+
     let table : {[regex: string]: FormFieldType} = {
         'password$': 'password',
         'email$': 'email',
@@ -169,6 +182,11 @@ export function guessConfig(val: any, fieldType: FormFieldType, fieldConfig?: De
     if (fieldType == 'password')
         result.required = true
     return result
+}
+
+export function addValidation(fieldConfig: FieldConfig, validation: ValidateFunc) {
+    fieldConfig.validate = toArray(fieldConfig.validate)
+    fieldConfig.validate.push(validation)
 }
 
 interface IntermediateFormValidationModel {
@@ -402,6 +420,8 @@ export function getFieldHtmlAttrs(field: FieldConfig) {
         if (val != null && val != '')
             result[k] = val
     }
+
+    globalPlugins.runForAll(p => p.hooks?.onGetFieldHtmlAttrs?.(field, result))
     return result
 }
 
@@ -419,13 +439,13 @@ export function getFormHtmlAttrs(form: FormConfig) {
         excludeFormTag: undefined,
         $$isComplete: undefined,
         syncValues: undefined,
-        autoValidate: undefined,
-        layout: undefined
+        autoValidate: undefined
     }
     let result : any = {}
     for (const [key, val] of Object.entries(src)) {
         if (val != null && val != '')
             result[key] = val
     }
+    globalPlugins.runForAll(p => p.hooks?.onGetFormHtmlAttrs?.(form, result))
     return result
 }
