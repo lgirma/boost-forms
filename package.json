@@ -1,9 +1,9 @@
 {
-  "name": "boost-web-forms",
+  "name": "boost-forms",
   "version": "1.9.0",
   "description": "An opinionated, small form generator library for javascript",
-  "module": "dist/boost-web-forms.es.js",
-  "main": "dist/boost-web-forms.umd.js",
+  "module": "dist/boost-forms.es.js",
+  "main": "dist/boost-forms.umd.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "dev": "vite",
@@ -13,8 +13,8 @@
     "test": "ts-mocha -p ./tsconfig.tests.json -r jsdom-global/register 'tests/**/*.ts'"
   },
   "author": "Leone",
-  "repository": "https://github.com/lgirma/boost-web-forms",
-  "homepage": "https://github.com/lgirma/boost-web-forms",
+  "repository": "https://github.com/lgirma/boost-forms",
+  "homepage": "https://github.com/lgirma/boost-forms",
   "license": "ISC",
   "keywords": [
     "form",
@@ -38,7 +38,7 @@
   },
   "peerDependencies": {
     "boost-web-core": "^1.13.0",
-    "vdtree": "^0.6.0"
+    "vdtree": "^0.9.0"
   },
   "files": [
     "dist",

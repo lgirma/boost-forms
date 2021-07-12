@@ -5,7 +5,7 @@ export default defineConfig({
     build: {
         lib: {
             entry: path.resolve(__dirname, 'src/index.ts'),
-            name: 'boost-web-forms'
+            name: 'boost-forms'
         },
         minify: false,
         rollupOptions: {

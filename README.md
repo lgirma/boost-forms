@@ -1,5 +1,5 @@
-![Login Form](resources/logo.svg)
-# Boost-Web Forms
+![Logo](resources/logo.svg)
+# Boost Forms
 
 ### What is it?
 An opinionated, small form generator library for javascript objects.
@@ -18,7 +18,7 @@ without any configuration or schema, into this:
 
 ![Login Form](resources/login_form.JPG)
 
-### Why boost-web-forms?
+### Why boost-forms?
 
 * Works with vanilla JS
 * React and svelte support
@@ -29,21 +29,22 @@ without any configuration or schema, into this:
 ## Installation
 
 ```shell
-npm i boost-web-forms
+npm i boost-forms
 ```
 
 or 
 
 ```shell
-yarn add boost-web-forms
+yarn add boost-forms
 ```
 
 You may want to include plugins
 
-* `boost-web-forms-react` for react
-* `boost-web-forms-svelte` for svelte
+* `boost-forms-dom` for vanilla JS (without any framework)
+* `boost-forms-react` for react
+* `boost-forms-svelte` for svelte
 
-Visit [boost-web-forms-plugins](https://github.com/lgirma/boost-web-forms-plugins) for all plugins.
+Visit [boost-forms-plugins](https://github.com/lgirma/boost-forms-plugins) for all plugins.
 
 ## Quick Start
 
@@ -64,7 +65,7 @@ let forObj = {
 **For vanilla javascript**:
 
 ```javascript
-import {renderForm} from 'boost-web-forms'
+import {renderForm} from 'boost-forms'
 
 renderForm(forObj, document.body)
 ```
@@ -72,22 +73,22 @@ renderForm(forObj, document.body)
 **For React**:
 
 ```jsx
-import {ReactForm} from 'boost-web-forms-react'
+import {ReactForm} from 'boost-forms-react'
 
 <ReactForm forObject={forObj} />
 ```
 
-Look at [boost-web-forms-react](https://github.com/lgirma/boost-web-plugins/tree/master/react)
+Look at [boost-forms-react](https://github.com/lgirma/boost-web-plugins/tree/master/react)
 
 **For Svelte**:
 
 ```jsx
-import SvelteForm from 'boost-web-forms-svelte'
+import SvelteForm from 'boost-forms-svelte'
 
 <SvelteForm forObject={forObj} />
 ```
 
-Look at [boost-web-forms-svelte](https://github.com/lgirma/boost-web-forms-plugins/tree/master/svelte)
+Look at [boost-forms-svelte](https://github.com/lgirma/boost-forms-plugins/tree/master/svelte)
 
 This will automatically render the following HTML:
 
@@ -341,7 +342,7 @@ Validation specs can be added to either on the form level or individual fields.
 There are good set of validation functions already included in this library:
 
 ```javascript
-import {notEmpty, validName} from 'boost-web-forms'
+import {notEmpty, validName} from 'boost-forms'
 
 const options = {
     fieldsConfig: {
@@ -369,7 +370,7 @@ async (val) => {
 Then this validation result can be rendered:
 
 ```jsx
-import {validateForm} from 'boost-web-forms'
+import {validateForm} from 'boost-forms'
 
 let validationResult = validateForm(forObj)
 renderForm(forObj, document.body, formConfig, validationResult)

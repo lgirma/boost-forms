@@ -7,8 +7,7 @@ import {
     isTime,
     DeepPartial,
     isEmpty,
-    isArray,
-    isFunc, toArray, Dict, toArrayWithoutNulls, OneOrMany, Nullable
+    toArray, Dict, OneOrMany, Nullable
 } from 'boost-web-core';
 import {
     FormValidationResult,
