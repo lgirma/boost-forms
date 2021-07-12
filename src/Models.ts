@@ -1,6 +1,7 @@
 import {DeepPartial, Dict, isEmpty, Nullable, OneOrMany} from "boost-web-core";
 import {AbstractDomNode} from "vdtree";
 import {FormLayoutProps} from "./components";
+import {FormPlugin} from "./Plugins";
 
 
 export type FieldsConfig = Dict<FieldConfig>
@@ -52,6 +53,7 @@ export interface FormConfig extends DeepPartial<HTMLFormElement>, WebFormEvents 
      * Whether to validate the form automatically up on submission.
      */
     autoValidate?: boolean
+    plugins?: FormPlugin[]
 }
 
 export interface ValidationResult {

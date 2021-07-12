@@ -3,6 +3,10 @@ import {DeepPartial, OneOrMany} from "boost-web-core";
 import {AbstractInputProps, AbstractLabelProps, FormLayoutProps} from "./components";
 import {AbstractDomNode} from "vdtree";
 
+export interface FormRenderHooks {
+
+}
+
 export interface PluginHooks {
     onCreateFormConfig?: (config: FormConfig) => void
     onCreateFieldConfig?: (fieldConfig: FieldConfig, formConfig?: DeepPartial<FormConfig>) => void
@@ -10,8 +14,9 @@ export interface PluginHooks {
     onGetFieldHtmlAttrs?: (fieldConfig: FieldConfig, result: any) => void
     onGetFormHtmlAttrs?: (formConfig: FormConfig, result: any) => void
     onRenderLabel?: (labelProps: AbstractLabelProps) => OneOrMany<AbstractDomNode> | null
-    onRenderInput?: (inputProps: AbstractInputProps) => OneOrMany<AbstractDomNode> | null
-    onFormLayout?: (layoutProps: FormLayoutProps) => OneOrMany<AbstractDomNode> | null
+    onFormLayout?: (layoutProps: FormLayoutProps, previousResult: AbstractDomNode) => AbstractDomNode | null
+    onInputLayout?: (inputProps: AbstractInputProps, previousResult: OneOrMany<AbstractDomNode>) => OneOrMany<AbstractDomNode> | null
+    onLabelLayout?: (labelProps: AbstractLabelProps, previousResult: AbstractDomNode) => AbstractDomNode | null
 }
 
 export interface FormPlugin {
@@ -43,4 +48,16 @@ export class FormPluginCollection {
             action(plugin)
         return null
     }
+
+    pipeThroughAll(action: (p: FormPlugin, prevValue: any) => any, defaultValue: any): any {
+        let prev: any = defaultValue
+        for (const plugin of this._plugins) {
+            let result = action(plugin, prev)
+            if (result != null)
+                prev = result
+        }
+        return prev
+    }
 }
+
+export const globalPlugins = new FormPluginCollection()

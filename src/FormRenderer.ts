@@ -6,6 +6,8 @@ import {
 import {Nullable, isEmpty, DeepPartial} from 'boost-web-core'
 import {toDomElement, h, renderToDom} from "vdtree";
 import {createFormConfig, validateForm} from "./FormService";
+import {globalPlugins} from "./Plugins";
+import {DefaultFormLayout} from "./components";
 
 
 
@@ -14,7 +16,11 @@ export function renderForm(forObject: any, target: HTMLElement, formConfig?: Dee
     let _formConfig = formConfig != null && formConfig?.$$isComplete
         ? formConfig as FormConfig
         : createFormConfig(forObject, formConfig)
-    let FormComponent = h(_formConfig.layout,{forObject, formConfig: _formConfig, validationResult})
+
+    let layoutProps = {forObject, formConfig: _formConfig, validationResult}
+    let layout = globalPlugins.pipeThroughAll((p, pV) => p.hooks?.onFormLayout?.(layoutProps, pV), DefaultFormLayout)
+
+    let FormComponent = h(layout,{forObject, formConfig: _formConfig, validationResult})
     if (_formConfig.autoValidate && !_formConfig.excludeFormTag) {
         let onSubmit = _formConfig.onsubmit
         _formConfig.onsubmit = undefined
@@ -85,7 +91,7 @@ export function getFieldValue(fieldId: string, field: FieldConfig, fieldElements
     return val
 }
 
-export function getFormValue(form: FormConfig, formElement?: HTMLElement) {
+export function getFormValue(form: FormConfig, formInstance?: HTMLElement) {
     let result = {}
     for (const [fieldId, field] of Object.entries(form.fieldsConfig)) {
         result[fieldId] = getFieldValue(fieldId, field)

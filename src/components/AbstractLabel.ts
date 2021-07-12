@@ -1,4 +1,4 @@
-import {h} from 'vdtree'
+import {AbstractDomNode, h} from 'vdtree'
 import {FieldConfig, getValidationResult, ValidationResult} from "../Models";
 
 export interface AbstractLabelProps {
@@ -7,7 +7,7 @@ export interface AbstractLabelProps {
     validationResult?: ValidationResult
 }
 
-export function AbstractLabel({field, htmlAttrs = {}, validationResult}: AbstractLabelProps) {
+export function AbstractLabel({field, htmlAttrs = {}, validationResult}: AbstractLabelProps): AbstractDomNode {
     validationResult ??= getValidationResult()
     if (field.hideLabel)
         return ''

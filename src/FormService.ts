@@ -20,9 +20,7 @@ import {
     FieldConfig, FormConfig, getFormValidationResult, FormValidateFunc
 } from "./Models";
 import {notEmpty} from './Validation';
-import {FormPluginCollection, FormPlugin} from "./Plugins";
-
-const globalPlugins = new FormPluginCollection()
+import {FormPlugin, globalPlugins} from "./Plugins";
 
 export function registerPlugin(p: OneOrMany<FormPlugin>) {
     let plugins = toArray(p)
@@ -439,7 +437,8 @@ export function getFormHtmlAttrs(form: FormConfig) {
         excludeFormTag: undefined,
         $$isComplete: undefined,
         syncValues: undefined,
-        autoValidate: undefined
+        autoValidate: undefined,
+        plugins: undefined
     }
     let result : any = {}
     for (const [key, val] of Object.entries(src)) {
