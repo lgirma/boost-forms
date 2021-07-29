@@ -4,8 +4,8 @@ import {
     FormConfig, getFormValidationResult
 } from "./Models";
 import {Nullable, isEmpty, DeepPartial} from 'boost-web-core'
-import {toDomElement, h, renderToDom} from "vdtree";
-import {createFormConfig, validateForm} from "./FormService";
+import {h} from "vdtree";
+import {createFormConfig, getFormLayout, validateForm} from "./FormService";
 import {globalPlugins} from "./Plugins";
 import {DefaultFormLayout} from "./components";
 
@@ -18,30 +18,10 @@ export function renderForm(forObject: any, target: HTMLElement, formConfig?: Dee
         : createFormConfig(forObject, formConfig)
 
     let layoutProps = {forObject, formConfig: _formConfig, validationResult}
-    let layout = globalPlugins.pipeThroughAll((p, pV) => p.hooks?.onFormLayout?.(layoutProps, pV), DefaultFormLayout)
+    let layout = getFormLayout(layoutProps)
 
     let FormComponent = h(layout,{forObject, formConfig: _formConfig, validationResult})
-    if (_formConfig.autoValidate && !_formConfig.excludeFormTag) {
-        let onSubmit = _formConfig.onsubmit
-        _formConfig.onsubmit = undefined
-        let rendered = renderToDom(FormComponent, target)
-        rendered.$$domElement.addEventListener('submit', e => {
-            let state = getFormValue(_formConfig, e.target as HTMLElement)
-            let vr = validateForm(state, _formConfig)
-            if (vr.hasError) {
-                e.preventDefault()
-                rendered.newProps(a =>({...a, forObject: state, validationResult: vr}))
-            }
-            else {
-                rendered.newProps(a =>({...a, forObject: state, validationResult: vr}))
-                if (onSubmit) (onSubmit as any)(e)
-            }
-        })
-    }
-    else {
-        let domElt = toDomElement<HTMLElement>(FormComponent as any, target)
-        target.append(domElt)
-    }
+    globalPlugins.runForAll(p => p.hooks?.onRenderForm?.(forObject, _formConfig, FormComponent, target))
 }
 
 export function onFieldChangeReducer(form: FormConfig, event: Event): (previousFormData: any) => any {

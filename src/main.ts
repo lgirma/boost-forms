@@ -1,8 +1,9 @@
-import {createFormConfig} from "./FormService";
+import {createFormConfig, registerPlugin} from "./FormService";
 import {getFormValue, renderForm} from "./FormRenderer";
 import {fileTypeValidator, MIME_PDF, notEmpty, validName} from "./Validation";
 import {FormConfig} from "./Models";
 import {DeepPartial, Dict} from "boost-web-core";
+import {onConsoleRendererPlugin} from "./main/OnConsoleRendererPlugin";
 
 export let forObj= {
     name: '',
@@ -84,4 +85,5 @@ function onSubmit(e: Event) {
     alert('Submitting ' + JSON.stringify(getFormValue(formConfig)))
 }
 console.log('Generated Form Options', formConfig)
+registerPlugin(onConsoleRendererPlugin())
 renderForm(forObj, root, formConfig)

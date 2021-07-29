@@ -1,6 +1,6 @@
 import {FieldConfig, FormConfig} from "./Models";
 import {DeepPartial, OneOrMany} from "boost-web-core";
-import {AbstractInputProps, AbstractLabelProps, FormLayoutProps} from "./components";
+import {AbstractInputProps, AbstractLabelProps, FormLayoutProps, FieldSetLayoutProps} from "./components";
 import {AbstractDomNode} from "vdtree";
 
 export interface FormRenderHooks {
@@ -13,10 +13,11 @@ export interface PluginHooks {
     onTypeGuess?: (fieldId: string, fieldValue: any) => void
     onGetFieldHtmlAttrs?: (fieldConfig: FieldConfig, result: any) => void
     onGetFormHtmlAttrs?: (formConfig: FormConfig, result: any) => void
-    onRenderLabel?: (labelProps: AbstractLabelProps) => OneOrMany<AbstractDomNode> | null
     onFormLayout?: (layoutProps: FormLayoutProps, previousResult: AbstractDomNode) => AbstractDomNode | null
     onInputLayout?: (inputProps: AbstractInputProps, previousResult: OneOrMany<AbstractDomNode>) => OneOrMany<AbstractDomNode> | null
     onLabelLayout?: (labelProps: AbstractLabelProps, previousResult: AbstractDomNode) => AbstractDomNode | null
+    onFieldSetLayout?: (layoutProps: FieldSetLayoutProps, previousResult: AbstractDomNode) => AbstractDomNode | null
+    onRenderForm?: (forObject: any, config: FormConfig, form: AbstractDomNode, target: any) => void
 }
 
 export interface FormPlugin {

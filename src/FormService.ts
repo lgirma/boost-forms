@@ -21,6 +21,8 @@ import {
 } from "./Models";
 import {notEmpty} from './Validation';
 import {FormPlugin, globalPlugins} from "./Plugins";
+import {DefaultFormLayout, FormLayoutProps} from "./components";
+import {DefaultFieldSet, FieldSetLayoutProps} from "./components/DefaultFieldSet";
 
 export function registerPlugin(p: OneOrMany<FormPlugin>) {
     let plugins = toArray(p)
@@ -447,4 +449,12 @@ export function getFormHtmlAttrs(form: FormConfig) {
     }
     globalPlugins.runForAll(p => p.hooks?.onGetFormHtmlAttrs?.(form, result))
     return result
+}
+
+export function getFormLayout(layoutProps: FormLayoutProps) {
+    return globalPlugins.pipeThroughAll((p, pV) => p.hooks?.onFormLayout?.(layoutProps, pV), DefaultFormLayout)
+}
+
+export function getFieldSetLayout(layoutProps: FieldSetLayoutProps) {
+    return globalPlugins.pipeThroughAll((p, pV) => p.hooks?.onFieldSetLayout?.(layoutProps, pV), DefaultFieldSet)
 }
