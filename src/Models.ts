@@ -1,10 +1,7 @@
 import {DeepPartial, Dict, isEmpty, Nullable, OneOrMany} from "boost-web-core";
-import {AbstractDomNode} from "vdtree";
-import {FormLayoutProps} from "./components";
-import {FormPlugin} from "./Plugins";
 
 
-export type FieldsConfig = Dict<FieldConfig>
+export type FieldsConfig = Record<string, FieldConfig>
 
 export interface FieldConfig extends Partial<HTMLInputElement>, WebFormFieldEvents {
     id: string
@@ -17,7 +14,7 @@ export interface FieldConfig extends Partial<HTMLInputElement>, WebFormFieldEven
     customOptions?: any,
     maxlength?: string
     multiple?: boolean
-    choices: string[] | Dict<string>
+    choices: ChoiceItem[]
     variation?: string
     hideLabel: boolean
     scale: number
@@ -26,7 +23,7 @@ export interface FieldConfig extends Partial<HTMLInputElement>, WebFormFieldEven
     group?: string
 }
 
-export interface FormConfig extends DeepPartial<HTMLFormElement>, WebFormEvents {
+export interface FormConfig extends Partial<HTMLFormElement> {
     fieldsConfig: FieldsConfig
     validate?: OneOrMany<FormValidateFunc>
     scale?: number
@@ -52,8 +49,11 @@ export interface FormConfig extends DeepPartial<HTMLFormElement>, WebFormEvents 
     /**
      * Whether to validate the form automatically up on submission.
      */
-    autoValidate?: boolean
-    plugins?: FormPlugin[]
+    autoValidate?: boolean,
+    /**
+     * List of field ids to skip
+     */
+    skip?: string[]
 }
 
 export interface ValidationResult {
@@ -124,7 +124,7 @@ export type HTMLInputType =
 export type FormFieldType =  HTMLInputType | 'name' | 'files' | 'select' |
     'toggle' | 'textarea' | 'markdown' | 'reCaptcha' | 'year' |
     'multiselect-checkbox' | 'composite' | 'version' | 'avatar' | 'city' | 'country' | 'ipv4' | 'ipv6' | 'guid' |
-    'isbn' | 'location' | 'language' | 'money' | 'timezone' | 'title' | 'rating' | 'sourcecode' |
+    'isbn' | 'location' | 'language' | 'money' | 'timezone' | 'title' | 'rating' | 'sourcecode' | 'age' |
     /**
      * Where use uploads one or more preview-able images
      */
@@ -138,14 +138,18 @@ export type FormFieldType =  HTMLInputType | 'name' | 'files' | 'select' |
      */
     'autocomplete';
 
-export interface CustomFieldRenderer {
-    forType: OneOrMany<string>
-    id?: string
-    renderInput(field: FieldConfig, value: any, htmlAttrs?: any, validationResult?: ValidationResult): OneOrMany<AbstractDomNode>
-    renderLabel(field: FieldConfig, htmlAttrs?: any, validationResult?: ValidationResult): Nullable<AbstractDomNode>
-    getFieldValue(fieldId: string, field: FieldConfig, fieldElements?: any[]): any
-}
-
 export const SimpleTextTypes : FormFieldType[] = [
     'text', 'password', 'date', 'datetime-local', 'email', 'search', 'url', 'time', 'month', 'week', 'tel'
 ]
+
+export interface ChoiceItem {
+    key: any
+    val: string
+}
+
+export type PartialFieldConfig = Omit<Partial<FieldConfig>, 'choices'> & {
+    choices?: string[] | Record<string, string> | ChoiceItem[]
+}
+export type PartialFormConfig = Omit<Partial<FormConfig>, 'fieldsConfig'> & {
+    fieldsConfig?: Record<string, PartialFieldConfig>
+}

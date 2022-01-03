@@ -66,6 +66,35 @@ describe('Form service tests', () => {
         expect(config.fieldsConfig['agreeToTerms'].hideLabel).to.equal(false);
     });
 
+    it('Adds empty choice for non-required fields', () => {
+        let config = createFormConfig({}, {
+            fieldsConfig: {
+                id: { type: "radio", choices: ['alpha', 'beta'] },
+                role: { type: "radio", choices: ['guest', 'admin'], required: true },
+            }
+        })
+        expect(config.fieldsConfig.id.choices).to.deep.equal(
+            [{key: null, val: ""}, {key: 'alpha', val: 'Alpha'}, {key: 'beta', val: 'Beta'}]);
+        expect(config.fieldsConfig.role.choices).to.deep.equal(
+            [{key: 'guest', val: 'Guest'}, {key: 'admin', val: 'Admin'}]);
+    });
+
+    it('Sets up field choices correctly', () => {
+        let config = createFormConfig({}, {
+            fieldsConfig: {
+                f1: { type: "radio", choices: ['alpha', 'beta'], required: true },
+                f2: { type: "radio", choices: {KEY1: 'firstKey', KEY2: 'ሁለተኛው ቍልፍ'}, required: true },
+                f3: { type: "radio", choices: [{key: 1, val: 'M'}, {key: 2, val: 'F'}], required: true },
+            }
+        })
+        expect(config.fieldsConfig.f1.choices).to.deep.equal(
+            [{key: 'alpha', val: 'Alpha'}, {key: 'beta', val: 'Beta'}]);
+        expect(config.fieldsConfig.f2.choices).to.deep.equal(
+            [{key: 'KEY1', val: 'First Key'}, {key: 'KEY2', val: 'ሁለተኛው ቍልፍ'}]);
+        expect(config.fieldsConfig.f3.choices).to.deep.equal(
+            [{key: 1, val: 'M'}, {key: 2, val: 'F'}]);
+    });
+
     it('Validates formConfig fields async correctly', async () => {
         createValidationApi()
         let forObject = {userName: '', password: '', age: 17, email: 'abe@example.com', city: ''};

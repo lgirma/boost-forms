@@ -1,6 +1,6 @@
 {
   "name": "boost-forms",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "description": "An opinionated, small form generator library for javascript",
   "module": "dist/boost-forms.es.js",
   "main": "dist/boost-forms.umd.js",
@@ -23,7 +23,6 @@
     "svelte"
   ],
   "devDependencies": {
-    "@material-ui/core": "^4.11.4",
     "@types/chai": "^4.2.18",
     "@types/mocha": "^8.2.2",
     "@types/node": "^15.12.4",
@@ -37,8 +36,7 @@
     "vite": "^2.3.0"
   },
   "peerDependencies": {
-    "boost-web-core": "^1.13.0",
-    "vdtree": "^0.9.0"
+    "boost-web-core": "^1.13.0"
   },
   "files": [
     "dist",

@@ -1,9 +1,7 @@
-import {createFormConfig, registerPlugin} from "./FormService";
-import {getFormValue, renderForm} from "./FormRenderer";
+import {createFormConfig} from "./FormService";
 import {fileTypeValidator, MIME_PDF, notEmpty, validName} from "./Validation";
-import {FormConfig} from "./Models";
+import {PartialFormConfig} from "./Models";
 import {DeepPartial, Dict} from "boost-web-core";
-import {onConsoleRendererPlugin} from "./main/OnConsoleRendererPlugin";
 
 export let forObj= {
     name: '',
@@ -27,7 +25,7 @@ export let forObj= {
     answer: '',
     jsonInput: ''
 };
-export const options: DeepPartial<FormConfig> = {
+export const options: PartialFormConfig = {
     readonly: false,
     noValidate: true,
     style: { width: '50%', margin: '10px' },
@@ -79,11 +77,5 @@ export const options: DeepPartial<FormConfig> = {
 
 const root = document.getElementById('app')!
 
-const formConfig = createFormConfig(forObj, {...options, onsubmit: onSubmit})
-function onSubmit(e: Event) {
-    e.preventDefault()
-    alert('Submitting ' + JSON.stringify(getFormValue(formConfig)))
-}
+const formConfig = createFormConfig(forObj, {...options})
 console.log('Generated Form Options', formConfig)
-registerPlugin(onConsoleRendererPlugin())
-renderForm(forObj, root, formConfig)

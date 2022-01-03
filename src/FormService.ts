@@ -14,38 +14,46 @@ import {
     ValidationResult,
     ValidateFunc,
     getValidationResult,
-    AsyncValidateFunc,
-    CustomFieldRenderer,
     FormFieldType,
-    FieldConfig, FormConfig, getFormValidationResult, FormValidateFunc
+    FieldConfig,
+    FormConfig,
+    getFormValidationResult,
+    FormValidateFunc,
+    PartialFormConfig,
+    PartialFieldConfig,
+    ChoiceItem
 } from "./Models";
 import {notEmpty} from './Validation';
-import {FormPlugin, globalPlugins} from "./Plugins";
-import {DefaultFormLayout, FormLayoutProps} from "./components";
-import {DefaultFieldSet, FieldSetLayoutProps} from "./components/DefaultFieldSet";
 
-export function registerPlugin(p: OneOrMany<FormPlugin>) {
-    let plugins = toArray(p)
-    for (const pl of plugins)
-        globalPlugins.register(pl)
+function getChoice(key: any, val: string): ChoiceItem {
+    return {key, val: humanize(val)}
 }
 
-let customFieldRenderers : CustomFieldRenderer[] = []
+function getChoices(from: string[] | Record<string, string> | ChoiceItem[], required: boolean): ChoiceItem[] {
+    let result: ChoiceItem[] = []
+    if (from == null)
+        result = []
+    else if (from.constructor === Array) {
+        if (from.length == 0)
+            result = []
+        else if (typeof from[0] === 'string') {
+            result = from.map(c => getChoice(c, c))
+        }
+        else {
+            result = (from as ChoiceItem[]).map(c => getChoice(c.key, c.val))
+        }
+    }
+    else {
+        result = Object.keys(from).map(c => getChoice(c, from[c]))
+    }
 
-export function addCustomFieldRenderer(renderer: CustomFieldRenderer): string {
-    const id = randomHash()
-    customFieldRenderers.push({...renderer, id})
-    return id
+    if (!required && result.find(i => i.key == null) == null)
+        result = [{key: null, val: ''}, ...result]
+
+    return result
 }
 
-export function findCustomRenderer(forType: string): Nullable<CustomFieldRenderer> {
-    return customFieldRenderers.find(cfr =>
-        typeof(cfr.forType) === 'string'
-            ? forType.toLowerCase() == cfr.forType.toLowerCase()
-            : cfr.forType.indexOf(forType) > -1) ?? null
-}
-
-export function createFormConfig(forObject: any, _config: DeepPartial<FormConfig> = {}): FormConfig {
+export function createFormConfig(forObject: any, _config: PartialFormConfig = {}): FormConfig {
     _config ??= {}
     let config: FormConfig = {
         scale: 1,
@@ -56,7 +64,8 @@ export function createFormConfig(forObject: any, _config: DeepPartial<FormConfig
         noValidate: true,
         ..._config,
         fieldsConfig: {
-            ...Object.keys(forObject).reduce((a, fieldId) => ({...a, [fieldId]: null}), {}),
+            ...Object.keys(forObject).filter(k => (_config.skip ?? []).indexOf(k) == -1)
+                .reduce((a, fieldId) => ({...a, [fieldId]: null}), {}),
             ..._config.fieldsConfig
         },
         $$isComplete: true
@@ -71,19 +80,24 @@ export function createFormConfig(forObject: any, _config: DeepPartial<FormConfig
         }
     }
 
-    for (const fieldId in forObject) {
+    for (const fieldId in config.fieldsConfig) {
+        if (!config.fieldsConfig.hasOwnProperty(fieldId))
+            continue
         if (!forObject.hasOwnProperty(fieldId))
+            forObject[fieldId] = null;
+    }
+
+    for (const fieldId in forObject) {
+        if (!forObject.hasOwnProperty(fieldId) || (_config.skip ?? []).indexOf(fieldId) > -1)
             continue
         config.fieldsConfig[fieldId] = createFieldConfig(fieldId, forObject[fieldId], config.fieldsConfig[fieldId], config)
     }
-
-    globalPlugins.runForAll(p => p?.hooks?.onCreateFormConfig?.(config))
 
     return config;
 }
 
 export function createFieldConfig(fieldId: string, fieldValue: any,
-                                  fieldConfig?: DeepPartial<FieldConfig>, formConfig?: DeepPartial<FormConfig>): FieldConfig {
+                                  fieldConfig?: PartialFieldConfig, formConfig?: PartialFormConfig): FieldConfig {
     let type = fieldConfig?.type ?? guessType(fieldId, fieldValue)
 
     let result = {
@@ -91,15 +105,12 @@ export function createFieldConfig(fieldId: string, fieldValue: any,
         ...guessConfig(fieldValue, type, fieldConfig),
         ...fieldConfig,
     } as FieldConfig
+
     if (isEmpty(result.label))
         result.label = humanize(fieldId)
-    result.choices = (result?.choices == null
-        ? {}
-        : (result.choices?.constructor === Array
-            ? (result.choices as string[]).reduce((acc, b) => ({...acc, [b]: b}), {})
-            : result.choices))
 
-    globalPlugins.runForAll(p => p?.hooks?.onCreateFieldConfig?.(result, formConfig))
+    result.choices = getChoices(result.choices, result.required ?? false)
+
     return result
 }
 
@@ -124,11 +135,8 @@ export function getDefaultFieldConfig(fieldId: string, type: FormFieldType, form
 }
 
 export function guessType(fieldId: string, fieldValue: any): FormFieldType {
-    let guessFromPlugins = globalPlugins.queryFirst(p => p.hooks?.onTypeGuess?.(fieldId, fieldValue))
-    if (guessFromPlugins != null)
-        return guessFromPlugins
 
-    let table : {[regex: string]: FormFieldType} = {
+    let table: { [regex: string]: FormFieldType } = {
         'password$': 'password',
         'email$': 'email',
         'name$': 'name',
@@ -136,6 +144,7 @@ export function guessType(fieldId: string, fieldValue: any): FormFieldType {
         '^amount|amount$|^price|price$': 'money',
         '^date|date$': 'date', '^year|year$': 'year', '^month|month$': 'month',
         '^phone|phone$': 'tel',
+        '^age$': 'age',
         '^language|language$': 'language',
         '^rating|rating$': 'rating'
     }
@@ -148,7 +157,7 @@ export function guessType(fieldId: string, fieldValue: any): FormFieldType {
     if (fieldValue == null)
         return 'text';
 
-    const jsType = typeof(fieldValue);
+    const jsType = typeof (fieldValue);
 
     if (jsType === 'boolean')
         return 'checkbox';
@@ -173,7 +182,7 @@ export function guessType(fieldId: string, fieldValue: any): FormFieldType {
     return 'text';
 }
 
-export function guessConfig(val: any, fieldType: FormFieldType, fieldConfig?: DeepPartial<FieldConfig>) : Partial<FieldConfig> {
+export function guessConfig(val: any, fieldType: FormFieldType, fieldConfig?: PartialFieldConfig) : Partial<FieldConfig> {
     let result: Partial<FieldConfig> = {}
     if (val != null && val.constructor === Array && fieldType == 'radio') {
         result.choices = val.reduce((acc, el) => ({...acc, [el]: humanize(el)}), {})
@@ -421,7 +430,6 @@ export function getFieldHtmlAttrs(field: FieldConfig) {
             result[k] = val
     }
 
-    globalPlugins.runForAll(p => p.hooks?.onGetFieldHtmlAttrs?.(field, result))
     return result
 }
 
@@ -447,14 +455,5 @@ export function getFormHtmlAttrs(form: FormConfig) {
         if (val != null && val != '')
             result[key] = val
     }
-    globalPlugins.runForAll(p => p.hooks?.onGetFormHtmlAttrs?.(form, result))
     return result
-}
-
-export function getFormLayout(layoutProps: FormLayoutProps) {
-    return globalPlugins.pipeThroughAll((p, pV) => p.hooks?.onFormLayout?.(layoutProps, pV), DefaultFormLayout)
-}
-
-export function getFieldSetLayout(layoutProps: FieldSetLayoutProps) {
-    return globalPlugins.pipeThroughAll((p, pV) => p.hooks?.onFieldSetLayout?.(layoutProps, pV), DefaultFieldSet)
 }

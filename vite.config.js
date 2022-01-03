@@ -11,11 +11,10 @@ export default defineConfig({
         rollupOptions: {
             output: {
                 globals: {
-                    'boost-web-core': 'boost-web-core',
-                    'vdtree': 'vdtree'
+                    'boost-web-core': 'boost-web-core'
                 }
             },
-            external: ['vdtree', 'boost-web-core']
+            external: ['boost-web-core']
         }
     }
 })
