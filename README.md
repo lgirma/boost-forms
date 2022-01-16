@@ -21,9 +21,7 @@ without any configuration or schema, into this:
 ### Why boost-forms?
 
 * Works with vanilla JS
-* React and svelte support
 * No schema or configuration needed to generate forms (although supported)
-* Plugins for popular UI kits (bootstrap, bulma, etc.)
 * API is as close to the DOM API as possible
 
 ## Installation
@@ -37,14 +35,6 @@ or
 ```shell
 yarn add boost-forms
 ```
-
-You may want to include plugins
-
-* `boost-forms-dom` for vanilla JS (without any framework)
-* `boost-forms-react` for react
-* `boost-forms-svelte` for svelte
-
-Visit [boost-forms-plugins](https://github.com/lgirma/boost-forms-plugins) for all plugins.
 
 ## Quick Start
 
@@ -62,53 +52,31 @@ let forObj = {
 
 2. Render the form on the DOM:
 
-**For vanilla javascript**:
-
 ```javascript
 import {renderForm} from 'boost-forms'
 
-renderForm(forObj, document.body)
+document.body = renderForm(forObj)
 ```
-
-**For React**:
-
-```jsx
-import {ReactForm} from 'boost-forms-react'
-
-<ReactForm forObject={forObj} />
-```
-
-Look at [boost-forms-react](https://github.com/lgirma/boost-web-plugins/tree/master/react)
-
-**For Svelte**:
-
-```jsx
-import SvelteForm from 'boost-forms-svelte'
-
-<SvelteForm forObject={forObj} />
-```
-
-Look at [boost-forms-svelte](https://github.com/lgirma/boost-forms-plugins/tree/master/svelte)
 
 This will automatically render the following HTML:
 
 ```html
-<form>
-  <div>
-    <label for="userName">User Name</label> 
-    <input name="userName" colspan="1" id="userName" type="name" value="">
-  </div>
-  <div>
-    <label for="password">Password<span style="color: red;">*</span></label> 
-    <input name="password" colspan="1" id="password" required="" type="password" value="">
-  </div>
-  <div>
-    <input type="checkbox" name="rememberMe" colspan="1" id="rememberMe" checked=""> 
-    <label for="rememberMe" style="display: inline-block;">Remember Me</label>
-  </div>
-  <div> 
-    <input type="submit" name="$$submit" colspan="1" id="$$submit">
-  </div>
+<form novalidate="true">
+    <div>
+        <label for="email">Email</label>
+        <input name="email" id="email" value="" type="email">
+    </div>
+    <div>
+        <label for="password">Password</label>
+        <input name="password" id="password" required="true" value="" type="password">
+    </div>
+    <div>
+        <label>
+            <input name="rememberMe" id="rememberMe" type="checkbox"> Remember Me </label>
+    </div>
+    <div>
+        <input name="$$submit" id="$$submit" value="Submit" type="submit">
+    </div>
 </form>
 ```
 

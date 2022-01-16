@@ -47,51 +47,51 @@ describe('Form service tests', () => {
         let forObject = {userName: '', password: '', rememberMe: false, agreeToTerms: false};
         let config = createFormConfig(forObject, {
             hideLabels: true,
-            fieldsConfig: {
+            fields: {
                 agreeToTerms: {
                     label: "I agree to terms",
                     hideLabel: false
                 }
             }
         })
-        expect(config.fieldsConfig['userName'].label).to.equal('User Name');
-        expect(config.fieldsConfig['userName'].id).to.equal('userName');
-        expect(config.fieldsConfig['userName'].hideLabel).to.equal(true);
-        expect(config.fieldsConfig['password'].label).to.equal('Password');
-        expect(config.fieldsConfig['password'].id).to.equal('password');
-        expect(config.fieldsConfig['rememberMe'].label).to.equal('Remember Me');
-        expect(config.fieldsConfig['rememberMe'].id).to.equal('rememberMe');
-        expect(config.fieldsConfig['agreeToTerms'].label).to.equal('I agree to terms');
-        expect(config.fieldsConfig['agreeToTerms'].id).to.equal('agreeToTerms');
-        expect(config.fieldsConfig['agreeToTerms'].hideLabel).to.equal(false);
+        expect(config.fields['userName'].label).to.equal('User Name');
+        expect(config.fields['userName'].id).to.equal('userName');
+        expect(config.fields['userName'].hideLabel).to.equal(true);
+        expect(config.fields['password'].label).to.equal('Password');
+        expect(config.fields['password'].id).to.equal('password');
+        expect(config.fields['rememberMe'].label).to.equal('Remember Me');
+        expect(config.fields['rememberMe'].id).to.equal('rememberMe');
+        expect(config.fields['agreeToTerms'].label).to.equal('I agree to terms');
+        expect(config.fields['agreeToTerms'].id).to.equal('agreeToTerms');
+        expect(config.fields['agreeToTerms'].hideLabel).to.equal(false);
     });
 
     it('Adds empty choice for non-required fields', () => {
         let config = createFormConfig({}, {
-            fieldsConfig: {
+            fields: {
                 id: { type: "radio", choices: ['alpha', 'beta'] },
                 role: { type: "radio", choices: ['guest', 'admin'], required: true },
             }
         })
-        expect(config.fieldsConfig.id.choices).to.deep.equal(
+        expect(config.fields.id.choices).to.deep.equal(
             [{key: null, val: ""}, {key: 'alpha', val: 'Alpha'}, {key: 'beta', val: 'Beta'}]);
-        expect(config.fieldsConfig.role.choices).to.deep.equal(
+        expect(config.fields.role.choices).to.deep.equal(
             [{key: 'guest', val: 'Guest'}, {key: 'admin', val: 'Admin'}]);
     });
 
     it('Sets up field choices correctly', () => {
         let config = createFormConfig({}, {
-            fieldsConfig: {
+            fields: {
                 f1: { type: "radio", choices: ['alpha', 'beta'], required: true },
                 f2: { type: "radio", choices: {KEY1: 'firstKey', KEY2: 'ሁለተኛው ቍልፍ'}, required: true },
                 f3: { type: "radio", choices: [{key: 1, val: 'M'}, {key: 2, val: 'F'}], required: true },
             }
         })
-        expect(config.fieldsConfig.f1.choices).to.deep.equal(
+        expect(config.fields.f1.choices).to.deep.equal(
             [{key: 'alpha', val: 'Alpha'}, {key: 'beta', val: 'Beta'}]);
-        expect(config.fieldsConfig.f2.choices).to.deep.equal(
+        expect(config.fields.f2.choices).to.deep.equal(
             [{key: 'KEY1', val: 'First Key'}, {key: 'KEY2', val: 'ሁለተኛው ቍልፍ'}]);
-        expect(config.fieldsConfig.f3.choices).to.deep.equal(
+        expect(config.fields.f3.choices).to.deep.equal(
             [{key: 1, val: 'M'}, {key: 2, val: 'F'}]);
     });
 
@@ -100,7 +100,7 @@ describe('Form service tests', () => {
         let forObject = {userName: '', password: '', age: 17, email: 'abe@example.com', city: ''};
         let config = createFormConfig(forObject, {
             hideLabels: true,
-            fieldsConfig: {
+            fields: {
                 userName: {
                     validate: async val => {
                         const vr = (await axios.get('http://localhost:8484/0')).data
@@ -127,7 +127,7 @@ describe('Form service tests', () => {
         let forObject = {userName: '', age: 17, email: 'abe@example.com', city: ''};
         let config = createFormConfig(forObject, {
             hideLabels: true,
-            fieldsConfig: {
+            fields: {
                 userName: {required: true},
                 email: {required: true},
                 age: {validate: val => (val > 18 ? '' : 'AGE_18_OR_ABOVE')}
@@ -176,11 +176,22 @@ describe('Form service tests', () => {
         expect(validationResult.message).to.equal('PASSWORDS_DONT_MATCH');
     });
 
+    it('Creates form config properly', () => {
+        let forObj = {name: '', password: '', gender: '0', agreeToTerms: true}
+        let formConfig = createFormConfig(forObj, {
+            fields: {
+
+            }
+        })
+
+        expect(true).to.be.true
+    })
+
     it('Respects user config choices', () => {
         let registration = {userName: '', password: 'a', confirmPassword: 'b'};
         let formConfig = createFormConfig(registration, {
             readonly: true, id: 'ab',
-            fieldsConfig: {
+            fields: {
                 userName: {label: 'User ID', placeholder: 'Your unique name', readonly: false}
             }
         });

@@ -24,7 +24,7 @@ export interface FieldConfig extends Partial<HTMLInputElement>, WebFormFieldEven
 }
 
 export interface FormConfig extends Partial<HTMLFormElement> {
-    fieldsConfig: FieldsConfig
+    fields: FieldsConfig
     validate?: OneOrMany<FormValidateFunc>
     scale?: number
     hideLabels?: boolean
@@ -150,6 +150,6 @@ export interface ChoiceItem {
 export type PartialFieldConfig = Omit<Partial<FieldConfig>, 'choices'> & {
     choices?: string[] | Record<string, string> | ChoiceItem[]
 }
-export type PartialFormConfig = Omit<Partial<FormConfig>, 'fieldsConfig'> & {
-    fieldsConfig?: Record<string, PartialFieldConfig>
+export type PartialFormConfig = Omit<Partial<FormConfig>, 'fields'> & {
+    fields?: Record<string, PartialFieldConfig>
 }

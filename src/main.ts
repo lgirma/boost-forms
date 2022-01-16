@@ -1,14 +1,15 @@
-import {createFormConfig} from "./FormService";
+import {createFormConfig, getFields} from "./FormService";
 import {fileTypeValidator, MIME_PDF, notEmpty, validName} from "./Validation";
 import {PartialFormConfig} from "./Models";
 import {DeepPartial, Dict} from "boost-web-core";
+import {renderForm} from "./Renderer";
 
 export let forObj= {
-    name: '',
-    email: '',
+    name: 'John',
+    email: 'john@gmail.com',
     password: '',
     confirmPassword: '',
-    gender: '0',
+    gender: 0,
     accountType: '',
     dateOfBirth: "2001-02-01",
     agreeToTerms: false,
@@ -28,8 +29,8 @@ export let forObj= {
 export const options: PartialFormConfig = {
     readonly: false,
     noValidate: true,
-    style: { width: '50%', margin: '10px' },
-    fieldsConfig: {
+    style: 'width: 50%; margin: 5px;',
+    fields: {
         name: {validate: [notEmpty, validName], group: 'Personal Info'},
         email: {required: true, placeholder: 'mail@company.com', helpText: 'We will send you verification code through this', group: 'Personal Info'},
         accountType: {
@@ -40,7 +41,7 @@ export const options: PartialFormConfig = {
         },
         gender: {
             type: 'radio', readonly: false,
-            choices: {0: 'Male', 1: 'Female'}, group: 'Personal Info'
+            choices: [{key: 0, val: 'Male'}, {key: 1, val: 'Female'}], group: 'Personal Info'
         },
         comment: {type: 'textarea', colSpan: 2},
         passportDocument: {
@@ -79,3 +80,5 @@ const root = document.getElementById('app')!
 
 const formConfig = createFormConfig(forObj, {...options})
 console.log('Generated Form Options', formConfig)
+
+root.innerHTML = renderForm(forObj, formConfig)

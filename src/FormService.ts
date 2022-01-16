@@ -63,25 +63,26 @@ export function createFormConfig(forObject: any, _config: PartialFormConfig = {}
         autoValidate: true,
         noValidate: true,
         ..._config,
-        fieldsConfig: {
+        fields: {
             ...Object.keys(forObject).filter(k => (_config.skip ?? []).indexOf(k) == -1)
                 .reduce((a, fieldId) => ({...a, [fieldId]: null}), {}),
-            ..._config.fieldsConfig
+            ..._config.fields
         },
         $$isComplete: true
     }
 
     if (!config.excludeSubmitButton) {
-        config.fieldsConfig['$$submit'] = {
+        config.fields['$$submit'] = {
             ...getDefaultFieldConfig('$$submit', 'submit', config),
             hideLabel: true,
             label: 'Submit',
-            type: 'submit'
+            type: 'submit',
+            value: 'Submit'
         }
     }
 
-    for (const fieldId in config.fieldsConfig) {
-        if (!config.fieldsConfig.hasOwnProperty(fieldId))
+    for (const fieldId in config.fields) {
+        if (!config.fields.hasOwnProperty(fieldId))
             continue
         if (!forObject.hasOwnProperty(fieldId))
             forObject[fieldId] = null;
@@ -90,7 +91,7 @@ export function createFormConfig(forObject: any, _config: PartialFormConfig = {}
     for (const fieldId in forObject) {
         if (!forObject.hasOwnProperty(fieldId) || (_config.skip ?? []).indexOf(fieldId) > -1)
             continue
-        config.fieldsConfig[fieldId] = createFieldConfig(fieldId, forObject[fieldId], config.fieldsConfig[fieldId], config)
+        config.fields[fieldId] = createFieldConfig(fieldId, forObject[fieldId], config.fields[fieldId], config)
     }
 
     return config;
@@ -281,7 +282,7 @@ export async function validateFormAsync(forObject: any, _formConfig?: FormConfig
 
 function validateFormInternal(forObject: any, _formConfig?: FormConfig) : IntermediateFormValidationModel {
     let formConfig = _formConfig ?? createFormConfig(forObject, _formConfig)
-    let fieldsConfig = formConfig.fieldsConfig;
+    let fieldsConfig = formConfig.fields;
     let result: IntermediateFormValidationModel = {fields: {}, form: getFormValidationResult(), isAsync: false};
     for (const [id, value] of Object.entries(forObject)) {
         const config = fieldsConfig[id]
@@ -397,7 +398,7 @@ export function runValidator(validator: ValidateFunc | ValidateFunc[], value: an
 }
 
 export function getFieldConfigs(form: FormConfig): FieldConfig[] {
-    return Object.keys(form.fieldsConfig).map(k => form.fieldsConfig[k])
+    return Object.keys(form.fields).map(k => form.fields[k])
 }
 
 export function getFieldHtmlAttrs(field: FieldConfig) {
@@ -436,7 +437,7 @@ export function getFieldHtmlAttrs(field: FieldConfig) {
 export function getFormHtmlAttrs(form: FormConfig) {
     const src: Partial<FormConfig> = {
         ...form,
-        fieldsConfig: undefined,
+        fields: undefined,
         validate: undefined,
         scale: undefined,
         hideLabels: undefined,
@@ -456,4 +457,8 @@ export function getFormHtmlAttrs(form: FormConfig) {
             result[key] = val
     }
     return result
+}
+
+export function getFields(formConfig: FormConfig): FieldConfig[] {
+    return Object.keys(formConfig.fields).map(k => formConfig.fields[k])
 }
