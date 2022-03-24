@@ -21,6 +21,7 @@ export interface FieldConfig extends Partial<HTMLInputElement>, WebFormFieldEven
     readonly: boolean
     validate?: OneOrMany<ValidateFunc>
     group?: string
+    skip?: boolean
 }
 
 export interface FormConfig extends Partial<HTMLFormElement> {

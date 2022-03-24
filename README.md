@@ -97,7 +97,7 @@ let forObj = {
 }
 ```
 
-Will automatically render:
+Then after calling `renderForm(forObj)` you will get a form like:
 
 ![Advanced form](resources/advanced_form.JPG)
 

@@ -200,4 +200,19 @@ describe('Form service tests', () => {
         expect(JSON.stringify(formConfig)).to.equal(JSON.stringify(formConfig2));
     })
 
+    it('Skips fields listed in skip option', () => {
+        let forObj = {a: '', b: 'a', c: 'b', d:3, e: true};
+        let formConfig = createFormConfig(forObj, {
+            skip: ['a', 'b'],
+            fields: {
+                d: {skip: true}
+            }
+        });
+
+        expect(formConfig.fields.a).to.be.undefined;
+        expect(formConfig.fields.b).to.be.undefined;
+        expect(formConfig.fields.d).to.be.undefined;
+        expect(formConfig.fields.c).to.be.not.undefined;
+    })
+
 });

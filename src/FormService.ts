@@ -131,7 +131,8 @@ export function getDefaultFieldConfig(fieldId: string, type: FormFieldType, form
         multiple: false,
         type: type,
         label: '',
-        choices: []
+        choices: [],
+        skip: false
     }
 }
 
